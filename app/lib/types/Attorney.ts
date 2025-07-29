@@ -14,6 +14,8 @@ export interface Attorney {
   imageUrl?: string;
   linkedIn?: string;
   isPartner: boolean;
+  image: string;
+  shortDescription: string;
 }
 
 export interface AttorneyCardProps {

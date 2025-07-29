@@ -28,7 +28,9 @@ export const attorneys: Attorney[] = [
       'Reestructuración corporativa de Televisa - $8.2 billones USD'
     ],
     linkedIn: 'https://linkedin.com/in/mariaelenavasquez',
-    isPartner: true
+    isPartner: true,
+    image: '/images/attorneys/attorney1.png',
+    shortDescription: 'Abogada corporativa con 28 años de experiencia'
   },
   {
     id: '2',
@@ -57,7 +59,9 @@ export const attorneys: Attorney[] = [
       'Litigio laboral masivo América Móvil - 15,000 empleados'
     ],
     linkedIn: 'https://linkedin.com/in/robertomendoza',
-    isPartner: true
+    isPartner: true,
+    image: '/images/attorneys/attorney2.png',
+    shortDescription: 'Litigante especializado con 22 años de experiencia'
   },
   {
     id: '3',
@@ -86,7 +90,9 @@ export const attorneys: Attorney[] = [
       'Reestructura tributaria Grupo Salinas - $450M MXN'
     ],
     linkedIn: 'https://linkedin.com/in/anasofiaherrera',
-    isPartner: true
+    isPartner: true,
+    image: '/images/attorneys/attorney3.png',
+    shortDescription: 'Experta en derecho fiscal con 18 años de experiencia'
   },
   {
     id: '4',
@@ -115,7 +121,9 @@ export const attorneys: Attorney[] = [
       'Estructura legal completa Konfío - Regulación fintech'
     ],
     linkedIn: 'https://linkedin.com/in/carlosruiz',
-    isPartner: false
+    isPartner: false,
+    image: '/images/attorneys/attorney4.png',
+    shortDescription: 'Especialista en propiedad intelectual y derecho tecnológico'
   },
   {
     id: '5',
@@ -144,6 +152,186 @@ export const attorneys: Attorney[] = [
       'Auditoría laboral completa Grupo Elektra - Cumplimiento 100%'
     ],
     linkedIn: 'https://linkedin.com/in/patriciamorales',
-    isPartner: false
+    isPartner: false,
+    image: '/images/attorneys/attorney1.png',
+    shortDescription: 'Especialista en derecho laboral con 15 años de experiencia'
+  },
+  {
+    id: '6',
+    name: 'Lic. Eduardo Silva',
+    position: 'Asociado',
+    specialization: ['Derecho Inmobiliario', 'Contratos', 'Derecho Civil'],
+    experience: 8,
+    education: [
+      'Licenciatura en Derecho - Universidad Panamericana',
+      'Especialización en Derecho Inmobiliario - UNAM'
+    ],
+    languages: ['Español', 'Inglés'],
+    email: 'esilva@altumlegal.mx',
+    phone: '+52 55 1234-5683',
+    bio: 'Especialista en derecho inmobiliario con experiencia en desarrollos comerciales y residenciales. Ha participado en transacciones inmobiliarias por más de $800 millones de pesos.',
+    achievements: [
+      'Especialista certificado en derecho inmobiliario',
+      'Asesor de 20+ desarrollos inmobiliarios',
+      'Experto en contratos de compraventa'
+    ],
+    cases: [
+      'Desarrollo Torres del Pedregal - $350M MXN',
+      'Complejo comercial Santa Fe - $280M MXN',
+      'Proyecto residencial Polanco - $150M MXN'
+    ],
+    linkedIn: 'https://linkedin.com/in/eduardosilva',
+    isPartner: false,
+    image: '/images/attorneys/attorney2.png',
+    shortDescription: 'Especialista en derecho inmobiliario con 8 años de experiencia'
+  },
+  {
+    id: '7',
+    name: 'Dra. Sofía Martínez',
+    position: 'Socia',
+    specialization: ['Derecho Ambiental', 'Compliance', 'Regulación'],
+    experience: 16,
+    education: [
+      'Licenciatura en Derecho - Universidad Iberoamericana',
+      'Maestría en Derecho Ambiental - El Colegio de México',
+      'Doctorado en Derecho Regulatorio - Universidad de Barcelona'
+    ],
+    languages: ['Español', 'Inglés', 'Catalán'],
+    email: 'smartinez@altumlegal.mx',
+    phone: '+52 55 1234-5684',
+    bio: 'Experta en derecho ambiental y compliance regulatorio. Ha liderado casos de impacto ambiental para grandes corporaciones mexicanas.',
+    achievements: [
+      'Doctora en Derecho Regulatorio',
+      'Consultora SEMARNAT',
+      'Experta en compliance ambiental',
+      'Autora de "Derecho Ambiental Mexicano"'
+    ],
+    cases: [
+      'Proyecto eólico Oaxaca - 500MW',
+      'Evaluación ambiental Pemex - $2B USD',
+      'Compliance Grupo México - Certificación ISO'
+    ],
+    linkedIn: 'https://linkedin.com/in/sofiamartinez',
+    isPartner: true,
+    image: '/images/attorneys/attorney3.png',
+    shortDescription: 'Experta en derecho ambiental con 16 años de experiencia'
+  },
+  {
+    id: '8',
+    name: 'Lic. Fernando Castillo',
+    position: 'Asociado Senior',
+    specialization: ['Derecho Bancario', 'Fintech', 'Regulación Financiera'],
+    experience: 11,
+    education: [
+      'Licenciatura en Derecho - ITAM',
+      'Maestría en Derecho Bancario - Universidad Anáhuac'
+    ],
+    languages: ['Español', 'Inglés'],
+    email: 'fcastillo@altumlegal.mx',
+    phone: '+52 55 1234-5685',
+    bio: 'Especialista en derecho bancario y regulación fintech. Ha asesorado a más de 30 instituciones financieras en México.',
+    achievements: [
+      'Experto en regulación fintech',
+      'Asesor de 30+ instituciones financieras',
+      'Certificado en compliance bancario'
+    ],
+    cases: [
+      'Licencia fintech Kueski - $500M USD valuation',
+      'Regulación bancaria BBVA México - Compliance',
+      'Estructura legal Albo - Neobank licensing'
+    ],
+    linkedIn: 'https://linkedin.com/in/fernandocastillo',
+    isPartner: false,
+    image: '/images/attorneys/attorney4.png',
+    shortDescription: 'Especialista en derecho bancario y fintech con 11 años de experiencia'
+  },
+  {
+    id: '9',
+    name: 'Dra. Valentina López',
+    position: 'Socia',
+    specialization: ['Derecho de Competencia', 'Antimonopolio', 'Regulación'],
+    experience: 19,
+    education: [
+      'Licenciatura en Derecho - Universidad de Guadalajara',
+      'Maestría en Derecho de Competencia - Universidad Complutense Madrid',
+      'Doctorado en Antimonopolio - Georgetown University'
+    ],
+    languages: ['Español', 'Inglés', 'Italiano'],
+    email: 'vlopez@altumlegal.mx',
+    phone: '+52 55 1234-5686',
+    bio: 'Experta en derecho de competencia económica y antimonopolio. Ha representado a grandes corporaciones ante COFECE.',
+    achievements: [
+      'Doctora en Antimonopolio por Georgetown',
+      'Ex-consultora COFECE',
+      'Experta en fusiones y adquisiciones',
+      'Reconocimiento Nacional de Competencia Económica 2022'
+    ],
+    cases: [
+      'Fusión Walmart-Bodega Aurrera - Aprobación COFECE',
+      'Defensa antimonopolio Grupo Carso - $1.5B USD',
+      'Concentración América Móvil-Nextel - Regulación'
+    ],
+    linkedIn: 'https://linkedin.com/in/valentinalopez',
+    isPartner: true,
+    image: '/images/attorneys/attorney1.png',
+    shortDescription: 'Experta en derecho de competencia con 19 años de experiencia'
+  },
+  {
+    id: '10',
+    name: 'Lic. Diego Moreno',
+    position: 'Asociado',
+    specialization: ['Derecho Penal', 'Compliance Penal', 'Investigaciones'],
+    experience: 7,
+    education: [
+      'Licenciatura en Derecho - Universidad La Salle',
+      'Especialización en Derecho Penal - UNAM'
+    ],
+    languages: ['Español', 'Inglés'],
+    email: 'dmoreno@altumlegal.mx',
+    phone: '+52 55 1234-5687',
+    bio: 'Especialista en derecho penal empresarial y compliance. Ha defendido casos de alto perfil en el ámbito corporativo.',
+    achievements: [
+      'Especialista en derecho penal empresarial',
+      'Certificado en compliance penal',
+      'Defensor en 50+ casos penales corporativos'
+    ],
+    cases: [
+      'Defensa penal Grupo Elektra - Lavado de dinero',
+      'Compliance penal Cemex - Programa anticorrupción',
+      'Investigación interna Televisa - Due diligence'
+    ],
+    linkedIn: 'https://linkedin.com/in/diegomoreno',
+    isPartner: false,
+    image: '/images/attorneys/attorney2.png',
+    shortDescription: 'Especialista en derecho penal empresarial con 7 años de experiencia'
+  },
+  {
+    id: '11',
+    name: 'Lic. Isabella Vega',
+    position: 'Asociada Senior',
+    specialization: ['Derecho de Salud', 'Regulación Farmacéutica', 'Biotecnología'],
+    experience: 13,
+    education: [
+      'Licenciatura en Derecho - Universidad Iberoamericana',
+      'Maestría en Derecho Sanitario - Universidad Complutense Madrid'
+    ],
+    languages: ['Español', 'Inglés', 'Francés'],
+    email: 'ivega@altumlegal.mx',
+    phone: '+52 55 1234-5688',
+    bio: 'Especialista en derecho sanitario y regulación farmacéutica. Ha asesorado a las principales farmacéuticas del país.',
+    achievements: [
+      'Experta en regulación COFEPRIS',
+      'Asesora de 15+ farmacéuticas',
+      'Especialista en biotecnología'
+    ],
+    cases: [
+      'Registro sanitario Pfizer México - COVID vaccines',
+      'Regulación biotecnología Roche - Productos oncológicos',
+      'Compliance COFEPRIS Novartis - Medicamentos especializados'
+    ],
+    linkedIn: 'https://linkedin.com/in/isabellavega',
+    isPartner: false,
+    image: '/images/attorneys/attorney3.png',
+    shortDescription: 'Especialista en derecho de salud con 13 años de experiencia'
   }
 ];
