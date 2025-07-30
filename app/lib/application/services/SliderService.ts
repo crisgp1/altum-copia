@@ -1,7 +1,7 @@
 import { SliderState, SliderNavigation } from '@/app/lib/domain/entities/SliderState';
 
 export class SliderService {
-  private static readonly VISIBLE_CARDS_DESKTOP = 4; // 4 tarjetas GRANDES por pantalla
+  private static readonly VISIBLE_CARDS_DESKTOP = 5; // 5 tarjetas para llenar completamente el ancho sin espacios
   private static readonly VISIBLE_CARDS_MOBILE = 2;
 
   static getVisibleCardsCount(isMobile: boolean = false): number {

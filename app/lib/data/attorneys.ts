@@ -3,7 +3,7 @@ import { Attorney } from '../types/Attorney';
 export const attorneys: Attorney[] = [
   {
     id: '1',
-    name: 'Dr. María Elena Vásquez',
+    name: 'Lic. María Vásquez',
     position: 'Socia Fundadora',
     specialization: ['Derecho Corporativo', 'Fusiones y Adquisiciones', 'Derecho Mercantil'],
     experience: 28,
@@ -65,7 +65,7 @@ export const attorneys: Attorney[] = [
   },
   {
     id: '3',
-    name: 'Dra. Ana Sofia Herrera',
+    name: 'Lic. Ana Herrera',
     position: 'Socia Senior',
     specialization: ['Derecho Fiscal', 'Planeación Tributaria', 'Defensa Fiscal'],
     experience: 18,

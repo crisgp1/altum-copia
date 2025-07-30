@@ -1,7 +1,7 @@
 'use client';
 
-import { AttorneyHorizontalCarousel } from '@/app/lib/presentation/components/attorneys/AttorneyHorizontalCarousel';
+import { AttorneySimpleCarousel } from '@/app/lib/presentation/components/attorneys/AttorneySimpleCarousel';
 
 export default function AttorneysCarousel() {
-  return <AttorneyHorizontalCarousel />;
+  return <AttorneySimpleCarousel />;
 }

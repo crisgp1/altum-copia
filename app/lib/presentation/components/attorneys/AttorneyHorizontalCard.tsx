@@ -31,14 +31,24 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
   const bottomRightTextRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Calculate card width based on state - for 4 LARGE cards
+
+  // Simple left positioning - names are now short enough to fit consistently
+  const getVerticalTextLeftPosition = () => {
+    return 20; // Fixed position 20px from left, like in reference
+  };
+
+  // Calculate card width based on state - minimal 10% expansion for content visibility
   const getCardWidth = () => {
+    const baseWidth = 100 / totalCards; // 25% each for 4 cards
+    
     if (hoveredIndex === null) {
-      return `${100 / totalCards}%`; // Equal distribution: 25% each for 4 cards = GRANDES
+      return `${baseWidth}%`; // Equal distribution: 25% each for 4 cards
     } else if (index === hoveredIndex) {
-      return '50%'; // Expanded card takes HALF the screen = MUY GRANDE
+      return `${baseWidth + 10}%`; // Expanded card: 25% + 10% = 35% (minimal expansion)
     } else {
-      return `${50 / (totalCards - 1)}%`; // Other 3 cards share remaining 50%: ~16.7% each
+      // Other 3 cards share remaining space: (100 - 35) / 3 = ~21.7% each (minimal compression)
+      const remainingWidth = 100 - (baseWidth + 10);
+      return `${remainingWidth / (totalCards - 1)}%`;
     }
   };
 
@@ -74,76 +84,76 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
       display: 'none'
     });
 
-    // Animate width changes - CONSISTENT SLOW SPEED
+    // Animate width changes - VERY SLOW AND ELEGANT
     gsap.to(cardRef.current, {
       width: getCardWidth(),
-      duration: 1.5, // Consistent slow duration
-      ease: "power1.inOut" // Consistent easing throughout
+      duration: 2.5, // Much slower, more elegant
+      ease: "power2.inOut" // More sophisticated easing
     });
 
     if (isExpanded) {
-      // Expanding animation - smooth and consistent
+      // Expanding animation - very slow and elegant like reference
       const tl = gsap.timeline();
       
       // First fade out vertical text
       tl.to(verticalTextRef.current, {
         opacity: 0,
-        duration: 0.5,
-        ease: "power1.out"
+        duration: 1.2, // Much slower
+        ease: "power2.out" // Smoother easing
       })
       // Then show expanded content
       .set(expandedContentRef.current, { display: 'block' })
       .to(expandedContentRef.current, {
         opacity: 1,
         x: 0,
-        duration: 1.0, // Consistent slow speed
-        ease: "power1.out"
-      }, "-=0.2")
+        duration: 1.8, // Much slower
+        ease: "power2.out"
+      }, "-=0.6")
       // Darken background for better text readability
       .to(backgroundOverlayRef.current, {
-        opacity: 0.6,
-        duration: 0.8,
-        ease: "power1.out"
-      }, "-=1.0")
+        opacity: 0.7,
+        duration: 1.5, // Much slower
+        ease: "power2.out"
+      }, "-=1.8")
       // Show bottom right text
       .set(bottomRightTextRef.current, { display: 'block' })
       .to(bottomRightTextRef.current, {
         opacity: 1,
-        duration: 0.6,
-        ease: "power1.out"
-      }, "-=0.4");
+        duration: 1.0, // Slower
+        ease: "power2.out"
+      }, "-=0.8");
       
     } else {
-      // Collapsing animation - smooth and consistent
+      // Collapsing animation - very slow and elegant like reference
       const tl = gsap.timeline();
       
       // First hide expanded content
       tl.to(expandedContentRef.current, {
         opacity: 0,
-        x: -40,
-        duration: 0.8, // Consistent slow speed
-        ease: "power1.in"
+        x: -60, // More dramatic slide out
+        duration: 1.5, // Much slower
+        ease: "power2.in"
       })
       .set(expandedContentRef.current, { display: 'none' })
       // Then show vertical text
       .to(verticalTextRef.current, {
         opacity: 1,
-        duration: 0.6,
-        ease: "power1.in"
-      }, "-=0.4")
+        duration: 1.2, // Much slower
+        ease: "power2.in"
+      }, "-=0.8")
       // Hide bottom right text
       .to(bottomRightTextRef.current, {
         opacity: 0,
-        duration: 0.4,
-        ease: "power1.in"
+        duration: 0.8, // Slower
+        ease: "power2.in"
       })
       .set(bottomRightTextRef.current, { display: 'none' })
       // Lighten background
       .to(backgroundOverlayRef.current, {
         opacity: 0.3,
-        duration: 0.6,
-        ease: "power1.in"
-      }, "-=0.6");
+        duration: 1.2, // Much slower
+        ease: "power2.in"
+      }, "-=1.2");
     }
     
   }, [isExpanded, hoveredIndex, index, totalCards]);
@@ -158,7 +168,9 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
         padding: 0, 
         boxSizing: 'border-box',
         minWidth: 0,
-        flexShrink: 0
+        flexShrink: 0,
+        border: 'none',
+        outline: 'none'
       }}
       onMouseEnter={() => {
         // Clear any pending timeout
@@ -176,7 +188,7 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
         
         timeoutRef.current = setTimeout(() => {
           onHover(null);
-        }, 50);
+        }, 200); // Longer delay for more stable interactions
       }}
       onClick={() => onClick(attorney)}
     >
@@ -199,43 +211,49 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
 
       {/* Content Container */}
       <div className="relative h-full flex items-center">
-        {/* Vertical Text (collapsed state) - with better contrast */}
+        {/* Vertical Text (collapsed state) - perfectly centered like reference */}
         <div
           ref={verticalTextRef}
-          className="absolute left-8 top-1/2 -translate-y-1/2 z-10"
+          className="absolute top-1/2 -translate-y-1/2 z-10"
           style={{
+            left: `${getVerticalTextLeftPosition()}px`, // Fixed positioning
             writingMode: 'vertical-rl',
             textOrientation: 'mixed',
-            transform: 'translateY(-50%) rotate(180deg)'
+            transform: 'translateY(-50%) rotate(180deg)', // Perfectly centered vertically
+            transformOrigin: 'center',
+            height: 'auto', // Let content determine height
+            maxHeight: 'calc(100% - 80px)', // Leave margins top and bottom
+            maxWidth: '20px', // Contained width
+            overflow: 'hidden' // Prevent any overflow
           }}
         >
-          <h3 className="text-white text-lg font-light tracking-[0.3em] whitespace-nowrap drop-shadow-lg">
+          <h3 className="text-white text-base font-medium tracking-[0.3em] whitespace-nowrap drop-shadow-lg">
             {attorney.name.toUpperCase()}
           </h3>
         </div>
 
-        {/* Expanded Content - initially hidden */}
+        {/* Expanded Content - positioned in bottom RIGHT corner like reference */}
         <div
           ref={expandedContentRef}
-          className="absolute bottom-0 left-0 right-0 p-8 z-20"
-          style={{ display: 'none' }} // Initially hidden
+          className="absolute bottom-6 right-6 z-20 text-right"
+          style={{ display: 'none', maxWidth: '180px' }} // Initially hidden, constrained width
         >
-          <h3 className="text-white text-3xl font-light mb-2 drop-shadow-lg">
+          <h3 className="text-white text-lg font-light mb-1 drop-shadow-lg leading-tight">
             {attorney.name}
           </h3>
-          <p className="text-amber-400 text-lg opacity-95 mb-3 uppercase tracking-wider font-medium drop-shadow-lg">
+          <p className="text-amber-400 text-xs opacity-95 mb-2 uppercase tracking-wider font-medium drop-shadow-lg">
             {attorney.position}
           </p>
-          <p className="text-white/90 text-sm max-w-sm leading-relaxed drop-shadow-lg">
+          <p className="text-white/90 text-xs leading-relaxed drop-shadow-lg">
             {attorney.shortDescription}
           </p>
         </div>
       </div>
 
-      {/* Bottom RIGHT corner indicator (only when expanded) - separate from main content */}
+      {/* Bottom RIGHT corner indicator (only when expanded) - positioned below main content */}
       <div 
         ref={bottomRightTextRef}
-        className="absolute bottom-6 right-6 text-white/80 text-sm z-30 opacity-0"
+        className="absolute bottom-2 right-6 text-white/60 text-xs z-30 opacity-0"
         style={{ display: 'none' }}
       >
         <p className="drop-shadow-lg font-light">Ver más →</p>

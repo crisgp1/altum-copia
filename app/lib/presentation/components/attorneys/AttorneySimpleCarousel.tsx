@@ -4,45 +4,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Attorney } from '@/app/lib/types/Attorney';
 import { attorneys } from '@/app/lib/data/attorneys';
 import { AttorneyHorizontalCard } from './AttorneyHorizontalCard';
-import { SliderNavigation } from './SliderNavigation';
-import { SliderService } from '@/app/lib/application/services/SliderService';
-import { SliderState } from '@/app/lib/domain/entities/SliderState';
 import { createPortal } from 'react-dom';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 
-export const AttorneyHorizontalCarousel: React.FC = () => {
+export const AttorneySimpleCarousel: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedAttorney, setSelectedAttorney] = useState<Attorney | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Slider state
-  const [sliderState, setSliderState] = useState<SliderState>({
-    currentIndex: 0,
-    visibleCardsCount: 5, // Inicializar con 5 tarjetas para llenar todo el ancho
-    totalCards: attorneys.length,
-    isTransitioning: false
-  });
 
   useEffect(() => {
     setMounted(true);
-    
-    // Check mobile
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      setSliderState(prev => ({
-        ...prev,
-        visibleCardsCount: SliderService.getVisibleCardsCount(mobile)
-      }));
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const handleCardClick = (attorney: Attorney) => {
@@ -69,51 +41,6 @@ export const AttorneyHorizontalCarousel: React.FC = () => {
       document.body.style.overflow = 'auto';
     }
   };
-
-  // Navigation handlers
-  const handleNext = () => {
-    if (sliderState.isTransitioning) return;
-    
-    const navigation = SliderService.calculateNavigation(sliderState);
-    if (!navigation.canGoNext) return;
-
-    setSliderState(prev => ({
-      ...prev,
-      currentIndex: navigation.nextIndex,
-      isTransitioning: true
-    }));
-
-    // Reset transition state after animation
-    setTimeout(() => {
-      setSliderState(prev => ({ ...prev, isTransitioning: false }));
-    }, 2500);
-  };
-
-  const handlePrevious = () => {
-    if (sliderState.isTransitioning) return;
-    
-    const navigation = SliderService.calculateNavigation(sliderState);
-    if (!navigation.canGoPrevious) return;
-
-    setSliderState(prev => ({
-      ...prev,
-      currentIndex: navigation.previousIndex,
-      isTransitioning: true
-    }));
-
-    // Reset transition state after animation
-    setTimeout(() => {
-      setSliderState(prev => ({ ...prev, isTransitioning: false }));
-    }, 2500);
-  };
-
-  // Get current navigation state
-  const navigation = SliderService.calculateNavigation(sliderState);
-  const visibleAttorneys = SliderService.getVisibleCards(
-    attorneys, 
-    sliderState.currentIndex, 
-    sliderState.visibleCardsCount
-  );
 
   return (
     <>
@@ -143,88 +70,26 @@ export const AttorneyHorizontalCarousel: React.FC = () => {
             </p>
           </div>
 
-          {/* Horizontal Cards Container with Slider */}
+          {/* Simple Cards Container - No Slider */}
           <div className="relative w-full">
             <div 
-              ref={containerRef}
-              className="relative h-[500px] w-full overflow-hidden"
+              className="relative h-[550px] w-full overflow-hidden"
               style={{ margin: 0, padding: 0 }}
             >
-              <div className="flex h-full transition-transform duration-[2500ms] ease-in-out w-full" style={{ gap: 0, margin: 0, padding: 0 }}>
-                {attorneys.map((attorney, index) => {
-                  const isVisible = SliderService.isCardVisible(
-                    index, 
-                    sliderState.currentIndex, 
-                    sliderState.visibleCardsCount
-                  );
-                  
-                  const visibleIndex = index - sliderState.currentIndex;
-                  
-                  return (
-                    <div
-                      key={attorney.id}
-                      className={`transition-all duration-[2500ms] ease-in-out ${
-                        isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                      }`}
-                      style={{
-                        transform: `translateX(${isVisible ? 0 : 100}%)`,
-                        width: isVisible ? `${100 / sliderState.visibleCardsCount}%` : '0%',
-                        flexShrink: 0 // Prevent shrinking
-                      }}
-                    >
-                      {isVisible && (
-                        <AttorneyHorizontalCard
-                          attorney={attorney}
-                          index={visibleIndex}
-                          isExpanded={hoveredIndex === visibleIndex}
-                          onHover={(idx) => setHoveredIndex(idx)}
-                          onClick={handleCardClick}
-                          totalCards={sliderState.visibleCardsCount}
-                          hoveredIndex={hoveredIndex}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Slider Navigation */}
-              <SliderNavigation
-                navigation={navigation}
-                onNext={handleNext}
-                onPrevious={handlePrevious}
-                currentIndex={sliderState.currentIndex}
-                totalPages={Math.ceil(attorneys.length / sliderState.visibleCardsCount)}
-              />
-            </div>
-
-            {/* Slider Indicators */}
-            <div className="flex justify-center mt-8 space-x-2">
-              {Array.from({ length: Math.ceil(attorneys.length / sliderState.visibleCardsCount) }).map((_, index) => {
-                const isActive = index === Math.floor(sliderState.currentIndex / sliderState.visibleCardsCount);
-                return (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      if (!sliderState.isTransitioning) {
-                        setSliderState(prev => ({
-                          ...prev,
-                          currentIndex: index * sliderState.visibleCardsCount,
-                          isTransitioning: true
-                        }));
-                        setTimeout(() => {
-                          setSliderState(prev => ({ ...prev, isTransitioning: false }));
-                        }, 2500);
-                      }
-                    }}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      isActive 
-                        ? 'bg-slate-600 scale-125' 
-                        : 'bg-slate-300 hover:bg-slate-400'
-                    }`}
+              <div className="flex h-full w-full" style={{ gap: 0, margin: 0, padding: 0 }}>
+                {attorneys.slice(0, 4).map((attorney, index) => (
+                  <AttorneyHorizontalCard
+                    key={attorney.id}
+                    attorney={attorney}
+                    index={index}
+                    isExpanded={hoveredIndex === index}
+                    onHover={(idx) => setHoveredIndex(idx)}
+                    onClick={handleCardClick}
+                    totalCards={4}
+                    hoveredIndex={hoveredIndex}
                   />
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
         </div>
