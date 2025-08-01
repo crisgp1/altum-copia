@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import { Attorney } from '@/app/lib/types/Attorney';
+import { useAutoAdjustingVerticalText } from '../../hooks/useAutoAdjustingVerticalText';
 
 interface AttorneyGSAPCardProps {
   attorney: Attorney;
@@ -25,6 +26,92 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
   const verticalTextRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const typewriterTextRef = useRef<HTMLSpanElement>(null);
+  const cursorRef = useRef<HTMLSpanElement>(null);
+  const typewriterTimelineRef = useRef<gsap.core.Timeline | null>(null);
+  
+  // State for typewriter effect
+  const [splitTextElements, setSplitTextElements] = useState<HTMLSpanElement[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+
+  // Auto-adjusting vertical text hook
+  const { textStyles, displayText, isTextTruncated } = useAutoAdjustingVerticalText({
+    text: attorney.name,
+    containerRef: cardRef,
+    leftPosition: 24 // 6 * 4px (left-6 in Tailwind)
+  });
+
+  // Create split text elements (simulating SplitText)
+  const createSplitText = (text: string, container: HTMLElement) => {
+    if (!container) return [];
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    // Create span for each character
+    const chars = text.split('').map((char, index) => {
+      const span = document.createElement('span');
+      span.textContent = char;
+      span.style.opacity = '0';
+      span.style.display = 'inline-block';
+      span.setAttribute('aria-hidden', 'true');
+      container.appendChild(span);
+      return span;
+    });
+    
+    // Add aria-label to container for accessibility
+    container.setAttribute('aria-label', text);
+    
+    return chars;
+  };
+
+  // GSAP Typewriter effect with stagger
+  const startTypewriterEffect = (text: string, delay: number = 0) => {
+    console.log('Starting GSAP typewriter effect for:', text);
+    
+    if (isTyping || !typewriterTextRef.current) return;
+    
+    setIsTyping(true);
+    
+    // Create character elements
+    const chars = createSplitText(text, typewriterTextRef.current);
+    setSplitTextElements(chars);
+    
+    // Kill any existing timeline
+    if (typewriterTimelineRef.current) {
+      typewriterTimelineRef.current.kill();
+    }
+    
+    // Create GSAP timeline for typewriter effect
+    const tl = gsap.timeline({ 
+      delay: delay / 1000,
+      onComplete: () => setIsTyping(false)
+    });
+    
+    typewriterTimelineRef.current = tl;
+    
+    // Animate characters appearing one by one with stagger
+    tl.to(chars, {
+      opacity: 1,
+      duration: 0.05,
+      stagger: 0.08, // 80ms between each character
+      ease: "none"
+    });
+    
+    return tl;
+  };
+
+  // Stop typewriter effect
+  const stopTypewriterEffect = () => {
+    if (typewriterTimelineRef.current) {
+      typewriterTimelineRef.current.kill();
+    }
+    if (typewriterTextRef.current) {
+      typewriterTextRef.current.innerHTML = '';
+    }
+    setSplitTextElements([]);
+    setIsTyping(false);
+  };
 
   useEffect(() => {
     if (!cardRef.current) return;
@@ -33,6 +120,13 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
     gsap.set(descriptionRef.current, { opacity: 0, y: 20 });
     gsap.set(overlayRef.current, { opacity: 0 });
     gsap.set(verticalTextRef.current, { opacity: 1 });
+
+    // Cleanup on unmount
+    return () => {
+      if (typewriterTimelineRef.current) {
+        typewriterTimelineRef.current.kill();
+      }
+    };
   }, []);
 
   const handleMouseEnter = () => {
@@ -67,11 +161,19 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
       y: 0,
       duration: 0.4,
       ease: "power2.out"
-    }, "-=0.2");
+    }, "-=0.2")
+    // Start typewriter effect
+    .call(() => {
+      console.log('Calling typewriter effect from GSAP timeline');
+      startTypewriterEffect(attorney.position, 300);
+    }, [], "-=0.1");
   };
 
   const handleMouseLeave = () => {
     onCardHover(null);
+    
+    // Stop typewriter effect
+    stopTypewriterEffect();
     
     if (!cardRef.current) return;
 
@@ -134,16 +236,12 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
         className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
       />
 
-      {/* Vertical Text */}
+      {/* Vertical Text - Auto-adjusting */}
       <div
         ref={verticalTextRef}
-        className="absolute left-6 top-1/2 -translate-y-1/2 -rotate-90 origin-center"
-        style={{
-          writingMode: 'vertical-rl',
-          textOrientation: 'mixed'
-        }}
+        style={textStyles}
       >
-        <h3 className="text-2xl font-light text-white tracking-wider whitespace-nowrap">
+        <h3 className="text-white font-light tracking-wider">
           {attorney.name}
         </h3>
       </div>
@@ -151,10 +249,19 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
       {/* Description (shown on hover) */}
       <div
         ref={descriptionRef}
-        className="absolute bottom-6 right-6 text-right"
+        className="absolute bottom-6 right-6 text-right max-w-[200px]"
       >
-        <p className="text-white text-sm font-light leading-relaxed max-w-[200px]">
+        <h3 className="text-white text-lg font-light mb-1 drop-shadow-lg leading-tight">
+          {attorney.name}
+        </h3>
+        <p className="text-amber-400 text-xs opacity-95 mb-2 uppercase tracking-wider font-medium drop-shadow-lg">
+          <span ref={typewriterTextRef}></span>
+        </p>
+        <p className="text-white/90 text-xs leading-relaxed drop-shadow-lg mb-3">
           {attorney.shortDescription}
+        </p>
+        <p className="text-white/60 text-xs drop-shadow-lg font-light">
+          Haz click aquí para ver más
         </p>
       </div>
     </div>
