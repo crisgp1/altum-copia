@@ -60,7 +60,7 @@ export const attorneys: Attorney[] = [
     ],
     linkedIn: 'https://linkedin.com/in/robertomendoza',
     isPartner: true,
-    image: '/images/attorneys/attorney2.png',
+    image: '/images/attorneys/attorney1.png',
     shortDescription: 'Litigante especializado con 22 años de experiencia'
   },
   {
@@ -91,7 +91,7 @@ export const attorneys: Attorney[] = [
     ],
     linkedIn: 'https://linkedin.com/in/anasofiaherrera',
     isPartner: true,
-    image: '/images/attorneys/attorney3.png',
+    image: '/images/attorneys/attorney1.png',
     shortDescription: 'Experta en derecho fiscal con 18 años de experiencia'
   },
   {
@@ -122,7 +122,7 @@ export const attorneys: Attorney[] = [
     ],
     linkedIn: 'https://linkedin.com/in/carlosruiz',
     isPartner: false,
-    image: '/images/attorneys/attorney4.png',
+    image: '/images/attorneys/attorney1.png',
     shortDescription: 'Especialista en propiedad intelectual y derecho tecnológico'
   },
   {
@@ -182,7 +182,7 @@ export const attorneys: Attorney[] = [
     ],
     linkedIn: 'https://linkedin.com/in/eduardosilva',
     isPartner: false,
-    image: '/images/attorneys/attorney2.png',
+    image: '/images/attorneys/attorney1.png',
     shortDescription: 'Especialista en derecho inmobiliario con 8 años de experiencia'
   },
   {
@@ -213,7 +213,7 @@ export const attorneys: Attorney[] = [
     ],
     linkedIn: 'https://linkedin.com/in/sofiamartinez',
     isPartner: true,
-    image: '/images/attorneys/attorney3.png',
+    image: '/images/attorneys/attorney1.png',
     shortDescription: 'Experta en derecho ambiental con 16 años de experiencia'
   },
   {
@@ -242,7 +242,7 @@ export const attorneys: Attorney[] = [
     ],
     linkedIn: 'https://linkedin.com/in/fernandocastillo',
     isPartner: false,
-    image: '/images/attorneys/attorney4.png',
+    image: '/images/attorneys/attorney1.png',
     shortDescription: 'Especialista en derecho bancario y fintech con 11 años de experiencia'
   },
   {
@@ -302,7 +302,7 @@ export const attorneys: Attorney[] = [
     ],
     linkedIn: 'https://linkedin.com/in/diegomoreno',
     isPartner: false,
-    image: '/images/attorneys/attorney2.png',
+    image: '/images/attorneys/attorney1.png',
     shortDescription: 'Especialista en derecho penal empresarial con 7 años de experiencia'
   },
   {
@@ -331,7 +331,7 @@ export const attorneys: Attorney[] = [
     ],
     linkedIn: 'https://linkedin.com/in/isabellavega',
     isPartner: false,
-    image: '/images/attorneys/attorney3.png',
+    image: '/images/attorneys/attorney1.png',
     shortDescription: 'Especialista en derecho de salud con 13 años de experiencia'
   }
 ];

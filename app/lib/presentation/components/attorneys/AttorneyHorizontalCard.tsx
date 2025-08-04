@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import { Attorney } from '@/app/lib/types/Attorney';
 import { useAutoAdjustingVerticalText } from '../../hooks/useAutoAdjustingVerticalText';
+import { useTypewriterAnimation } from '../../hooks/useTypewriterAnimation';
 
 interface AttorneyHorizontalCardProps {
   attorney: Attorney;
@@ -30,14 +31,7 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
   const expandedContentRef = useRef<HTMLDivElement>(null);
   const backgroundOverlayRef = useRef<HTMLDivElement>(null);
   const bottomRightTextRef = useRef<HTMLDivElement>(null);
-  const typewriterTextRef = useRef<HTMLSpanElement>(null);
-  const cursorRef = useRef<HTMLSpanElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const typewriterTimelineRef = useRef<gsap.core.Timeline | null>(null);
-  
-  // State for typewriter effect
-  const [splitTextElements, setSplitTextElements] = useState<HTMLSpanElement[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
 
   // Auto-adjusting vertical text hook
   const { textStyles, displayText, isTextTruncated } = useAutoAdjustingVerticalText({
@@ -46,93 +40,31 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
     leftPosition: 20
   });
 
+  // Typewriter animation hook
+  const {
+    containerRef: typewriterRef,
+    startAnimation: startTypewriter,
+    stopAnimation: stopTypewriter
+  } = useTypewriterAnimation({
+    text: attorney.position,
+    delay: 500
+  });
+
 
 
   // Calculate card width based on state - minimal 10% expansion for content visibility
   const getCardWidth = () => {
-    const baseWidth = 100 / totalCards; // 25% each for 4 cards
+    const baseWidth = 100 / totalCards; // Base width percentage
     
     if (hoveredIndex === null) {
-      return `${baseWidth}%`; // Equal distribution: 25% each for 4 cards
+      return `calc(${baseWidth}% - 7.5px)`; // Subtract gap space (10px * 3/4 = 7.5px per card)
     } else if (index === hoveredIndex) {
-      return `${baseWidth + 10}%`; // Expanded card: 25% + 10% = 35% (minimal expansion)
+      return `calc(${baseWidth + 10}% - 7.5px)`; // Expanded card with gap adjustment
     } else {
-      // Other 3 cards share remaining space: (100 - 35) / 3 = ~21.7% each (minimal compression)
+      // Other cards share remaining space with gap adjustment
       const remainingWidth = 100 - (baseWidth + 10);
-      return `${remainingWidth / (totalCards - 1)}%`;
+      return `calc(${remainingWidth / (totalCards - 1)}% - 7.5px)`;
     }
-  };
-
-  // Create split text elements (simulating SplitText)
-  const createSplitText = (text: string, container: HTMLElement) => {
-    if (!container) return [];
-    
-    // Clear container
-    container.innerHTML = '';
-    
-    // Create span for each character
-    const chars = text.split('').map((char, index) => {
-      const span = document.createElement('span');
-      span.textContent = char;
-      span.style.opacity = '0';
-      span.style.display = 'inline-block';
-      span.setAttribute('aria-hidden', 'true');
-      container.appendChild(span);
-      return span;
-    });
-    
-    // Add aria-label to container for accessibility
-    container.setAttribute('aria-label', text);
-    
-    return chars;
-  };
-
-  // GSAP Typewriter effect with stagger
-  const startTypewriterEffect = (text: string, delay: number = 0) => {
-    console.log('Starting GSAP typewriter effect for:', text);
-    
-    if (isTyping || !typewriterTextRef.current) return;
-    
-    setIsTyping(true);
-    
-    // Create character elements
-    const chars = createSplitText(text, typewriterTextRef.current);
-    setSplitTextElements(chars);
-    
-    // Kill any existing timeline
-    if (typewriterTimelineRef.current) {
-      typewriterTimelineRef.current.kill();
-    }
-    
-    // Create GSAP timeline for typewriter effect
-    const tl = gsap.timeline({ 
-      delay: delay / 1000,
-      onComplete: () => setIsTyping(false)
-    });
-    
-    typewriterTimelineRef.current = tl;
-    
-    // Animate characters appearing one by one with stagger
-    tl.to(chars, {
-      opacity: 1,
-      duration: 0.05,
-      stagger: 0.08, // 80ms between each character
-      ease: "none"
-    });
-    
-    return tl;
-  };
-
-  // Stop typewriter effect
-  const stopTypewriterEffect = () => {
-    if (typewriterTimelineRef.current) {
-      typewriterTimelineRef.current.kill();
-    }
-    if (typewriterTextRef.current) {
-      typewriterTextRef.current.innerHTML = '';
-    }
-    setSplitTextElements([]);
-    setIsTyping(false);
   };
 
   // Cleanup timeout on unmount
@@ -140,9 +72,6 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
-      }
-      if (typewriterTimelineRef.current) {
-        typewriterTimelineRef.current.kill();
       }
     };
   }, []);
@@ -210,8 +139,7 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
       }, "-=0.8")
       // Start typewriter effect after content is visible
       .call(() => {
-        console.log('Calling typewriter effect from timeline');
-        startTypewriterEffect(attorney.position, 500);
+        startTypewriter();
       }, [], "-=0.2");
       
     } else {
@@ -220,7 +148,7 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
       
       // Stop typewriter effect first
       tl.call(() => {
-        stopTypewriterEffect();
+        stopTypewriter();
       })
       // Then hide expanded content
       .to(expandedContentRef.current, {
@@ -326,7 +254,7 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
             {attorney.name}
           </h3>
           <p className="text-amber-400 text-xs opacity-95 mb-2 uppercase tracking-wider font-medium drop-shadow-lg">
-            <span ref={typewriterTextRef}></span>
+            <span ref={typewriterRef}></span>
           </p>
           <p className="text-white/90 text-xs leading-relaxed drop-shadow-lg">
             {attorney.shortDescription}

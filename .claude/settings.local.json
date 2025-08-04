@@ -12,7 +12,9 @@
       "Bash(true)",
       "Bash(node:*)",
       "Bash(rm:*)",
-      "Bash(timeout 10s npm run dev)"
+      "Bash(timeout 10s npm run dev)",
+      "Bash(npm run typecheck:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

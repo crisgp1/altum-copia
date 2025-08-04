@@ -7,6 +7,7 @@ import { AttorneyHorizontalCard } from './AttorneyHorizontalCard';
 import { createPortal } from 'react-dom';
 import { gsap } from 'gsap';
 import Image from 'next/image';
+import { CardSpacingService } from '@/app/lib/domain/services/CardSpacingService';
 
 export const AttorneySimpleCarousel: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -76,7 +77,7 @@ export const AttorneySimpleCarousel: React.FC = () => {
               className="relative h-[550px] w-full overflow-hidden"
               style={{ margin: 0, padding: 0 }}
             >
-              <div className="flex h-full w-full" style={{ gap: 0, margin: 0, padding: 0 }}>
+              <div className="flex h-full w-full" style={{ gap: `${CardSpacingService.getAttorneyCarouselGap()}px`, margin: 0, padding: 0 }}>
                 {attorneys.slice(0, 4).map((attorney, index) => (
                   <AttorneyHorizontalCard
                     key={attorney.id}
