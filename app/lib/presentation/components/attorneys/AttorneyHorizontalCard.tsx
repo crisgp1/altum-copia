@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Attorney } from '@/app/lib/types/Attorney';
 import { useAutoAdjustingVerticalText } from '../../hooks/useAutoAdjustingVerticalText';
 import { useTypewriterAnimation } from '../../hooks/useTypewriterAnimation';
+import { AnimationConfigService } from '@/app/lib/domain/services/AnimationConfigService';
 
 interface AttorneyHorizontalCardProps {
   attorney: Attorney;
@@ -52,17 +53,20 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
 
 
 
-  // Calculate card width based on state - minimal 10% expansion for content visibility
+  // Calculate card width based on state - using AnimationConfigService
   const getCardWidth = () => {
-    const baseWidth = 100 / totalCards; // Base width percentage
+    // Use percentage-based calculations to avoid hydration issues
+    const baseWidth = 100 / totalCards; // 25% each for 4 cards
+    const expandPercentage = AnimationConfigService.getCardExpandPercentage();
     
     if (hoveredIndex === null) {
-      return `calc(${baseWidth}% - 7.5px)`; // Subtract gap space (10px * 3/4 = 7.5px per card)
+      return `calc(${baseWidth}% - 7.5px)`; // Equal distribution: 25% each for 4 cards
     } else if (index === hoveredIndex) {
-      return `calc(${baseWidth + 10}% - 7.5px)`; // Expanded card with gap adjustment
+      return `calc(${baseWidth + (expandPercentage * baseWidth / 100)}% - 7.5px)`; // Expanded card
     } else {
-      // Other cards share remaining space with gap adjustment
-      const remainingWidth = 100 - (baseWidth + 10);
+      // Other 3 cards share remaining space
+      const expandedExtraWidth = expandPercentage * baseWidth / 100;
+      const remainingWidth = 100 - (baseWidth + expandedExtraWidth);
       return `calc(${remainingWidth / (totalCards - 1)}% - 7.5px)`;
     }
   };
@@ -99,11 +103,11 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
       display: 'none'
     });
 
-    // Animate width changes - VERY SLOW AND ELEGANT
+    // Animate width changes - Optimized speed
     gsap.to(cardRef.current, {
       width: getCardWidth(),
-      duration: 2.5, // Much slower, more elegant
-      ease: "power2.inOut" // More sophisticated easing
+      duration: AnimationConfigService.getCardAnimationConfig().duration,
+      ease: AnimationConfigService.getCardAnimationConfig().ease
     });
 
     if (isExpanded) {
@@ -113,30 +117,30 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
       // First fade out vertical text
       tl.to(verticalTextRef.current, {
         opacity: 0,
-        duration: 1.2, // Much slower
-        ease: "power2.out" // Smoother easing
+        duration: AnimationConfigService.getCardAnimationConfig().duration,
+        ease: AnimationConfigService.getCardAnimationConfig().ease
       })
       // Then show expanded content
       .set(expandedContentRef.current, { display: 'block' })
       .to(expandedContentRef.current, {
         opacity: 1,
         x: 0,
-        duration: 1.8, // Much slower
-        ease: "power2.out"
-      }, "-=0.6")
+        duration: AnimationConfigService.getCardAnimationConfig().duration,
+        ease: AnimationConfigService.getCardAnimationConfig().ease
+      }, "-=0.1")
       // Darken background for better text readability
       .to(backgroundOverlayRef.current, {
         opacity: 0.7,
-        duration: 1.5, // Much slower
-        ease: "power2.out"
-      }, "-=1.8")
+        duration: AnimationConfigService.getCardAnimationConfig().duration,
+        ease: AnimationConfigService.getCardAnimationConfig().ease
+      }, "-=0.3")
       // Show bottom right text
       .set(bottomRightTextRef.current, { display: 'block' })
       .to(bottomRightTextRef.current, {
         opacity: 1,
-        duration: 1.0, // Slower
-        ease: "power2.out"
-      }, "-=0.8")
+        duration: AnimationConfigService.getCardAnimationConfig().duration,
+        ease: AnimationConfigService.getCardAnimationConfig().ease
+      }, "-=0.1")
       // Start typewriter effect after content is visible
       .call(() => {
         startTypewriter();
@@ -174,9 +178,9 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
       // Lighten background
       .to(backgroundOverlayRef.current, {
         opacity: 0.3,
-        duration: 1.2, // Much slower
-        ease: "power2.in"
-      }, "-=1.2");
+        duration: AnimationConfigService.getCardAnimationConfig().duration,
+        ease: AnimationConfigService.getCardAnimationConfig().ease
+      }, "-=0.3");
     }
     
   }, [isExpanded, hoveredIndex, index, totalCards]);
@@ -186,14 +190,15 @@ export const AttorneyHorizontalCard: React.FC<AttorneyHorizontalCardProps> = ({
       ref={cardRef}
       className="relative h-full overflow-hidden cursor-pointer"
       style={{ 
-        width: '100%', 
+        width: getCardWidth(), 
         margin: 0, 
         padding: 0, 
         boxSizing: 'border-box',
         minWidth: 0,
         flexShrink: 0,
         border: 'none',
-        outline: 'none'
+        outline: 'none',
+        transition: AnimationConfigService.getCSSTransition('width')
       }}
       onMouseEnter={() => {
         // Clear any pending timeout

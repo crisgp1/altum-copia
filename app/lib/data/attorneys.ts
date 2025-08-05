@@ -333,5 +333,128 @@ export const attorneys: Attorney[] = [
     isPartner: false,
     image: '/images/attorneys/attorney1.png',
     shortDescription: 'Especialista en derecho de salud con 13 años de experiencia'
+  },
+  {
+    id: '12',
+    name: 'Lic. Gabriel Torres',
+    position: 'Socio',
+    specialization: ['Derecho Internacional', 'Comercio Exterior', 'Arbitraje Internacional'],
+    experience: 20,
+    education: [
+      'Licenciatura en Derecho - Universidad Panamericana',
+      'Maestría en Derecho Internacional - Universidad de Oxford',
+      'Doctorado en Comercio Internacional - London School of Economics'
+    ],
+    languages: ['Español', 'Inglés', 'Alemán', 'Mandarín'],
+    email: 'gtorres@altumlegal.mx',
+    phone: '+52 55 1234-5689',
+    bio: 'Experto en derecho internacional y comercio exterior. Ha representado a México en negociaciones comerciales internacionales.',
+    achievements: [
+      'Negociador del T-MEC por parte de México',
+      'Árbitro de la Corte Internacional de Arbitraje',
+      'Profesor visitante en Oxford University',
+      'Autor de "Derecho del Comercio Internacional"'
+    ],
+    cases: [
+      'Negociación T-MEC - Sector automotriz',
+      'Arbitraje internacional Pemex vs. Shell - $2.5B USD',
+      'Disputa comercial México-China - Acero y aluminio'
+    ],
+    linkedIn: 'https://linkedin.com/in/gabrieltorres',
+    isPartner: true,
+    image: '/images/attorneys/attorney1.png',
+    shortDescription: 'Experto en derecho internacional con 20 años de experiencia'
+  },
+  {
+    id: '13',
+    name: 'Dra. Lucía Hernández',
+    position: 'Socia Senior',
+    specialization: ['Derecho Energético', 'Regulación Petrolera', 'Energías Renovables'],
+    experience: 17,
+    education: [
+      'Licenciatura en Derecho - ITAM',
+      'Maestría en Derecho Energético - Universidad de Houston',
+      'Doctorado en Regulación Energética - Universidad de Cambridge'
+    ],
+    languages: ['Español', 'Inglés', 'Francés'],
+    email: 'lhernandez@altumlegal.mx',
+    phone: '+52 55 1234-5690',
+    bio: 'Especialista en derecho energético con experiencia en proyectos de petróleo, gas y energías renovables.',
+    achievements: [
+      'Asesora de la Comisión Nacional de Hidrocarburos',
+      'Experta en contratos petroleros',
+      'Líder en proyectos de energía solar y eólica',
+      'Reconocida por Chambers & Partners 2023'
+    ],
+    cases: [
+      'Licitación Ronda 3.1 Pemex - 35 bloques petroleros',
+      'Proyecto solar Villanueva - 754 MW',
+      'Gasoducto marino Texas-Tuxpan - $2.5B USD'
+    ],
+    linkedIn: 'https://linkedin.com/in/luciahernandez',
+    isPartner: true,
+    image: '/images/attorneys/attorney1.png',
+    shortDescription: 'Especialista en derecho energético con 17 años de experiencia'
+  },
+  {
+    id: '14',
+    name: 'Lic. Andrés Ramírez',
+    position: 'Asociado Senior',
+    specialization: ['Derecho Marítimo', 'Transporte', 'Logística Internacional'],
+    experience: 14,
+    education: [
+      'Licenciatura en Derecho - Universidad de Veracruz',
+      'Maestría en Derecho Marítimo - Universidad Marítima Internacional de Panamá'
+    ],
+    languages: ['Español', 'Inglés', 'Portugués'],
+    email: 'aramirez@altumlegal.mx',
+    phone: '+52 55 1234-5691',
+    bio: 'Experto en derecho marítimo y transporte internacional. Ha manejado casos de las principales navieras del mundo.',
+    achievements: [
+      'Certificado en Derecho Marítimo Internacional',
+      'Asesor de la Autoridad Portuaria Nacional',
+      'Experto en contratos de fletamento',
+      'Miembro de la Asociación Internacional de Derecho Marítimo'
+    ],
+    cases: [
+      'Accidente marítimo Golfo de México - $500M USD',
+      'Contrato naviera Maersk México - Transporte contenedores',
+      'Desarrollo puerto Veracruz - Expansión $1.5B USD'
+    ],
+    linkedIn: 'https://linkedin.com/in/andresramirez',
+    isPartner: false,
+    image: '/images/attorneys/attorney1.png',
+    shortDescription: 'Experto en derecho marítimo con 14 años de experiencia'
+  },
+  {
+    id: '15',
+    name: 'Dra. Carmen Gutiérrez',
+    position: 'Socia',
+    specialization: ['Derecho de Familia Empresarial', 'Sucesiones', 'Fideicomisos'],
+    experience: 21,
+    education: [
+      'Licenciatura en Derecho - Universidad La Salle',
+      'Maestría en Derecho Privado - Universidad Complutense Madrid',
+      'Doctorado en Derecho Sucesorio - Universidad de Salamanca'
+    ],
+    languages: ['Español', 'Inglés', 'Italiano'],
+    email: 'cgutierrez@altumlegal.mx',
+    phone: '+52 55 1234-5692',
+    bio: 'Especialista en estructuras patrimoniales y sucesiones de grandes fortunas. Experta en family office y wealth management legal.',
+    achievements: [
+      'Doctora en Derecho Sucesorio',
+      'Asesora de las 50 familias más ricas de México',
+      'Experta en fideicomisos internacionales',
+      'Certificada en wealth management por Swiss Banking School'
+    ],
+    cases: [
+      'Sucesión Familia Slim - Estructuración $70B USD',
+      'Family Office Grupo Salinas - Reestructura patrimonial',
+      'Fideicomiso internacional Grupo Baillères - $10B USD'
+    ],
+    linkedIn: 'https://linkedin.com/in/carmengutierrez',
+    isPartner: true,
+    image: '/images/attorneys/attorney1.png',
+    shortDescription: 'Experta en derecho patrimonial con 21 años de experiencia'
   }
 ];

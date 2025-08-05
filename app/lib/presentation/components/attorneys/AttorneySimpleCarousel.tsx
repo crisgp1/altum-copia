@@ -8,6 +8,7 @@ import { createPortal } from 'react-dom';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import { CardSpacingService } from '@/app/lib/domain/services/CardSpacingService';
+import { AnimationConfigService } from '@/app/lib/domain/services/AnimationConfigService';
 
 export const AttorneySimpleCarousel: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -22,6 +23,7 @@ export const AttorneySimpleCarousel: React.FC = () => {
     setSelectedAttorney(attorney);
     document.body.style.overflow = 'hidden';
   };
+  
 
   const closeModal = () => {
     const modal = document.querySelector('.attorney-modal-content');
