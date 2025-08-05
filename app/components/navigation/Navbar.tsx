@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 import {
   SignInButton,
@@ -25,6 +26,7 @@ const navItems: NavItem[] = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<HTMLDivElement[]>([]);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -130,10 +132,10 @@ export default function Navbar() {
 
   const handleNavClick = (href: string) => {
     setIsOpen(false);
-    // Add a small delay for the animation to start before navigation
+    // Add a small delay for the menu close animation
     setTimeout(() => {
-      window.location.href = href;
-    }, 200);
+      router.push(href);
+    }, 300);
   };
 
   return (
