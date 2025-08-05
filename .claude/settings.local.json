@@ -14,7 +14,8 @@
       "Bash(rm:*)",
       "Bash(timeout 10s npm run dev)",
       "Bash(npm run typecheck:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

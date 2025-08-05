@@ -2,6 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 
 interface NavItem {
   label: string;
@@ -134,7 +141,7 @@ export default function Navbar() {
       {/* Glassmorphism Header Bar */}
       <nav className="fixed top-0 left-0 right-0 z-50">
         <div 
-          className="bg-white/80 backdrop-blur-md border-b border-white/30"
+          className="bg-white/70 backdrop-blur-xl border-b border-white/30"
           style={{
             background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(183,159,118,0.1) 100%)'
           }}
@@ -143,10 +150,39 @@ export default function Navbar() {
             <div className="flex justify-between items-center h-20">
               {/* Logo */}
               <div className="flex items-center">
-                <div className="text-2xl leading-tight">
+                <div className="text-xl leading-tight">
                   <span className="altum-brand text-slate-800">ALTUM</span>{' '}
                   <span className="legal-brand" style={{ color: '#B79F76' }}>Legal</span>
                 </div>
+              </div>
+
+              {/* Auth Section */}
+              <div className="flex items-center gap-4 mr-4">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="text-xs font-medium text-slate-700 hover:text-slate-900 transition-colors">
+                      Iniciar Sesión
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="px-4 py-2 text-xs font-medium text-white rounded-full transition-colors"
+                      style={{ backgroundColor: '#B79F76' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#152239'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#B79F76'}
+                    >
+                      Registrarse
+                    </button>
+                  </SignUpButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton 
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-8 h-8"
+                      }
+                    }}
+                  />
+                </SignedIn>
               </div>
 
               {/* Elegant Menu Button */}
@@ -191,7 +227,7 @@ export default function Navbar() {
           {/* Logo in Menu */}
           <div 
             ref={logoRef}
-            className="absolute top-8 left-8 text-2xl leading-tight"
+            className="absolute top-8 left-8 text-xl leading-tight"
           >
             <span className="altum-brand text-slate-900">ALTUM</span>{' '}
             <span className="legal-brand" style={{ color: '#B79F76' }}>Legal</span>
@@ -212,7 +248,7 @@ export default function Navbar() {
                       e.preventDefault();
                       handleNavClick(item.href);
                     }}
-                    className="group block text-4xl md:text-3xl lg:text-4xl xl:text-5xl font-light cursor-pointer leading-tight relative"
+                    className="group block text-2xl md:text-2xl lg:text-3xl xl:text-3xl font-light cursor-pointer leading-tight relative"
                     style={{ 
                       fontFamily: 'Minion Pro, serif',
                       color: '#152239'
@@ -233,33 +269,38 @@ export default function Navbar() {
             
             {/* Sophisticated CTA Button */}
             <div className="text-left pt-12 lg:pt-16">
-              <button
-                ref={ctaButtonRef}
-                onClick={() => {
-                  setIsOpen(false);
-                  setTimeout(() => {
-                    // Scroll to contact section or handle CTA
-                    const contactSection = document.querySelector('#contact');
-                    if (contactSection) {
-                      contactSection.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }, 200);
-                }}
-                className="group relative overflow-hidden rounded-full px-12 py-6 text-lg font-medium transition-all duration-500 border-2"
-                style={{
-                  backgroundColor: '#152239',
-                  borderColor: '#152239',
-                  color: '#FFFFFF'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#B79F76';
-                  e.currentTarget.style.borderColor = '#B79F76';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#152239';
-                  e.currentTarget.style.borderColor = '#152239';
-                }}
-              >
+              <div style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate' }}>
+                <button
+                  ref={ctaButtonRef}
+                  onClick={() => {
+                    setIsOpen(false);
+                    setTimeout(() => {
+                      // Scroll to contact section or handle CTA
+                      const contactSection = document.querySelector('#contact');
+                      if (contactSection) {
+                        contactSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 200);
+                  }}
+                  className="group relative overflow-hidden rounded-full px-10 py-4 text-base font-medium transition-all duration-500 shadow-xl"
+                  style={{
+                    backgroundColor: '#152239',
+                    border: '2px solid #152239',
+                    color: '#FFFFFF',
+                    backdropFilter: 'none',
+                    WebkitBackdropFilter: 'none',
+                    position: 'relative',
+                    zIndex: 10
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#B79F76';
+                    e.currentTarget.style.border = '2px solid #B79F76';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#152239';
+                    e.currentTarget.style.border = '2px solid #152239';
+                  }}
+                >
                 <span className="relative z-10 flex items-center">
                   Consulta Gratuita
                   <svg 
@@ -272,6 +313,7 @@ export default function Navbar() {
                   </svg>
                 </span>
               </button>
+              </div>
             </div>
           </div>
 

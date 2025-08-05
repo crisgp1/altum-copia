@@ -204,20 +204,20 @@ export default function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left Content */}
           <div className="relative">
             {/* Persistent ALTUM Legal Branding - Official typography and colors */}
-            <div className="persistent-branding mb-8 relative z-10">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight" style={{ color: '#000000' }}>
+            <div className="persistent-branding mb-6 sm:mb-8 relative z-10">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight" style={{ color: '#000000' }}>
                 <span className="altum-brand">ALTUM</span>{' '}
                 <span className="legal-brand" style={{ color: '#B79F76' }}>Legal</span>
               </h1>
             </div>
 
-            {/* Dynamic Content Container - Fixed height to prevent layout shift */}
-            <div className="min-h-[400px]">
+            {/* Dynamic Content Container - Responsive min-height */}
+            <div className="min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]">
               {/* Dynamic Content - Changes with transitions */}
               <div className="mb-6">
                 <span 
@@ -231,7 +231,7 @@ export default function HeroSection() {
               
               <h2
                 ref={titleRef}
-                className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold mb-2 leading-tight"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif font-bold mb-2 leading-tight"
                 style={{ color: '#000000' }}
               >
                 {currentSlideData.title}
@@ -246,15 +246,15 @@ export default function HeroSection() {
 
               <p
                 ref={descriptionRef}
-                className="text-lg mb-10 leading-relaxed font-light"
+                className="text-base sm:text-lg mb-6 sm:mb-8 lg:mb-10 leading-relaxed font-light"
                 style={{ color: '#152239' }}
               >
                 {currentSlideData.description}
               </p>
 
-              <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4">
+              <div ref={ctaRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button 
-                  className="group px-8 py-4 font-medium transition-all duration-300"
+                  className="group px-6 sm:px-8 py-3 sm:py-4 font-medium transition-all duration-300 text-sm sm:text-base"
                   style={{ 
                     backgroundColor: '#152239',
                     color: '#FFFFFF'
@@ -276,7 +276,7 @@ export default function HeroSection() {
                 </button>
                 
                 <button 
-                  className="group px-8 py-4 font-medium border-2 transition-all duration-300"
+                  className="group px-6 sm:px-8 py-3 sm:py-4 font-medium border-2 transition-all duration-300 text-sm sm:text-base"
                   style={{ 
                     borderColor: '#B79F76',
                     color: '#152239',
@@ -308,10 +308,10 @@ export default function HeroSection() {
           </div>
 
           {/* Right Content - Professional Illustration */}
-          <div className="relative">
+          <div className="relative mt-8 lg:mt-0">
             <div 
               ref={iconRef}
-              className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-stone-200 rounded-2xl flex items-center justify-center relative overflow-hidden"
+              className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-stone-200 rounded-xl sm:rounded-2xl flex items-center justify-center relative overflow-hidden"
             >
               {/* Decorative elements */}
               <div className="absolute top-4 right-4 w-16 h-16 bg-amber-200 rounded-full opacity-60"></div>
@@ -329,8 +329,8 @@ export default function HeroSection() {
       </div>
 
       {/* Mainletter.ru Style Navigation */}
-      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="flex items-center justify-center space-x-12">
+      <div className="absolute bottom-6 sm:bottom-12 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="flex items-center justify-center space-x-6 sm:space-x-12">
           {/* Previous Button - ALTUM brand colors */}
           <button
             onClick={prevSlide}
@@ -343,7 +343,7 @@ export default function HeroSection() {
             <svg className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
               <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
             </svg>
-            <span className="text-sm font-medium uppercase tracking-wider">ATRÁS</span>
+            <span className="text-xs sm:text-sm font-medium uppercase tracking-wider">ATRÁS</span>
           </button>
 
           {/* Slide Indicators - ALTUM brand colors */}
@@ -381,7 +381,7 @@ export default function HeroSection() {
             onMouseEnter={(e) => e.currentTarget.style.color = '#B79F76'}
             onMouseLeave={(e) => e.currentTarget.style.color = '#152239'}
           >
-            <span className="text-sm font-medium uppercase tracking-wider">SIGUIENTE</span>
+            <span className="text-xs sm:text-sm font-medium uppercase tracking-wider">SIGUIENTE</span>
             <svg className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
             </svg>
