@@ -52,6 +52,22 @@
   }
 }
 
+@font-face {
+  font-family: 'Bennet';
+  src: url('/assets/fonts/Bennet-Text-Three-.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bennet';
+  src: url('/assets/fonts/Bennet-Text-Three-Semi-Bold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Brand Typography Classes */
 .altum-brand {
   font-family: 'Trajan Pro', serif;
@@ -70,8 +86,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Minion Pro', serif;
-
+  font-family: 'Bennet', serif;
 }
 
 
@@ -91,7 +106,156 @@ body {
   overflow: hidden;
 }
 
-/* Article content styling with better readability */
+/* Medium-style article content with Bennet typography */
+.medium-prose {
+  font-size: 20px;
+  line-height: 1.58;
+  color: #292929;
+  font-family: 'Bennet', serif;
+  font-weight: normal;
+  letter-spacing: -0.003em;
+}
+
+.medium-prose h1 {
+  font-size: 42px;
+  font-weight: 600;
+  color: #292929;
+  font-family: 'Bennet', serif;
+  margin: 2rem 0 0.5rem 0;
+  line-height: 1.15;
+  letter-spacing: -0.022em;
+}
+
+.medium-prose h2 {
+  font-size: 32px;
+  font-weight: 600;
+  color: #292929;
+  font-family: 'Bennet', serif;
+  margin: 2rem 0 0.5rem 0;
+  line-height: 1.25;
+  letter-spacing: -0.018em;
+}
+
+.medium-prose h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #292929;
+  font-family: 'Bennet', serif;
+  margin: 1.75rem 0 0.5rem 0;
+  line-height: 1.3;
+  letter-spacing: -0.014em;
+}
+
+.medium-prose h4 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #292929;
+  font-family: 'Bennet', serif;
+  margin: 1.5rem 0 0.5rem 0;
+  line-height: 1.4;
+  letter-spacing: -0.011em;
+}
+
+.medium-prose p {
+  margin: 1.5rem 0;
+  color: #292929;
+  font-weight: normal;
+  font-family: 'Bennet', serif;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
+  word-break: break-word;
+}
+
+.medium-prose ul {
+  margin: 1.5rem 0;
+  padding-left: 30px;
+  font-family: 'Bennet', serif;
+}
+
+.medium-prose ol {
+  margin: 1.5rem 0;
+  padding-left: 30px;
+  font-family: 'Bennet', serif;
+}
+
+.medium-prose li {
+  margin: 0.5rem 0;
+  color: #292929;
+  font-family: 'Bennet', serif;
+  font-weight: normal;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
+}
+
+.medium-prose li::marker {
+  color: #757575;
+}
+
+.medium-prose strong,
+.medium-prose b {
+  color: #292929;
+  font-family: 'Bennet', serif;
+  font-weight: 600;
+}
+
+.medium-prose em,
+.medium-prose i {
+  font-style: italic;
+  font-family: 'Bennet', serif;
+}
+
+.medium-prose blockquote {
+  border-left: 3px solid #1a1a1a;
+  padding-left: 23px;
+  margin: 2rem 0;
+  font-style: italic;
+  color: #6B6B6B;
+  font-family: 'Bennet', serif;
+  font-weight: normal;
+  font-size: 20px;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
+}
+
+.medium-prose a {
+  color: inherit;
+  font-family: 'Bennet', serif;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(41, 41, 41, 0.13);
+  text-underline-offset: 2px;
+  transition: all 0.1s ease;
+}
+
+.medium-prose a:hover {
+  text-decoration-color: rgba(41, 41, 41, 1);
+}
+
+.medium-prose code {
+  background-color: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.medium-prose pre {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin: 2rem 0;
+}
+
+.medium-prose pre code {
+  background: none;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Legacy prose-content for backwards compatibility */
 .prose-content {
   font-size: 18px;
   line-height: 1.8;

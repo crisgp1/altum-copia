@@ -107,12 +107,12 @@ export default function PostHeader({ post, author, category }: PostHeaderProps) 
         </div>
 
         {/* Title */}
-        <h1 
+        <h1
           ref={titleRef}
           className="text-3xl md:text-4xl lg:text-5xl mb-6 leading-tight"
-          style={{ 
-            fontFamily: 'Minion Pro, serif',
-            fontWeight: 'bold',
+          style={{
+            fontFamily: 'Bennet, serif',
+            fontWeight: '600',
             color: '#152239'
           }}
         >
@@ -129,8 +129,8 @@ export default function PostHeader({ post, author, category }: PostHeaderProps) 
               </span>
             </div>
             <div>
-              <p className="font-medium text-slate-800">{author?.name || 'ALTUM Legal'}</p>
-              <p className="text-sm text-slate-500">{author?.position || 'Equipo Legal'}</p>
+              <p className="font-semibold text-slate-800" style={{ fontFamily: 'Bennet, serif', fontWeight: '600' }}>{author?.name || 'ALTUM Legal'}</p>
+              <p className="text-sm text-slate-500" style={{ fontFamily: 'Bennet, serif', fontWeight: 'normal' }}>{author?.position || 'Equipo Legal'}</p>
             </div>
           </div>
 

@@ -93,26 +93,39 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <main className="min-h-screen bg-white">
       {/* Post Header */}
-      <PostHeader 
-        post={post} 
-        author={author} 
-        category={category} 
+      <PostHeader
+        post={post}
+        author={author}
+        category={category}
       />
       
-      {/* Post Content */}
-      <div className="max-w-4xl mx-auto px-6 lg:px-8">
-        <div className="grid lg:grid-cols-4 gap-12">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            <PostContent post={post} />
+      {/* Post Content - Medium Style Layout */}
+      <div className="relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center">
+            {/* Main Content - Medium Style Width */}
+            <div className="w-full max-w-2xl">
+              <PostContent post={post} />
+            </div>
+            
+            {/* Sidebar - Sticky positioned like Medium */}
+            <div className="hidden lg:block lg:w-80 lg:pl-12 lg:flex-shrink-0">
+              <div className="sticky top-8">
+                <PostMeta
+                  post={post}
+                  author={author}
+                  category={category}
+                />
+              </div>
+            </div>
           </div>
           
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <PostMeta 
-              post={post} 
-              author={author} 
-              category={category} 
+          {/* Mobile Sidebar - Below content on mobile */}
+          <div className="lg:hidden max-w-2xl mx-auto mt-12">
+            <PostMeta
+              post={post}
+              author={author}
+              category={category}
             />
           </div>
         </div>
