@@ -110,7 +110,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             
             {/* Sidebar - Sticky positioned like Medium */}
             <div className="hidden lg:block lg:w-80 lg:pl-12 lg:flex-shrink-0">
-              <div className="sticky top-8">
+              <div className="sticky top-24 pt-8">
                 <PostMeta
                   post={post}
                   author={author}
