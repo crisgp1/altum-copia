@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DollarSign, Gavel, Calculator, Building, Users, ArrowRight, Briefcase, Scale } from 'lucide-react';
@@ -62,26 +63,124 @@ const serviceItems: ServiceItem[] = [
   }
 ];
 
-const verticalServices: VerticalService[] = [
+interface ServiceDetail {
+  number: string;
+  title: string;
+  description: string;
+}
+
+interface VerticalServiceWithDetails extends VerticalService {
+  details: ServiceDetail[];
+}
+
+const verticalServices: VerticalServiceWithDetails[] = [
   {
-    title: 'Bankruptcy',
-    backgroundColor: '#B8956F',
-    icon: <DollarSign className="w-12 h-12 text-white" />
+    title: 'Derecho Corporativo',
+    backgroundColor: '#D4A574',
+    icon: <Building className="w-12 h-12 text-white" />,
+    details: [
+      {
+        number: '01',
+        title: 'Constitución de empresas',
+        description: 'Asesoría integral para la constitución de sociedades mercantiles y civiles'
+      },
+      {
+        number: '02', 
+        title: 'Fusiones y adquisiciones',
+        description: 'Estructuración y ejecución de operaciones de M&A empresariales'
+      },
+      {
+        number: '03',
+        title: 'Contratos comerciales',
+        description: 'Redacción y negociación de contratos mercantiles complejos'
+      },
+      {
+        number: '04',
+        title: 'Compliance corporativo',
+        description: 'Implementación de programas de cumplimiento normativo'
+      }
+    ]
   },
   {
-    title: 'Criminal legal protection of business',
-    backgroundColor: '#5B8AAE', 
-    icon: <Gavel className="w-12 h-12 text-white" />
+    title: 'Litigio Estratégico',
+    backgroundColor: '#7FAAB3', 
+    icon: <Gavel className="w-12 h-12 text-white" />,
+    details: [
+      {
+        number: '01',
+        title: 'Litigio civil y mercantil',
+        description: 'Representación en controversias civiles y comerciales complejas'
+      },
+      {
+        number: '02',
+        title: 'Arbitraje comercial',
+        description: 'Resolución de disputas mediante arbitraje nacional e internacional'
+      },
+      {
+        number: '03',
+        title: 'Litigio constitucional',
+        description: 'Amparo y controversias constitucionales'
+      },
+      {
+        number: '04',
+        title: 'Ejecución de sentencias',
+        description: 'Estrategias de cobro y ejecución de resoluciones judiciales'
+      }
+    ]
   },
   {
-    title: 'Taxes',
-    backgroundColor: '#A89B7A',
-    icon: <Calculator className="w-12 h-12 text-white" />
+    title: 'Derecho Fiscal',
+    backgroundColor: '#C5B299',
+    icon: <Calculator className="w-12 h-12 text-white" />,
+    details: [
+      {
+        number: '01',
+        title: 'Planeación fiscal',
+        description: 'Estructuras fiscales eficientes para personas físicas y morales'
+      },
+      {
+        number: '02',
+        title: 'Defensa fiscal',
+        description: 'Representación ante autoridades fiscales y tribunales'
+      },
+      {
+        number: '03',
+        title: 'Precios de transferencia',
+        description: 'Estudios y defensa en materia de precios de transferencia'
+      },
+      {
+        number: '04',
+        title: 'Comercio exterior',
+        description: 'Asesoría en operaciones de importación y exportación'
+      }
+    ]
   },
   {
-    title: 'Outsourcing',
+    title: 'Derecho Laboral',
     backgroundColor: '#3D4A5C',
-    icon: <Briefcase className="w-12 h-12 text-white" />
+    icon: <Users className="w-12 h-12 text-white" />,
+    details: [
+      {
+        number: '01',
+        title: 'Relaciones laborales',
+        description: 'Asesoría preventiva en derecho del trabajo'
+      },
+      {
+        number: '02',
+        title: 'Litigio laboral',
+        description: 'Defensa en conflictos individuales y colectivos de trabajo'
+      },
+      {
+        number: '03',
+        title: 'Seguridad social',
+        description: 'Trámites y defensa ante el IMSS, INFONAVIT y AFORE'
+      },
+      {
+        number: '04',
+        title: 'Outsourcing legal',
+        description: 'Esquemas de tercerización conforme a la nueva legislación'
+      }
+    ]
   }
 ];
 
@@ -91,6 +190,7 @@ export default function ServicesPreview() {
   const rightContentRef = useRef<HTMLDivElement>(null);
   const columnRefs = useRef<HTMLDivElement[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [clickedIndex, setClickedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -214,61 +314,169 @@ export default function ServicesPreview() {
     });
   };
 
+  // Simple card click - visual feedback only
+  const handleCardClick = (clickedCardIndex: number) => {
+    // Toggle: if clicking the same card, collapse it, otherwise expand the new one
+    setClickedIndex(clickedIndex === clickedCardIndex ? null : clickedCardIndex);
+  };
+
   return (
     <section
       ref={sectionRef}
       className="py-24 bg-white relative"
+      onClick={(e) => {
+        // Check if click is outside all cards - reset selection
+        if (e.target === sectionRef.current || e.target === e.currentTarget) {
+          setClickedIndex(null);
+        }
+      }}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="relative flex h-[600px]">
-          {/* Left Side - Settlement of Disputes */}
-          <div ref={leftContentRef} className="flex-1 space-y-8 pr-8">
-            <div className="space-y-6">
-              <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight">
-                Solución integral de
-                <span className="block text-slate-800">disputas legales</span>
-              </h2>
-              
-              <div className="flex items-center space-x-4">
-                <span className="text-slate-800 font-medium">Más</span>
-                <div className="flex-1 h-px bg-slate-300"></div>
-                <ArrowRight className="w-5 h-5 text-slate-800" />
-              </div>
+      <div className="max-w-7xl mx-auto px-6 lg:px-8" onClick={(e) => {
+        // Allow clicks on content to reset selection too
+        if (!e.target.closest('[data-service-card]')) {
+          setClickedIndex(null);
+        }
+      }}>
+        <div className="relative flex flex-col lg:flex-row h-auto lg:h-[600px] gap-8 lg:gap-0">
+          {/* Mobile Title */}
+          <div className="lg:hidden mb-6">
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-800 leading-tight text-center">
+              Nuestros Servicios
+            </h2>
+            <div className="flex items-center justify-center mt-4">
+              <div className="flex-1 h-px bg-slate-300 max-w-20"></div>
+              <ArrowRight className="w-5 h-5 text-slate-800 mx-4" />
+              <div className="flex-1 h-px bg-slate-300 max-w-20"></div>
             </div>
+          </div>
 
-            {/* Numbered Services List */}
-            <div className="space-y-8 overflow-y-auto max-h-[400px]">
-              {serviceItems.map((service) => (
-                <div key={service.number} className="space-y-3">
-                  <div className="flex items-start space-x-4">
-                    <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">
-                      {service.number}
-                    </span>
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-bold text-slate-800">
-                        {service.title}
-                      </h3>
-                      <p className="text-slate-600 leading-relaxed text-sm">
-                        {service.description}
-                      </p>
+          {/* Left Side - Dynamic ALTUM Content - Desktop only */}
+          <div ref={leftContentRef} className="hidden lg:flex flex-1 flex-col space-y-8 lg:pr-24 lg:max-w-2xl">
+            {clickedIndex === null ? (
+              // Default ALTUM Legal content formatted for this section
+              <>
+                <div className="space-y-6">
+                  <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight">
+                    ALTUM LEGAL
+                  </h2>
+                  
+                  <div className="flex items-center space-x-4">
+                    <span className="text-slate-800 font-medium">Defensa jurídica con ética, transparencia y compromiso real</span>
+                    <div className="flex-1 h-px bg-slate-300"></div>
+                    <ArrowRight className="w-5 h-5 text-slate-800" />
+                  </div>
+                </div>
+
+                {/* ALTUM Legal Values as numbered list */}
+                <div className="space-y-8 overflow-y-auto max-h-[400px]">
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-4">
+                      <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">01</span>
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-slate-800">Compromiso Personal</h3>
+                        <p className="text-slate-600 leading-relaxed text-sm">
+                          Sabemos que detrás de cada asunto legal hay personas, familias y empresas que confían en nosotros. Defendemos causas, cuidamos intereses y protegemos derechos.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-4">
+                      <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">02</span>
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-slate-800">Especialistas Éticos</h3>
+                        <p className="text-slate-600 leading-relaxed text-sm">
+                          Despacho conformado por especialistas que trabajan bajo un código de ética estricto, garantizando trato respetuoso, cercano y profesional desde el primer contacto.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-4">
+                      <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">03</span>
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-slate-800">Transparencia y Confianza</h3>
+                        <p className="text-slate-600 leading-relaxed text-sm">
+                          La transparencia, honestidad y confianza son la base de cada acción. Buscamos relaciones de asociación a largo plazo para brindar soluciones integrales.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-4">
+                      <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">04</span>
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-slate-800">Trabajo Colaborativo</h3>
+                        <p className="text-slate-600 leading-relaxed text-sm">
+                          Impulsamos la colaboración entre especialistas para ofrecer soluciones legales integrales. Trabajamos coordinados, como un solo equipo con amplia capacidad.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </>
+            ) : (
+              // Selected service content
+              <>
+                <div className="space-y-6">
+                  <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight">
+                    {verticalServices[clickedIndex].title}
+                  </h2>
+                  
+                  <div className="flex items-center space-x-4">
+                    <span className="text-slate-800 font-medium">Más</span>
+                    <div className="flex-1 h-px bg-slate-300"></div>
+                    <ArrowRight className="w-5 h-5 text-slate-800" />
+                    <button 
+                      onClick={() => setClickedIndex(null)}
+                      className="ml-4 text-slate-500 hover:text-slate-800 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                {/* Selected Service Details */}
+                <div className="space-y-8 overflow-y-auto max-h-[400px]">
+                  {verticalServices[clickedIndex].details.map((service) => (
+                    <div key={service.number} className="space-y-3">
+                      <div className="flex items-start space-x-4">
+                        <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">
+                          {service.number}
+                        </span>
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-bold text-slate-800">
+                            {service.title}
+                          </h3>
+                          <p className="text-slate-600 leading-relaxed text-sm">
+                            {service.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Right Side - Vertical Service Columns - Independent positioning outside container */}
-      <div ref={rightContentRef} className="absolute -right-10 top-24 h-[600px]">
-        <div className="flex h-full items-end justify-end">
+
+      {/* Right Side - Vertical Service Columns - Responsive Layout */}
+      <div ref={rightContentRef} className="lg:absolute lg:-right-10 lg:top-24 lg:h-[600px] w-full lg:w-auto">
+        {/* Desktop Layout - Wallet Cards */}
+        <div className="hidden lg:flex h-full items-end justify-end">
           {verticalServices.map((service, index) => (
             <div
               key={service.title}
               ref={(el) => {
                 if (el) columnRefs.current[index] = el;
               }}
+              data-service-card
               className="relative flex flex-col items-center justify-between text-white p-6 cursor-pointer overflow-hidden"
               style={{ 
                 backgroundColor: service.backgroundColor,
@@ -277,10 +485,16 @@ export default function ServicesPreview() {
                 marginLeft: index > 0 ? '-20px' : '0', // More overlap like wallet cards
                 zIndex: index + 1, // Higher z-index for bigger cards (right side)
                 borderRadius: '0',
-                alignSelf: 'flex-end' // Align to bottom
+                alignSelf: 'flex-end', // Align to bottom
+                filter: clickedIndex === null ? 'brightness(1.1) saturate(1.05)' : (clickedIndex === index ? 'brightness(1.3) saturate(1.4)' : 'brightness(0.8)'),
+                transition: 'filter 0.3s ease-in-out'
               }}
               onMouseEnter={() => handleColumnHover(index)}
               onMouseLeave={() => handleColumnHover(null)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event bubbling to section
+                handleCardClick(index);
+              }}
             >
               {/* Service Title - Vertical Text at Top Left Inverted */}
               <div className="absolute left-4 top-8">
@@ -308,7 +522,114 @@ export default function ServicesPreview() {
             </div>
           ))}
         </div>
+
+        {/* Mobile Layout - Dropdown Style Cards */}
+        <div className="flex lg:hidden flex-col order-first lg:order-last w-full">
+          {verticalServices.map((service, index) => (
+            <div
+              key={service.title}
+              data-service-card
+              className="relative cursor-pointer overflow-hidden transition-all duration-300 w-full"
+              style={{
+                backgroundColor: service.backgroundColor,
+                filter: clickedIndex === null ? 'brightness(1.1) saturate(1.05)' : (clickedIndex === index ? 'brightness(1.3) saturate(1.4)' : 'brightness(0.8)'),
+                transition: 'filter 0.3s ease-in-out, height 0.3s ease-in-out',
+                height: clickedIndex === index 
+                  ? 'auto' 
+                  : '80px', // Same height for all cards - wider
+                width: '100vw', // Full viewport width
+                marginLeft: 'calc(-50vw + 50%)', // Center and extend to full width
+                marginRight: 'calc(-50vw + 50%)'
+              }}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event bubbling to section
+                handleCardClick(index);
+              }}
+            >
+              {/* Card Header */}
+              <div className="flex items-start justify-between px-6 py-4">
+                <div className="flex-1">
+                  <h3 
+                    className="text-lg font-bold leading-tight"
+                    style={{
+                      color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.95)' : '#ffffff'
+                    }}
+                  >
+                    {service.title}
+                  </h3>
+                </div>
+                <div className="flex items-center space-x-3 ml-4">
+                  <div className="flex-shrink-0">
+                    {React.cloneElement(service.icon as React.ReactElement, {
+                      className: "w-6 h-6",
+                      style: { color: service.backgroundColor === '#8B7D5B' ? 'rgba(0,0,0,0.8)' : '#ffffff' }
+                    })}
+                  </div>
+                  <div>
+                    <ArrowRight 
+                      className={`w-4 h-4 transition-transform duration-300 ${
+                        clickedIndex === index ? 'rotate-90' : 'rotate-0'
+                      }`}
+                      style={{ color: service.backgroundColor === '#8B7D5B' ? 'rgba(0,0,0,0.8)' : '#ffffff' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Expandable Content */}
+              <div 
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                  clickedIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
+                <div 
+                  className="px-6 pb-8 space-y-3"
+                  style={{
+                    borderTop: `1px solid ${service.backgroundColor === '#B8956F' ? 'rgba(255,255,255,0.3)' : 
+                                           service.backgroundColor === '#5B8AAE' ? 'rgba(255,255,255,0.4)' : 
+                                           service.backgroundColor === '#A89B7A' ? 'rgba(255,255,255,0.3)' : 
+                                           'rgba(255,255,255,0.5)'}`
+                  }}
+                >
+                  {service.details.map((detail, detailIndex) => (
+                    <div key={detail.number} className="pt-3 first:pt-4">
+                      <div className="flex items-start space-x-3">
+                        <span 
+                          className="font-bold text-sm min-w-[2rem]"
+                          style={{
+                            color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.8)' : '#ffffff' // Dark text for yellow background
+                          }}
+                        >
+                          {detail.number}
+                        </span>
+                        <div className="space-y-1">
+                          <h4 
+                            className="font-medium text-sm"
+                            style={{
+                              color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.95)' : '#ffffff' // Dark text for yellow background
+                            }}
+                          >
+                            {detail.title}
+                          </h4>
+                          <p 
+                            className="text-xs leading-relaxed"
+                            style={{
+                              color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.95)' // Dark text for yellow background
+                            }}
+                          >
+                            {detail.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
+
     </section>
   );
 }

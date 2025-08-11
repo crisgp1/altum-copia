@@ -46,7 +46,7 @@ export const AttorneyGSAPCarousel: React.FC = () => {
 
   return (
     <>
-      <section className="py-16 bg-neutral-50">
+      <section className="py-16 pb-24 bg-neutral-50">
         <div className="w-full" style={{ margin: 0, padding: 0 }}>
           {/* Section Header */}
           <div className="text-center mb-12 px-6 lg:px-8">
@@ -77,7 +77,7 @@ export const AttorneyGSAPCarousel: React.FC = () => {
             <div
               className="relative w-full overflow-hidden"
               style={{
-                height: 'clamp(400px, 50vh, 550px)', // Mobile responsive height
+                height: 'clamp(500px, 60vh, 650px)', // Mobile responsive height - more rectangular
                 margin: 0,
                 padding: 0
               }}
@@ -153,7 +153,22 @@ const AttorneyDetailModal: React.FC<AttorneyDetailModalProps> = ({ attorney, onC
       },
       "-=0.1"
     );
-  }, []);
+
+    // ESC key handler
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
 
   return (
     <div 
@@ -169,7 +184,7 @@ const AttorneyDetailModal: React.FC<AttorneyDetailModalProps> = ({ attorney, onC
       {/* Modal Content */}
       <div 
         ref={contentRef}
-        className="attorney-modal-content relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden"
+        className="attorney-modal-content relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto"
       >
         {/* Close Button */}
         <button
@@ -182,7 +197,7 @@ const AttorneyDetailModal: React.FC<AttorneyDetailModalProps> = ({ attorney, onC
         </button>
 
         {/* Two Column Layout */}
-        <div className="flex flex-col lg:flex-row h-full">
+        <div className="flex flex-col lg:flex-row min-h-full">
           {/* Left Column - Image */}
           <div className="relative lg:w-2/5 h-64 lg:h-auto">
             <Image
@@ -206,7 +221,7 @@ const AttorneyDetailModal: React.FC<AttorneyDetailModalProps> = ({ attorney, onC
           </div>
 
           {/* Right Column - Content */}
-          <div className="flex-1 p-8 lg:p-12 overflow-y-auto">
+          <div className="flex-1 p-8 lg:p-12">
             {/* Quick Info */}
             <div className="flex flex-wrap gap-4 mb-8">
               <div className="flex items-center text-slate-600">

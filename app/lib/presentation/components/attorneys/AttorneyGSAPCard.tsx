@@ -136,9 +136,13 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
     console.log('useEffect triggered - isActive:', isActive, 'index:', index, 'hoveredIndex:', hoveredIndex);
     if (!cardRef.current) return;
 
+    // Kill any existing animations on this card first to ensure clean transitions
+    gsap.killTweensOf([verticalTextRef.current, expandedContentRef.current, backgroundOverlayRef.current, bottomRightTextRef.current, cardRef.current]);
+
     // Usar hoveredIndex directamente en lugar de isActive
     if (hoveredIndex === index) {
       console.log('Card is hovered IMMEDIATELY, index:', index, 'attorney:', attorney.name);
+      
       // Reset typewriter antes de empezar - sin dependencia
       if (typewriterRef.current) {
         typewriterRef.current.innerHTML = '';
@@ -232,12 +236,12 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
             duration: 0.6,
             ease: "power3.out"
           }, 0.1)
-          // 3. FINALMENTE: Mostrar el nombre vertical solo después de que todo esté oculto
+          // 3. FINALMENTE: Mostrar el nombre vertical con delay para persistencia
           .to(verticalTextRef.current, {
             opacity: 1,
             duration: 0.3,
             ease: "power2.out"
-          }, 0.3) // Después de que el contenido esté completamente oculto
+          }, 0.8) // Delay más largo para que el texto permanezca visible más tiempo
           // 4. Aclarar fondo
           .to(backgroundOverlayRef.current, {
             opacity: 0.3,
@@ -257,15 +261,17 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+    // Always trigger hover state directly for card-to-card transitions
     onCardHover(index);
   };
 
   const handleMouseLeave = () => {
-    // Respuesta INSTANTÁNEA - sin delays
-    // El timeout se gestiona automáticamente sin memory leaks
-    console.log(`[CARD-${index}] 🚪 Mouse left IMMEDIATELY, stopping typewriter`);
-    stopTypewriter(); // Detener animación inmediatamente
-    onCardHover(null);
+    // Add delay before collapsing to make hover state persistent
+    timeoutRef.current = setTimeout(() => {
+      console.log(`[CARD-${index}] 🚪 Mouse left with delay, stopping typewriter`);
+      stopTypewriter(); // Detener animación con delay
+      onCardHover(null);
+    }, 300); // 300ms delay before collapse
   };
 
   return (
@@ -327,7 +333,7 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
             maxWidth: 'min(90%, 280px)', // Mobile responsive max-width
             minWidth: 'min(60%, 150px)', // Mobile responsive min-width
             right: 'clamp(8px, 2vw, 16px)', // Responsive right positioning
-            bottom: 'clamp(12px, 3vh, 20px)', // Responsive bottom positioning
+            bottom: 'clamp(60px, 15vh, 120px)', // Move description text more to top
             // Soft black gradient background for better text readability
             background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.1) 100%)',
             borderRadius: '8px',
