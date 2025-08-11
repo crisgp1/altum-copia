@@ -5,10 +5,11 @@ import { gsap } from 'gsap';
 import Image from 'next/image';
 import { Attorney } from '@/app/lib/types/Attorney';
 import { useAutoAdjustingVerticalText } from '../../hooks/useAutoAdjustingVerticalText';
-import { useSyncedTypewriter } from '../../hooks/useSyncedTypewriter';
+import { useSafeTypewriter } from '../../hooks/useSafeTypewriter';
 import { AnimationConfigService } from '@/app/lib/domain/services/AnimationConfigService';
 import { AttorneyTextFormattingService } from '@/app/lib/domain/services/AttorneyTextFormattingService';
 import { AttorneyTextLayoutService } from '@/app/lib/domain/services/AttorneyTextLayoutService';
+import { SafeGSAPService } from '@/app/lib/domain/services/SafeGSAPService';
 
 interface AttorneyGSAPCardProps {
   attorney: Attorney;
@@ -52,18 +53,20 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
   // Obtener layout premium usando el servicio de diseño
   const layoutConfig = AttorneyTextLayoutService.getCompleteLayout(plainText);
   
-  // Typewriter animation hook DESINCRONIZADO con layout premium
+  // RESUELVE BUG #3: Hook seguro que previene race conditions
   const {
     containerRef: typewriterRef,
     startAnimation: startTypewriter,
     stopAnimation: stopTypewriter,
-    resetAnimation: resetTypewriter
-  } = useSyncedTypewriter({
+    resetAnimation: resetTypewriter,
+    isAnimating
+  } = useSafeTypewriter({
     text: plainText,
     htmlText: layoutConfig.mainText.formattedHTML, // HTML con layout estructurado
     cardAnimationDuration: 0, // SIN sincronización con la tarjeta
     delayPercentage: 0.0, // SIN DELAY - completamente independiente
-    charDuration: 0.1 // Rápido y simple
+    charDuration: 0.1, // Rápido y simple
+    componentId: `attorney-card-${attorney.id}-${index}` // ID único para el lock
   });
 
 
@@ -91,31 +94,41 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
+      // Limpieza de timeout solamente
     };
   }, []);
 
   useEffect(() => {
-    if (!cardRef.current) return;
-
-    // Set initial states
-    gsap.set(expandedContentRef.current, { 
-      opacity: 0,
-      x: -40,
-      display: 'none'
-    });
-    
-    gsap.set(verticalTextRef.current, {
-      opacity: 1
-    });
-
-    gsap.set(backgroundOverlayRef.current, {
-      opacity: 0.3
-    });
-
-    gsap.set(bottomRightTextRef.current, {
-      opacity: 0,
-      display: 'none'
-    });
+    // RESUELVE BUG #2: Validación segura de todas las referencias
+    SafeGSAPService.safeBatchSet([
+      {
+        element: expandedContentRef.current,
+        properties: { 
+          opacity: 0,
+          x: -40,
+          display: 'none'
+        }
+      },
+      {
+        element: verticalTextRef.current,
+        properties: {
+          opacity: 1
+        }
+      },
+      {
+        element: backgroundOverlayRef.current,
+        properties: {
+          opacity: 0.3
+        }
+      },
+      {
+        element: bottomRightTextRef.current,
+        properties: {
+          opacity: 0,
+          display: 'none'
+        }
+      }
+    ]);
   }, []);
 
   // Animate width changes
@@ -131,42 +144,51 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
         typewriterRef.current.innerHTML = '';
       }
 
-      // ANIMACIÓN UNIFICADA - TODO EN UN SOLO TIMELINE
+      // ANIMACIÓN UNIFICADA - Con validación segura de refs
       const tl = gsap.timeline();
       
-      // Animar WIDTH y contenido SIMULTÁNEAMENTE
-      tl.to(cardRef.current, {
-        width: getCardWidth(),
-        duration: 1.2,
-        ease: "power3.out"
-      })
-      // Al mismo tiempo, fade out vertical text
-      .to(verticalTextRef.current, {
-        opacity: 0,
-        duration: 0.3,
-        ease: "power2.out"
-      }, 0) // Iniciar al mismo tiempo que el width (tiempo 0)
-      // Mostrar contenido expandido
-      .set(expandedContentRef.current, { display: 'block' }, 0.2)
-      .to(expandedContentRef.current, {
-        opacity: 1,
-        x: 0,
-        duration: 0.8,
-        ease: "power3.out"
-      }, 0.2) // Iniciar a los 0.2s
-      // Oscurecer fondo
-      .to(backgroundOverlayRef.current, {
-        opacity: 0.7,
-        duration: 0.6,
-        ease: "power2.out"
-      }, 0.2) // Iniciar a los 0.2s
-      // Mostrar texto inferior
-      .set(bottomRightTextRef.current, { display: 'block' }, 0.8)
-      .to(bottomRightTextRef.current, {
-        opacity: 1,
-        duration: 0.4,
-        ease: "power2.out"
-      }, 0.8); // Iniciar a los 0.8s
+      // Solo animar si todas las referencias son válidas
+      SafeGSAPService.withValidRefs(
+        [cardRef, verticalTextRef, expandedContentRef, backgroundOverlayRef, bottomRightTextRef],
+        () => {
+          // Animar WIDTH y contenido SIMULTÁNEAMENTE
+          tl.to(cardRef.current, {
+            width: getCardWidth(),
+            duration: 1.2,
+            ease: "power3.out"
+          })
+          // Al mismo tiempo, fade out vertical text
+          .to(verticalTextRef.current, {
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.out"
+          }, 0) // Iniciar al mismo tiempo que el width (tiempo 0)
+          // Mostrar contenido expandido
+          .set(expandedContentRef.current, { display: 'block' }, 0.2)
+          .to(expandedContentRef.current, {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: "power3.out"
+          }, 0.2) // Iniciar a los 0.2s
+          // Oscurecer fondo
+          .to(backgroundOverlayRef.current, {
+            opacity: 0.7,
+            duration: 0.6,
+            ease: "power2.out"
+          }, 0.2) // Iniciar a los 0.2s
+          // Mostrar texto inferior
+          .set(bottomRightTextRef.current, { display: 'block' }, 0.8)
+          .to(bottomRightTextRef.current, {
+            opacity: 1,
+            duration: 0.4,
+            ease: "power2.out"
+          }, 0.8); // Iniciar a los 0.8s
+        },
+        () => {
+          console.warn(`[CARD-${index}] Some refs are not ready, skipping animation`);
+        }
+      );
 
       // Iniciar typewriter exactamente 2 SEGUNDOS después del hover
       tl.call(() => {
@@ -186,45 +208,52 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
         typewriterRef.current.innerHTML = '';
       }
       
-      // ANIMACIÓN DE COLAPSO UNIFICADA
+      // ANIMACIÓN DE COLAPSO UNIFICADA - Con validación segura
       const collapseTl = gsap.timeline();
       
       collapseTl.call(() => {
         console.log('Stopping typewriter on collapse');
-      })
-      // Animar WIDTH y contenido SIMULTÁNEAMENTE al colapsar
-      collapseTl.to(cardRef.current, {
-        width: getCardWidth(),
-        duration: 1.2,
-        ease: "power3.out"
-      })
-      // Al mismo tiempo, ocultar contenido expandido
-      .to(expandedContentRef.current, {
-        opacity: 0,
-        x: -40,
-        duration: 0.6,
-        ease: "power2.in"
-      }, 0)
-      .set(expandedContentRef.current, { display: 'none' }, 0.6)
-      // Mostrar texto vertical
-      .to(verticalTextRef.current, {
-        opacity: 1,
-        duration: 0.8,
-        ease: "power2.out"
-      }, 0.2)
-      // Ocultar texto inferior
-      .to(bottomRightTextRef.current, {
-        opacity: 0,
-        duration: 0.3,
-        ease: "power2.in"
-      }, 0)
-      .set(bottomRightTextRef.current, { display: 'none' }, 0.3)
-      // Aclarar fondo
-      .to(backgroundOverlayRef.current, {
-        opacity: 0.3,
-        duration: 0.6,
-        ease: "power2.out"
-      }, 0.2);
+      });
+      
+      // Solo animar si las referencias son válidas
+      SafeGSAPService.withValidRefs(
+        [cardRef, verticalTextRef, expandedContentRef, backgroundOverlayRef, bottomRightTextRef],
+        () => {
+          // Animar WIDTH y contenido SIMULTÁNEAMENTE al colapsar
+          collapseTl.to(cardRef.current, {
+            width: getCardWidth(),
+            duration: 1.2,
+            ease: "power3.out"
+          })
+          // Al mismo tiempo, ocultar contenido expandido
+          .to(expandedContentRef.current, {
+            opacity: 0,
+            x: -40,
+            duration: 0.6,
+            ease: "power2.in"
+          }, 0)
+          .set(expandedContentRef.current, { display: 'none' }, 0.6)
+          // Mostrar texto vertical
+          .to(verticalTextRef.current, {
+            opacity: 1,
+            duration: 0.8,
+            ease: "power2.out"
+          }, 0.2)
+          // Ocultar texto inferior
+          .to(bottomRightTextRef.current, {
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.in"
+          }, 0)
+          .set(bottomRightTextRef.current, { display: 'none' }, 0.3)
+          // Aclarar fondo
+          .to(backgroundOverlayRef.current, {
+            opacity: 0.3,
+            duration: 0.6,
+            ease: "power2.out"
+          }, 0.2);
+        }
+      );
     }
     
   }, [hoveredIndex, index, totalCards]); // Dependencias mínimas para respuesta instantánea
@@ -241,11 +270,7 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
 
   const handleMouseLeave = () => {
     // Respuesta INSTANTÁNEA - sin delays
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    
+    // El timeout se gestiona automáticamente sin memory leaks
     console.log(`[CARD-${index}] 🚪 Mouse left IMMEDIATELY, stopping typewriter`);
     stopTypewriter(); // Detener animación inmediatamente
     onCardHover(null);
