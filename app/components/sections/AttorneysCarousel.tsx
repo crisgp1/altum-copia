@@ -1,7 +1,7 @@
 'use client';
 
-import { AttorneySimpleCarousel } from '@/app/lib/presentation/components/attorneys/AttorneySimpleCarousel';
+import { AttorneyGSAPCarousel } from '@/app/lib/presentation/components/attorneys/AttorneyGSAPCarousel';
 
 export default function AttorneysCarousel() {
-  return <AttorneySimpleCarousel />;
+  return <AttorneyGSAPCarousel />;
 }

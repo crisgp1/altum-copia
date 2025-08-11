@@ -5,7 +5,10 @@ import { gsap } from 'gsap';
 import Image from 'next/image';
 import { Attorney } from '@/app/lib/types/Attorney';
 import { useAutoAdjustingVerticalText } from '../../hooks/useAutoAdjustingVerticalText';
-import { useTypewriterAnimation } from '../../hooks/useTypewriterAnimation';
+import { useSyncedTypewriter } from '../../hooks/useSyncedTypewriter';
+import { AnimationConfigService } from '@/app/lib/domain/services/AnimationConfigService';
+import { AttorneyTextFormattingService } from '@/app/lib/domain/services/AttorneyTextFormattingService';
+import { AttorneyTextLayoutService } from '@/app/lib/domain/services/AttorneyTextLayoutService';
 
 interface AttorneyGSAPCardProps {
   attorney: Attorney;
@@ -13,6 +16,8 @@ interface AttorneyGSAPCardProps {
   isActive: boolean;
   onCardHover: (index: number | null) => void;
   onClick: (attorney: Attorney) => void;
+  totalCards: number;
+  hoveredIndex: number | null;
 }
 
 export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
@@ -20,132 +25,253 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
   index,
   isActive,
   onCardHover,
-  onClick
+  onClick,
+  totalCards,
+  hoveredIndex
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
   const verticalTextRef = useRef<HTMLDivElement>(null);
-  const descriptionRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const expandedContentRef = useRef<HTMLDivElement>(null);
+  const backgroundOverlayRef = useRef<HTMLDivElement>(null);
+  const bottomRightTextRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-adjusting vertical text hook
   const { textStyles, displayText, isTextTruncated } = useAutoAdjustingVerticalText({
-    text: attorney.name,
+    text: attorney.name.toUpperCase(),
     containerRef: cardRef,
-    leftPosition: 24 // 6 * 4px (left-6 in Tailwind)
+    leftPosition: 20
   });
 
-  // Typewriter animation hook
+  // Formatear texto usando el nuevo servicio DDD con resaltado
+  const { formattedHTML } = AttorneyTextFormattingService.getFormattedTextForCard(attorney);
+  
+  // Extraer texto plano para compatibilidad
+  const plainText = formattedHTML.replace(/<[^>]*>/g, '');
+  
+  // Obtener layout premium usando el servicio de diseño
+  const layoutConfig = AttorneyTextLayoutService.getCompleteLayout(plainText);
+  
+  // Typewriter animation hook DESINCRONIZADO con layout premium
   const {
     containerRef: typewriterRef,
     startAnimation: startTypewriter,
-    stopAnimation: stopTypewriter
-  } = useTypewriterAnimation({
-    text: attorney.position,
-    delay: 300
+    stopAnimation: stopTypewriter,
+    resetAnimation: resetTypewriter
+  } = useSyncedTypewriter({
+    text: plainText,
+    htmlText: layoutConfig.mainText.formattedHTML, // HTML con layout estructurado
+    cardAnimationDuration: 0, // SIN sincronización con la tarjeta
+    delayPercentage: 0.0, // SIN DELAY - completamente independiente
+    charDuration: 0.1 // Rápido y simple
   });
 
+
+  // Calculate card width based on state - using AnimationConfigService
+  const getCardWidth = () => {
+    // Use percentage-based calculations to avoid hydration issues
+    const baseWidth = 100 / totalCards; // 25% each for 4 cards
+    const expandPercentage = AnimationConfigService.getCardExpandPercentage();
+    
+    if (hoveredIndex === null) {
+      return `calc(${baseWidth}% - 7.5px)`; // Equal distribution: 25% each for 4 cards
+    } else if (index === hoveredIndex) {
+      return `calc(${baseWidth + (expandPercentage * baseWidth / 100)}% - 7.5px)`; // Expanded card
+    } else {
+      // Other 3 cards share remaining space
+      const expandedExtraWidth = expandPercentage * baseWidth / 100;
+      const remainingWidth = 100 - (baseWidth + expandedExtraWidth);
+      return `calc(${remainingWidth / (totalCards - 1)}% - 7.5px)`;
+    }
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!cardRef.current) return;
 
-    // Initial setup
-    gsap.set(descriptionRef.current, { opacity: 0, y: 20 });
-    gsap.set(overlayRef.current, { opacity: 0 });
-    gsap.set(verticalTextRef.current, { opacity: 1 });
+    // Set initial states
+    gsap.set(expandedContentRef.current, { 
+      opacity: 0,
+      x: -40,
+      display: 'none'
+    });
+    
+    gsap.set(verticalTextRef.current, {
+      opacity: 1
+    });
+
+    gsap.set(backgroundOverlayRef.current, {
+      opacity: 0.3
+    });
+
+    gsap.set(bottomRightTextRef.current, {
+      opacity: 0,
+      display: 'none'
+    });
   }, []);
 
-  const handleMouseEnter = () => {
-    onCardHover(index);
+  // Animate width changes
+  useEffect(() => {
+    console.log('useEffect triggered - isActive:', isActive, 'index:', index, 'hoveredIndex:', hoveredIndex);
+    if (!cardRef.current) return;
+
+    // Usar hoveredIndex directamente en lugar de isActive
+    if (hoveredIndex === index) {
+      console.log('Card is hovered IMMEDIATELY, index:', index, 'attorney:', attorney.name);
+      // Reset typewriter antes de empezar - sin dependencia
+      if (typewriterRef.current) {
+        typewriterRef.current.innerHTML = '';
+      }
+
+      // ANIMACIÓN UNIFICADA - TODO EN UN SOLO TIMELINE
+      const tl = gsap.timeline();
+      
+      // Animar WIDTH y contenido SIMULTÁNEAMENTE
+      tl.to(cardRef.current, {
+        width: getCardWidth(),
+        duration: 1.2,
+        ease: "power3.out"
+      })
+      // Al mismo tiempo, fade out vertical text
+      .to(verticalTextRef.current, {
+        opacity: 0,
+        duration: 0.3,
+        ease: "power2.out"
+      }, 0) // Iniciar al mismo tiempo que el width (tiempo 0)
+      // Mostrar contenido expandido
+      .set(expandedContentRef.current, { display: 'block' }, 0.2)
+      .to(expandedContentRef.current, {
+        opacity: 1,
+        x: 0,
+        duration: 0.8,
+        ease: "power3.out"
+      }, 0.2) // Iniciar a los 0.2s
+      // Oscurecer fondo
+      .to(backgroundOverlayRef.current, {
+        opacity: 0.7,
+        duration: 0.6,
+        ease: "power2.out"
+      }, 0.2) // Iniciar a los 0.2s
+      // Mostrar texto inferior
+      .set(bottomRightTextRef.current, { display: 'block' }, 0.8)
+      .to(bottomRightTextRef.current, {
+        opacity: 1,
+        duration: 0.4,
+        ease: "power2.out"
+      }, 0.8); // Iniciar a los 0.8s
+
+      // Iniciar typewriter exactamente 2 SEGUNDOS después del hover
+      tl.call(() => {
+        console.log(`[CARD-${index}] 🎯 Starting typewriter 2 seconds after hover`);
+        
+        if (typewriterRef.current && hoveredIndex === index) {
+          console.log(`[CARD-${index}] ✅ Starting typewriter at 2 second mark`);
+          // Llamar startTypewriter directamente sin dependencia
+          startTypewriter();
+        }
+        
+      }, [], 2.0); // Iniciar exactamente a los 2 segundos del hover
+      
+    } else {
+      // Stop typewriter effect first - sin dependencia
+      if (typewriterRef.current) {
+        typewriterRef.current.innerHTML = '';
+      }
+      
+      // ANIMACIÓN DE COLAPSO UNIFICADA
+      const collapseTl = gsap.timeline();
+      
+      collapseTl.call(() => {
+        console.log('Stopping typewriter on collapse');
+      })
+      // Animar WIDTH y contenido SIMULTÁNEAMENTE al colapsar
+      collapseTl.to(cardRef.current, {
+        width: getCardWidth(),
+        duration: 1.2,
+        ease: "power3.out"
+      })
+      // Al mismo tiempo, ocultar contenido expandido
+      .to(expandedContentRef.current, {
+        opacity: 0,
+        x: -40,
+        duration: 0.6,
+        ease: "power2.in"
+      }, 0)
+      .set(expandedContentRef.current, { display: 'none' }, 0.6)
+      // Mostrar texto vertical
+      .to(verticalTextRef.current, {
+        opacity: 1,
+        duration: 0.8,
+        ease: "power2.out"
+      }, 0.2)
+      // Ocultar texto inferior
+      .to(bottomRightTextRef.current, {
+        opacity: 0,
+        duration: 0.3,
+        ease: "power2.in"
+      }, 0)
+      .set(bottomRightTextRef.current, { display: 'none' }, 0.3)
+      // Aclarar fondo
+      .to(backgroundOverlayRef.current, {
+        opacity: 0.3,
+        duration: 0.6,
+        ease: "power2.out"
+      }, 0.2);
+    }
     
-    if (!cardRef.current || !isActive) return;
+  }, [hoveredIndex, index, totalCards]); // Dependencias mínimas para respuesta instantánea
 
-    const tl = gsap.timeline();
-
-    // Expand card
-    tl.to(cardRef.current, {
-      scale: 1.1,
-      zIndex: 50,
-      duration: 0.5,
-      ease: "power3.out"
-    })
-    // Show overlay
-    .to(overlayRef.current, {
-      opacity: 1,
-      duration: 0.3,
-      ease: "power2.inOut"
-    }, "-=0.3")
-    // Fade vertical text
-    .to(verticalTextRef.current, {
-      opacity: 0,
-      duration: 0.2,
-      ease: "power2.out"
-    }, "-=0.3")
-    // Show description
-    .to(descriptionRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.4,
-      ease: "power2.out"
-    }, "-=0.2")
-    // Start typewriter effect
-    .call(() => {
-      startTypewriter();
-    }, [], "-=0.1");
+  const handleMouseEnter = () => {
+    console.log('Mouse enter on card:', index);
+    // Clear any pending timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    onCardHover(index);
   };
 
   const handleMouseLeave = () => {
+    // Respuesta INSTANTÁNEA - sin delays
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    
+    console.log(`[CARD-${index}] 🚪 Mouse left IMMEDIATELY, stopping typewriter`);
+    stopTypewriter(); // Detener animación inmediatamente
     onCardHover(null);
-    
-    // Stop typewriter effect
-    stopTypewriter();
-    
-    if (!cardRef.current) return;
-
-    const tl = gsap.timeline();
-
-    // Reset card
-    tl.to(cardRef.current, {
-      scale: 1,
-      zIndex: index,
-      duration: 0.4,
-      ease: "power3.inOut"
-    })
-    // Hide overlay
-    .to(overlayRef.current, {
-      opacity: 0,
-      duration: 0.3,
-      ease: "power2.inOut"
-    }, "-=0.3")
-    // Show vertical text
-    .to(verticalTextRef.current, {
-      opacity: 1,
-      duration: 0.2,
-      ease: "power2.in"
-    }, "-=0.2")
-    // Hide description
-    .to(descriptionRef.current, {
-      opacity: 0,
-      y: 20,
-      duration: 0.3,
-      ease: "power2.in"
-    }, "-=0.3");
   };
 
   return (
     <div
       ref={cardRef}
-      className="relative w-[300px] h-[400px] cursor-pointer overflow-hidden"
+      className="relative h-full overflow-hidden cursor-pointer"
+      style={{ 
+        width: getCardWidth(), 
+        margin: 0, 
+        padding: 0, 
+        boxSizing: 'border-box',
+        minWidth: 0,
+        flexShrink: 0,
+        border: 'none',
+        outline: 'none',
+        transition: 'width 1.2s cubic-bezier(0.4, 0.0, 0.2, 1)'
+      }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={() => onClick(attorney)}
-      style={{
-        transformOrigin: 'center center',
-        zIndex: index
-      }}
     >
       {/* Background Image */}
-      <div ref={imageRef} className="absolute inset-0">
+      <div className="absolute inset-0">
         <Image
           src={attorney.image}
           alt={attorney.name}
@@ -155,37 +281,50 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
         />
       </div>
 
-      {/* Gradient Overlay */}
+      {/* Background Overlay for text readability */}
       <div 
-        ref={overlayRef}
-        className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
+        ref={backgroundOverlayRef}
+        className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-black/40"
       />
 
-      {/* Vertical Text - Auto-adjusting */}
-      <div
-        ref={verticalTextRef}
-        style={textStyles}
-      >
-        <h3 className="text-white font-light tracking-wider">
-          {attorney.name}
-        </h3>
+      {/* Content Container */}
+      <div className="relative h-full flex items-center">
+        {/* Vertical Text (collapsed state) - auto-adjusting centered */}
+        <div
+          ref={verticalTextRef}
+          style={textStyles}
+        >
+          <h3 className="text-white font-medium drop-shadow-lg">
+            {attorney.name.toUpperCase()}
+          </h3>
+        </div>
+
+        {/* Expanded Content - PREMIUM LAYOUT con diseño optimizado */}
+        <div
+          ref={expandedContentRef}
+          className={layoutConfig.mainText.containerClasses}
+          style={{ 
+            display: 'none', 
+            ...layoutConfig.mainText.containerStyles 
+          }}
+        >
+          <div 
+            ref={typewriterRef}
+            style={layoutConfig.mainText.textStyles}
+          ></div>
+        </div>
       </div>
 
-      {/* Description (shown on hover) */}
-      <div
-        ref={descriptionRef}
-        className="absolute bottom-6 right-6 text-right max-w-[200px]"
+      {/* Call-to-Action con diseño premium */}
+      <div 
+        ref={bottomRightTextRef}
+        className={`${layoutConfig.actionText.containerClasses} z-30 opacity-0`}
+        style={{ 
+          display: 'none',
+          ...layoutConfig.actionText.containerStyles 
+        }}
       >
-        <h3 className="text-white text-lg font-light mb-1 drop-shadow-lg leading-tight">
-          {attorney.name}
-        </h3>
-        <p className="text-amber-400 text-xs opacity-95 mb-2 uppercase tracking-wider font-medium drop-shadow-lg">
-          <span ref={typewriterRef}></span>
-        </p>
-        <p className="text-white/90 text-xs leading-relaxed drop-shadow-lg mb-3">
-          {attorney.shortDescription}
-        </p>
-        <p className="text-white/60 text-xs drop-shadow-lg font-light">
+        <p style={layoutConfig.actionText.textStyles}>
           Haz click aquí para ver más
         </p>
       </div>
