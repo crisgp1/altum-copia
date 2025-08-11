@@ -144,63 +144,63 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
         typewriterRef.current.innerHTML = '';
       }
 
-      // ANIMACIÓN UNIFICADA - Con validación segura de refs
+      // ANIMACIÓN SIMPLE Y RÁPIDA - Con validación segura de refs
       const tl = gsap.timeline();
       
       // Solo animar si todas las referencias son válidas
       SafeGSAPService.withValidRefs(
         [cardRef, verticalTextRef, expandedContentRef, backgroundOverlayRef, bottomRightTextRef],
         () => {
-          // Animar WIDTH y contenido SIMULTÁNEAMENTE
-          tl.to(cardRef.current, {
-            width: getCardWidth(),
-            duration: 1.2,
-            ease: "power3.out"
-          })
-          // Al mismo tiempo, fade out vertical text
-          .to(verticalTextRef.current, {
+          // 1. PRIMERO: Hacer desaparecer completamente el nombre vertical
+          tl.to(verticalTextRef.current, {
             opacity: 0,
-            duration: 0.3,
-            ease: "power2.out"
-          }, 0) // Iniciar al mismo tiempo que el width (tiempo 0)
-          // Mostrar contenido expandido
+            duration: 0.2,
+            ease: "power2.in"
+          })
+          // 2. DESPUÉS: Expandir la tarjeta
+          .to(cardRef.current, {
+            width: getCardWidth(),
+            duration: 0.6,
+            ease: "power3.out"
+          }, 0.1) // Empezar un poco después de que el nombre desaparezca
+          // 3. MOSTRAR contenido expandido solo después de que el nombre esté oculto
           .set(expandedContentRef.current, { display: 'block' }, 0.2)
           .to(expandedContentRef.current, {
             opacity: 1,
             x: 0,
-            duration: 0.8,
+            duration: 0.4,
             ease: "power3.out"
-          }, 0.2) // Iniciar a los 0.2s
-          // Oscurecer fondo
+          }, 0.2) // Solo después de que el nombre esté completamente oculto
+          // 4. Oscurecer fondo
           .to(backgroundOverlayRef.current, {
             opacity: 0.7,
-            duration: 0.6,
+            duration: 0.3,
             ease: "power2.out"
-          }, 0.2) // Iniciar a los 0.2s
-          // Mostrar texto inferior
-          .set(bottomRightTextRef.current, { display: 'block' }, 0.8)
+          }, 0.2)
+          // 5. Mostrar texto inferior
+          .set(bottomRightTextRef.current, { display: 'block' }, 0.5)
           .to(bottomRightTextRef.current, {
             opacity: 1,
-            duration: 0.4,
+            duration: 0.2,
             ease: "power2.out"
-          }, 0.8); // Iniciar a los 0.8s
+          }, 0.5);
         },
         () => {
           console.warn(`[CARD-${index}] Some refs are not ready, skipping animation`);
         }
       );
 
-      // Iniciar typewriter exactamente 2 SEGUNDOS después del hover
+      // Iniciar typewriter - simple
       tl.call(() => {
-        console.log(`[CARD-${index}] 🎯 Starting typewriter 2 seconds after hover`);
+        console.log(`[CARD-${index}] 🎯 Starting typewriter`);
         
         if (typewriterRef.current && hoveredIndex === index) {
-          console.log(`[CARD-${index}] ✅ Starting typewriter at 2 second mark`);
+          console.log(`[CARD-${index}] ✅ Starting typewriter`);
           // Llamar startTypewriter directamente sin dependencia
           startTypewriter();
         }
         
-      }, [], 2.0); // Iniciar exactamente a los 2 segundos del hover
+      }, [], 0.8); // Iniciar exactamente a los 0.8 segundos del hover
       
     } else {
       // Stop typewriter effect first - sin dependencia
@@ -219,37 +219,29 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
       SafeGSAPService.withValidRefs(
         [cardRef, verticalTextRef, expandedContentRef, backgroundOverlayRef, bottomRightTextRef],
         () => {
-          // Animar WIDTH y contenido SIMULTÁNEAMENTE al colapsar
-          collapseTl.to(cardRef.current, {
-            width: getCardWidth(),
-            duration: 1.2,
-            ease: "power3.out"
-          })
-          // Al mismo tiempo, ocultar contenido expandido
-          .to(expandedContentRef.current, {
+          // 1. PRIMERO: Ocultar completamente el contenido expandido y CTA
+          collapseTl.to([expandedContentRef.current, bottomRightTextRef.current], {
             opacity: 0,
-            x: -40,
-            duration: 0.6,
+            duration: 0.2,
             ease: "power2.in"
-          }, 0)
-          .set(expandedContentRef.current, { display: 'none' }, 0.6)
-          // Mostrar texto vertical
+          })
+          .set([expandedContentRef.current, bottomRightTextRef.current], { display: 'none' }, 0.2)
+          // 2. DESPUÉS: Colapsar la tarjeta
+          .to(cardRef.current, {
+            width: getCardWidth(),
+            duration: 0.6,
+            ease: "power3.out"
+          }, 0.1)
+          // 3. FINALMENTE: Mostrar el nombre vertical solo después de que todo esté oculto
           .to(verticalTextRef.current, {
             opacity: 1,
-            duration: 0.8,
-            ease: "power2.out"
-          }, 0.2)
-          // Ocultar texto inferior
-          .to(bottomRightTextRef.current, {
-            opacity: 0,
             duration: 0.3,
-            ease: "power2.in"
-          }, 0)
-          .set(bottomRightTextRef.current, { display: 'none' }, 0.3)
-          // Aclarar fondo
+            ease: "power2.out"
+          }, 0.3) // Después de que el contenido esté completamente oculto
+          // 4. Aclarar fondo
           .to(backgroundOverlayRef.current, {
             opacity: 0.3,
-            duration: 0.6,
+            duration: 0.3,
             ease: "power2.out"
           }, 0.2);
         }
@@ -280,16 +272,17 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
     <div
       ref={cardRef}
       className="relative h-full overflow-hidden cursor-pointer"
-      style={{ 
-        width: getCardWidth(), 
-        margin: 0, 
-        padding: 0, 
+      style={{
+        width: getCardWidth(),
+        margin: 0,
+        padding: 0,
         boxSizing: 'border-box',
         minWidth: 0,
         flexShrink: 0,
         border: 'none',
         outline: 'none',
-        transition: 'width 1.2s cubic-bezier(0.4, 0.0, 0.2, 1)'
+        transition: 'width 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
+        minHeight: 'clamp(400px, 50vh, 550px)' // Ensure minimum height on mobile
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -324,32 +317,57 @@ export const AttorneyGSAPCard: React.FC<AttorneyGSAPCardProps> = ({
           </h3>
         </div>
 
-        {/* Expanded Content - PREMIUM LAYOUT con diseño optimizado */}
+        {/* Expanded Content - MOBILE RESPONSIVE LAYOUT with gradient backdrop */}
         <div
           ref={expandedContentRef}
-          className={layoutConfig.mainText.containerClasses}
-          style={{ 
-            display: 'none', 
-            ...layoutConfig.mainText.containerStyles 
+          className={`${layoutConfig.mainText.containerClasses} px-2 sm:px-4 md:px-6`}
+          style={{
+            display: 'none',
+            ...layoutConfig.mainText.containerStyles,
+            maxWidth: 'min(90%, 280px)', // Mobile responsive max-width
+            minWidth: 'min(60%, 150px)', // Mobile responsive min-width
+            right: 'clamp(8px, 2vw, 16px)', // Responsive right positioning
+            bottom: 'clamp(12px, 3vh, 20px)', // Responsive bottom positioning
+            // Soft black gradient background for better text readability
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.1) 100%)',
+            borderRadius: '8px',
+            backdropFilter: 'blur(2px)', // Subtle blur effect
+            WebkitBackdropFilter: 'blur(2px)', // Safari support
+            padding: 'clamp(8px, 2vw, 12px)' // Internal padding for the gradient box
           }}
         >
-          <div 
+          <div
             ref={typewriterRef}
-            style={layoutConfig.mainText.textStyles}
+            style={{
+              ...layoutConfig.mainText.textStyles,
+              fontSize: 'clamp(10px, 2.5vw, 14px)', // Mobile responsive font size
+              lineHeight: 'clamp(1.3, 1.5, 1.6)', // Mobile responsive line height
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+              textAlign: 'right'
+            }}
           ></div>
         </div>
       </div>
 
-      {/* Call-to-Action con diseño premium */}
-      <div 
+      {/* Call-to-Action con diseño responsive */}
+      <div
         ref={bottomRightTextRef}
-        className={`${layoutConfig.actionText.containerClasses} z-30 opacity-0`}
-        style={{ 
+        className={`${layoutConfig.actionText.containerClasses} z-30 opacity-0 px-2 sm:px-4`}
+        style={{
           display: 'none',
-          ...layoutConfig.actionText.containerStyles 
+          ...layoutConfig.actionText.containerStyles,
+          maxWidth: 'min(85%, 200px)', // Mobile responsive max-width
+          right: 'clamp(8px, 2vw, 16px)', // Responsive right positioning
+          bottom: 'clamp(4px, 1vh, 8px)' // Responsive bottom positioning
         }}
       >
-        <p style={layoutConfig.actionText.textStyles}>
+        <p style={{
+          ...layoutConfig.actionText.textStyles,
+          fontSize: 'clamp(8px, 2vw, 11px)', // Mobile responsive font size
+          wordBreak: 'break-word',
+          overflowWrap: 'break-word'
+        }}>
           Haz click aquí para ver más
         </p>
       </div>

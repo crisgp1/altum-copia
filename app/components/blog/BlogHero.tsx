@@ -38,7 +38,7 @@ export default function BlogHero({ featuredPosts }: BlogHeroProps) {
   if (!featuredPost) return null;
 
   return (
-    <section ref={heroRef} className="relative py-24 bg-gradient-to-br from-slate-50 to-stone-100 overflow-hidden">
+    <section ref={heroRef} className="relative pt-32 pb-24 bg-gradient-to-br from-slate-50 to-stone-100 overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-20 right-20 w-32 h-32 bg-gradient-to-br from-amber-200/30 to-stone-300/20 rounded-full blur-2xl"></div>
       <div className="absolute bottom-20 left-20 w-24 h-24 bg-gradient-to-br from-slate-200/40 to-amber-100/30 rounded-full blur-xl"></div>
@@ -46,22 +46,18 @@ export default function BlogHero({ featuredPosts }: BlogHeroProps) {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Hero Header */}
         <div className="text-center mb-16">
-          <h1 
+          <h1
             ref={titleRef}
-            className="text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight"
-            style={{ color: '#000000' }}
+            className="text-3xl md:text-4xl lg:text-5xl mb-6 leading-tight font-light"
+            style={{ color: '#152239' }}
           >
-            <span className="altum-brand">ALTUM</span>{' '}
-            <span className="legal-brand" style={{ color: '#B79F76' }}>Legal</span>
-            <span className="block text-2xl md:text-3xl lg:text-4xl mt-4 font-light" style={{ color: '#152239' }}>
-              Insights Jurídicos
-            </span>
+            Insights Jurídicos
           </h1>
-          <p 
+          <p
             ref={subtitleRef}
             className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto font-light leading-relaxed"
           >
-            Análisis experto, tendencias legales y insights estratégicos para profesionales del derecho 
+            Análisis experto, tendencias legales y insights estratégicos para profesionales del derecho
             y líderes empresariales en México y Latinoamérica.
           </p>
         </div>

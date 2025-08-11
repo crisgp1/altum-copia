@@ -37,40 +37,40 @@ export interface AttorneyTextSegment {
 export class AttorneyTextLayoutService {
   
   /**
-   * Configuración premium para texto de abogados
+   * Configuración premium para texto de abogados - RESPONSIVE
    */
   private static readonly PREMIUM_LAYOUT_CONFIG: TextLayoutConfig = {
     position: 'bottom-right',
     padding: {
-      right: '16px',   // Padding mínimo desde la orilla derecha
-      bottom: '20px',  // Padding desde la orilla inferior
-      left: '0px'      // Sin padding izquierdo para maximizar espacio
+      right: 'clamp(8px, 2vw, 16px)',   // Padding responsive
+      bottom: 'clamp(12px, 3vh, 20px)', // Padding responsive vertical
+      left: '0px'
     },
-    lineHeight: '1.7',        // Interlineado generoso para elegancia
-    letterSpacing: '0.025em', // Espaciado sutil entre letras
-    wordSpacing: '0.1em',     // Espaciado entre palabras
+    lineHeight: '1.6',        // Interlineado más compacto para mobile
+    letterSpacing: '0.02em',  // Espaciado reducido para mobile
+    wordSpacing: '0.05em',    // Espaciado reducido para mobile
     textAlign: 'right',       // Alineado a la derecha
-    maxWidth: '280px',        // Ancho máximo controlado
-    minWidth: '200px',        // Ancho mínimo para consistencia
-    backdrop: false,          // Sin fondo borroso - las sombras son suficientes
-    shadow: true              // Sombra para contraste
+    maxWidth: 'min(280px, 40vw)', // Responsive max-width
+    minWidth: 'min(150px, 25vw)', // Responsive min-width
+    backdrop: false,
+    shadow: true
   };
 
   /**
-   * Configuración para el texto de acción (call-to-action)
+   * Configuración para el texto de acción (call-to-action) - RESPONSIVE
    */
   private static readonly ACTION_TEXT_CONFIG: TextLayoutConfig = {
     position: 'bottom-right',
     padding: {
-      right: '16px',
-      bottom: '8px'     // Más cerca del borde para el CTA
+      right: 'clamp(8px, 2vw, 16px)',
+      bottom: 'clamp(4px, 1vh, 8px)'
     },
-    lineHeight: '1.4',
-    letterSpacing: '0.02em',
-    wordSpacing: '0.05em',
+    lineHeight: '1.3',
+    letterSpacing: '0.015em',
+    wordSpacing: '0.03em',
     textAlign: 'right',
-    maxWidth: '200px',
-    backdrop: false,    // Sin backdrop para el CTA
+    maxWidth: 'min(200px, 35vw)', // Responsive max-width
+    backdrop: false,
     shadow: true
   };
 
@@ -86,20 +86,20 @@ export class AttorneyTextLayoutService {
   }
 
   /**
-   * Genera las clases de posicionamiento
+   * Genera las clases de posicionamiento - RESPONSIVE
    */
   private static getPositionClasses(position: string): string {
     switch (position) {
       case 'bottom-right':
-        return 'absolute bottom-0 right-0';
+        return 'absolute bottom-0 right-0 w-auto';
       case 'bottom-left':
-        return 'absolute bottom-0 left-0';
+        return 'absolute bottom-0 left-0 w-auto';
       case 'top-right':
-        return 'absolute top-0 right-0';
+        return 'absolute top-0 right-0 w-auto';
       case 'top-left':
-        return 'absolute top-0 left-0';
+        return 'absolute top-0 left-0 w-auto';
       default:
-        return 'absolute bottom-0 right-0';
+        return 'absolute bottom-0 right-0 w-auto';
     }
   }
 
@@ -147,17 +147,19 @@ export class AttorneyTextLayoutService {
   }
 
   /**
-   * Genera estilos inline para el texto principal
+   * Genera estilos inline para el texto principal - RESPONSIVE
    */
   static getTextStyles(): React.CSSProperties {
     return {
-      fontSize: '14px',
-      fontWeight: '300',           // Peso ligero para elegancia
+      fontSize: 'clamp(11px, 2.5vw, 14px)', // Responsive font size
+      fontWeight: '300',
       fontFamily: 'Inter, -apple-system, sans-serif',
       color: 'white',
-      textShadow: '0 2px 8px rgba(0, 0, 0, 0.7)', // Sombra fuerte para contraste
+      textShadow: '0 2px 8px rgba(0, 0, 0, 0.7)',
       WebkitFontSmoothing: 'antialiased',
-      MozOsxFontSmoothing: 'grayscale'
+      MozOsxFontSmoothing: 'grayscale',
+      wordBreak: 'break-word' as const, // Prevent text overflow on mobile
+      overflowWrap: 'break-word' as const
     };
   }
 
@@ -218,11 +220,13 @@ export class AttorneyTextLayoutService {
       containerClasses: this.getContainerClasses(this.ACTION_TEXT_CONFIG),
       containerStyles: this.getContainerStyles(this.ACTION_TEXT_CONFIG),
       textStyles: {
-        fontSize: '11px',
+        fontSize: 'clamp(9px, 2vw, 11px)', // Responsive font size
         fontWeight: '400',
         color: 'rgba(255, 255, 255, 0.7)',
         textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)',
-        letterSpacing: '0.02em'
+        letterSpacing: '0.015em',
+        wordBreak: 'break-word' as const,
+        overflowWrap: 'break-word' as const
       }
     };
   }

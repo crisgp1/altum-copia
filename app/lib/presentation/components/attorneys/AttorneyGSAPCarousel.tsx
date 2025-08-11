@@ -72,13 +72,24 @@ export const AttorneyGSAPCarousel: React.FC = () => {
             </p>
           </div>
 
-          {/* Simple Cards Container - No Slider */}
+          {/* Simple Cards Container - Mobile Responsive */}
           <div className="relative w-full">
-            <div 
-              className="relative h-[550px] w-full overflow-hidden"
-              style={{ margin: 0, padding: 0 }}
+            <div
+              className="relative w-full overflow-hidden"
+              style={{
+                height: 'clamp(400px, 50vh, 550px)', // Mobile responsive height
+                margin: 0,
+                padding: 0
+              }}
             >
-              <div className="flex h-full w-full" style={{ gap: `${10}px`, margin: 0, padding: 0 }}>
+              <div
+                className="flex h-full w-full"
+                style={{
+                  gap: 'clamp(5px, 1vw, 10px)', // Mobile responsive gap
+                  margin: 0,
+                  padding: 0
+                }}
+              >
                 {attorneys.slice(0, 4).map((attorney, index) => (
                   <AttorneyGSAPCard
                     key={attorney.id}

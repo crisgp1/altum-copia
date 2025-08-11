@@ -163,7 +163,7 @@ export default function BlogSearch({ posts, onSearchResults, onSearchTermChange 
   };
 
   return (
-    <div ref={searchRef} className="relative">
+    <div ref={searchRef} className="relative z-50">
       {/* Search Form */}
       <form onSubmit={handleSearchSubmit} className="relative">
         <div className={`relative transition-all duration-300 ${
@@ -231,11 +231,12 @@ export default function BlogSearch({ posts, onSearchResults, onSearchTermChange 
           </div>
         </div>
 
-        {/* Search Suggestions */}
+        {/* Search Suggestions - Fixed z-index and responsive */}
         {showSuggestions && suggestions.length > 0 && (
-          <div 
+          <div
             ref={suggestionsRef}
-            className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md border border-stone-200 rounded-xl shadow-xl z-50 overflow-hidden"
+            className="absolute top-full left-0 right-0 mt-2 bg-white border border-stone-200 rounded-xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto"
+            style={{ zIndex: 99999 }}
           >
             <div className="p-2">
               <div className="text-xs font-medium text-slate-500 px-3 py-2 border-b border-stone-100">
@@ -248,37 +249,37 @@ export default function BlogSearch({ posts, onSearchResults, onSearchTermChange 
                     key={post.id}
                     onClick={() => handleSuggestionClick(post)}
                     className={`w-full text-left p-3 rounded-lg transition-colors duration-200 ${
-                      selectedSuggestion === index 
-                        ? 'bg-amber-50 border-amber-200' 
+                      selectedSuggestion === index
+                        ? 'bg-amber-50 border-amber-200'
                         : 'hover:bg-stone-50'
                     }`}
                   >
-                    <div className="flex items-start space-x-3">
+                    <div className="flex items-start space-x-2 sm:space-x-3">
                       <div className="flex-shrink-0 mt-1">
-                        <div 
+                        <div
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: category?.color || '#B79F76' }}
                         ></div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 
-                          className="text-sm font-medium text-slate-800 line-clamp-1 mb-1"
+                        <h4
+                          className="text-xs sm:text-sm font-medium text-slate-800 line-clamp-1 mb-1"
                           style={{ fontFamily: 'Minion Pro, serif' }}
                         >
                           {getHighlightedText(post.title, searchTerm)}
                         </h4>
-                        <p className="text-xs text-slate-500 line-clamp-2">
+                        <p className="text-xs text-slate-500 line-clamp-1 sm:line-clamp-2">
                           {getHighlightedText(post.excerpt, searchTerm)}
                         </p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span 
-                            className="text-xs font-medium"
+                        <div className="flex items-center space-x-1 sm:space-x-2 mt-1">
+                          <span
+                            className="text-xs font-medium truncate"
                             style={{ color: category?.color || '#B79F76' }}
                           >
                             {category?.name}
                           </span>
-                          <span className="text-xs text-slate-400">•</span>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-slate-400 hidden sm:inline">•</span>
+                          <span className="text-xs text-slate-400 hidden sm:inline">
                             {post.viewCount.toLocaleString()} vistas
                           </span>
                         </div>
@@ -301,9 +302,9 @@ export default function BlogSearch({ posts, onSearchResults, onSearchTermChange 
           </div>
         )}
 
-        {/* No Results */}
+        {/* No Results - Fixed z-index */}
         {showSuggestions && suggestions.length === 0 && searchTerm && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md border border-stone-200 rounded-xl shadow-xl z-50 p-6 text-center">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-stone-200 rounded-xl shadow-2xl p-4 sm:p-6 text-center" style={{ zIndex: 99999 }}>
             <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -326,9 +327,9 @@ export default function BlogSearch({ posts, onSearchResults, onSearchTermChange 
         )}
       </form>
 
-      {/* Search Tips */}
+      {/* Search Tips - Fixed z-index */}
       {isExpanded && !searchTerm && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-gradient-to-br from-amber-50 to-stone-50 border border-amber-200 rounded-xl p-4 z-40">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-gradient-to-br from-amber-50 to-stone-50 border border-amber-200 rounded-xl p-4" style={{ zIndex: 99998 }}>
           <h4 
             className="text-sm font-medium mb-2"
             style={{ 

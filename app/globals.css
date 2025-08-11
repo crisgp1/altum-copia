@@ -339,3 +339,35 @@ body {
   color: #9C8A6B;
   text-decoration-color: #9C8A6B;
 }
+
+/* Global Input and Textarea Text Visibility Fix */
+input, textarea, select {
+  color: #0f172a !important; /* Very dark slate for input text */
+}
+
+input::placeholder, textarea::placeholder {
+  color: #334155 !important; /* Dark slate for placeholders */
+  opacity: 0.9 !important; /* High opacity for visibility */
+}
+
+/* Admin Forms - Extra visibility */
+input[type="text"], 
+input[type="email"], 
+input[type="tel"], 
+input[type="url"], 
+input[type="number"], 
+textarea {
+  color: #0f172a !important;
+  font-weight: 500 !important;
+}
+
+input[type="text"]::placeholder, 
+input[type="email"]::placeholder, 
+input[type="tel"]::placeholder, 
+input[type="url"]::placeholder, 
+input[type="number"]::placeholder, 
+textarea::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+  font-weight: 400 !important;
+}

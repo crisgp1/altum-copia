@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import Image from 'next/image';
 
 interface PreloaderProps {
   onLoadComplete: () => void;
@@ -9,8 +10,7 @@ interface PreloaderProps {
 
 export default function Preloader({ onLoadComplete }: PreloaderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const altumRef = useRef<HTMLSpanElement>(null);
-  const legalRef = useRef<HTMLSpanElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
   const scaleLineRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const percentageRef = useRef<HTMLSpanElement>(null);
@@ -29,24 +29,19 @@ export default function Preloader({ onLoadComplete }: PreloaderProps) {
     });
 
     // Initial setup
-    gsap.set([altumRef.current, legalRef.current], { opacity: 0, y: 20 });
+    gsap.set(logoRef.current, { opacity: 0, y: 20, scale: 0.8 });
     gsap.set(scaleLineRef.current, { scaleX: 0, transformOrigin: 'left center' });
     gsap.set(progressRef.current, { scaleX: 0, transformOrigin: 'left center' });
     gsap.set(percentageRef.current, { opacity: 0 });
 
     // Animation sequence
-    tl.to(altumRef.current, {
+    tl.to(logoRef.current, {
       opacity: 1,
       y: 0,
-      duration: 0.8,
-      ease: 'power3.out'
+      scale: 1,
+      duration: 1.2,
+      ease: 'back.out(1.7)'
     })
-    .to(legalRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: 'power3.out'
-    }, '-=0.6')
     .to(scaleLineRef.current, {
       scaleX: 1,
       duration: 0.6,
@@ -68,11 +63,11 @@ export default function Preloader({ onLoadComplete }: PreloaderProps) {
         }
       }
     }, '-=0.2')
-    .to([altumRef.current, legalRef.current, scaleLineRef.current, percentageRef.current], {
+    .to([logoRef.current, scaleLineRef.current, percentageRef.current], {
       opacity: 0,
       y: -10,
       duration: 0.6,
-      stagger: 0.05,
+      stagger: 0.1,
       ease: 'power2.in'
     }, '+=0.3');
 
@@ -87,16 +82,21 @@ export default function Preloader({ onLoadComplete }: PreloaderProps) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-white"
     >
       <div className="text-center">
-        {/* Logo */}
+        {/* Blue Logo */}
         <div className="mb-12">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl leading-tight">
-            <span ref={altumRef} className="altum-brand inline-block" style={{ color: '#000000' }}>
-              ALTUM
-            </span>{' '}
-            <span ref={legalRef} className="legal-brand inline-block" style={{ color: '#B79F76' }}>
-              Legal
-            </span>
-          </h1>
+          <div
+            ref={logoRef}
+            className="flex justify-center items-center"
+          >
+            <Image
+              src="/images/attorneys/logos/logo-blue.png"
+              alt="Altum Legal"
+              width={280}
+              height={80}
+              className="object-contain"
+              priority
+            />
+          </div>
         </div>
 
         {/* Progress Bar Container */}

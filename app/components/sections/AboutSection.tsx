@@ -70,29 +70,35 @@ export default function AboutSection() {
           {/* Left Content */}
           <div>
             <span className="text-amber-700 font-medium text-sm uppercase tracking-wider mb-4 block">
-              Nuestro Compromiso
+              ALTUM Legal
             </span>
             
             <h2
               ref={titleRef}
               className="text-4xl md:text-5xl font-serif font-bold text-slate-800 mb-8 leading-tight"
             >
-              <span className="text-amber-700 italic">Tradición</span> y
+              <span className="text-amber-700 italic">Ética, Transparencia</span> y
               <br />
-              Excelencia Jurídica
+              Compromiso Real
             </h2>
             
             <div ref={textRef} className="space-y-6">
               <p className="text-lg text-slate-600 leading-relaxed font-light">
-                Fundado en 1998, nuestro despacho ha establecido un estándar de excelencia 
-                en el sector jurídico mexicano. Combinamos la sabiduría de décadas de experiencia 
-                con enfoques innovadores para resolver los desafíos legales más complejos.
+                En ALTUM Legal sabemos que detrás de cada asunto legal hay personas, familias y empresas
+                que confían en un equipo para defender lo que más les importa. Por eso, nuestro compromiso
+                va más allá de representar casos: defendemos causas, cuidamos intereses y protegemos derechos.
               </p>
               
               <p className="text-lg text-slate-600 leading-relaxed font-light">
-                Nuestro equipo está formado por abogados especialistas reconocidos nacional 
-                e internacionalmente, comprometidos con la defensa de los intereses de 
-                nuestros clientes con la máxima dedicación y profesionalismo.
+                Somos un despacho conformado por especialistas en diversas ramas del derecho, enfocados
+                en ofrecer soluciones jurídicas claras, honestas y eficaces. Cada uno de nuestros abogados
+                trabaja bajo un código de ética estricto, garantizando un trato respetuoso, cercano y profesional.
+              </p>
+              
+              <p className="text-lg text-slate-600 leading-relaxed font-light">
+                Transparencia, honestidad y confianza no son palabras decorativas para nosotros; son la base
+                de cada acción que tomamos. Buscamos relaciones de asociación a largo plazo para brindar la
+                mejor solución integral a sus necesidades legales.
               </p>
             </div>
 
@@ -112,6 +118,14 @@ export default function AboutSection() {
                   </div>
                 </div>
               ))}
+            </div>
+            
+            <div className="mt-8 p-6 bg-gradient-to-r from-amber-50 to-stone-50 border-l-4 border-amber-700">
+              <p className="text-slate-700 font-medium italic text-lg">
+                "Creemos que el éxito depende de la estrecha coordinación con nuestros clientes
+                y el trabajo colaborativo de nuestros abogados para establecer objetivos,
+                comunicar riesgos y beneficios, y desarrollar estrategias de excelencia."
+              </p>
             </div>
           </div>
 
@@ -138,15 +152,33 @@ export default function AboutSection() {
             {/* Credentials */}
             <div ref={credentialsRef} className="bg-white border border-stone-200 p-8">
               <h3 className="text-xl font-serif font-bold text-slate-800 mb-6">
-                Membresías y Certificaciones
+                Nuestro Enfoque
               </h3>
-              <div className="space-y-3">
-                {credentials.map((credential, index) => (
-                  <div key={index} className="flex items-start">
-                    <div className="w-1.5 h-1.5 bg-amber-700 rounded-full mt-2 mr-4 flex-shrink-0"></div>
-                    <span className="text-slate-600 font-light leading-relaxed">{credential}</span>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <div className="w-1.5 h-1.5 bg-amber-700 rounded-full mt-2 mr-4 flex-shrink-0"></div>
+                  <span className="text-slate-600 font-light leading-relaxed">
+                    Colaboración entre especialistas para soluciones integrales
+                  </span>
+                </div>
+                <div className="flex items-start">
+                  <div className="w-1.5 h-1.5 bg-amber-700 rounded-full mt-2 mr-4 flex-shrink-0"></div>
+                  <span className="text-slate-600 font-light leading-relaxed">
+                    Trabajo coordinado como un solo equipo
+                  </span>
+                </div>
+                <div className="flex items-start">
+                  <div className="w-1.5 h-1.5 bg-amber-700 rounded-full mt-2 mr-4 flex-shrink-0"></div>
+                  <span className="text-slate-600 font-light leading-relaxed">
+                    Estrategias de alta calidad para resultados de excelencia
+                  </span>
+                </div>
+                <div className="flex items-start">
+                  <div className="w-1.5 h-1.5 bg-amber-700 rounded-full mt-2 mr-4 flex-shrink-0"></div>
+                  <span className="text-slate-600 font-light leading-relaxed">
+                    Comunicación constante y seguimiento periódico
+                  </span>
+                </div>
               </div>
             </div>
           </div>

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { createBlogPosts } from '@/app/lib/data/blogPosts';
 import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
+import Navbar from '@/app/components/navigation/Navbar';
+import Footer from '@/app/components/sections/Footer';
 import BlogHero from '@/app/components/blog/BlogHero';
 import BlogCategories from '@/app/components/blog/BlogCategories';
 import BlogGrid from '@/app/components/blog/BlogGrid';
@@ -66,17 +68,19 @@ export default function BlogPage() {
   }, [isSearchActive]);
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* Hero Section with Featured Post */}
-      <BlogHero featuredPosts={featuredPosts} />
+    <div className="min-h-screen bg-white">
+      <Navbar />
+      <main>
+        {/* Hero Section with Featured Post */}
+        <BlogHero featuredPosts={featuredPosts} />
       
       {/* Search Section */}
-      <section className="py-12 bg-gradient-to-br from-white to-stone-50">
+      <section className="py-12 bg-gradient-to-br from-white to-stone-50 relative" style={{ zIndex: 1 }}>
         <div className="max-w-4xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-8">
-            <h2 
+            <h2
               className="text-2xl md:text-3xl mb-4 leading-tight"
-              style={{ 
+              style={{
                 fontFamily: 'Minion Pro, serif',
                 fontWeight: 'bold',
                 color: '#152239'
@@ -89,24 +93,31 @@ export default function BlogPage() {
             </p>
           </div>
           
-          <BlogSearch 
+          <BlogSearch
             posts={blogPosts}
             onSearchResults={handleSearchResults}
             onSearchTermChange={handleSearchTermChange}
           />
-          
-          {/* Search Results Summary */}
-          {isSearchActive && (
-            <div className="mt-6 text-center">
-              <p className="text-slate-600">
+        </div>
+      </section>
+
+      {/* Search Results Summary - Moved outside search section */}
+      {isSearchActive && (
+        <section className="py-4 bg-stone-50 relative" style={{ zIndex: 1 }}>
+          <div className="max-w-4xl mx-auto px-6 lg:px-8">
+            <div className="text-center bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-stone-200">
+              <p className="text-slate-600 text-sm sm:text-base">
                 {searchResults.length > 0 ? (
                   <>
-                    Se encontraron <strong>{searchResults.length}</strong> resultado
-                    {searchResults.length !== 1 ? 's' : ''} para "<strong>{searchTerm}</strong>"
+                    <span className="block sm:inline">Se encontraron </span>
+                    <strong className="text-amber-600">{searchResults.length}</strong>
+                    <span className="block sm:inline"> resultado{searchResults.length !== 1 ? 's' : ''} para </span>
+                    <strong className="text-slate-800 break-words">"{searchTerm}"</strong>
                   </>
                 ) : (
                   <>
-                    No se encontraron resultados para "<strong>{searchTerm}</strong>"
+                    <span className="block sm:inline">No se encontraron resultados para </span>
+                    <strong className="text-slate-800 break-words">"{searchTerm}"</strong>
                   </>
                 )}
               </p>
@@ -117,15 +128,15 @@ export default function BlogPage() {
                     setIsSearchActive(false);
                     setSearchResults([]);
                   }}
-                  className="mt-2 text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
+                  className="mt-3 px-4 py-2 text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200 bg-amber-50 hover:bg-amber-100 rounded-lg text-sm"
                 >
                   Ver todos los artículos
                 </button>
               )}
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
       
       {/* Categories Filter - Hide when searching */}
       {!isSearchActive && (
@@ -136,12 +147,16 @@ export default function BlogPage() {
       )}
       
       {/* Blog Posts Grid */}
-      <BlogGrid 
+      <BlogGrid
         posts={displayPosts}
         selectedCategory={isSearchActive ? null : selectedCategory}
         searchTerm={searchTerm}
         isSearchActive={isSearchActive}
       />
-    </main>
+      </main>
+      
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
+import Image from 'next/image'; // 🔄 UPDATE 1: Added Next.js Image import
 import {
   SignInButton,
   SignUpButton,
@@ -26,12 +27,30 @@ const navItems: NavItem[] = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false); // 🔄 UPDATE 2: Added scroll state
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<HTMLDivElement[]>([]);
   const overlayRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const ctaButtonRef = useRef<HTMLButtonElement>(null);
+  const navbarRef = useRef<HTMLDivElement>(null); // Reference to main navbar
+
+  // Handle logo click for home redirect
+  const handleLogoClick = () => {
+    router.push('/');
+  };
+
+  // 🔄 UPDATE 3: NEW - Scroll detection effect for logo switching
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50); // Switch logos after 50px scroll
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -61,25 +80,32 @@ export default function Navbar() {
     document.body.style.overflow = 'hidden';
     
     tl.set(menuRef.current, { display: 'flex' })
+      // Hide main navbar first
+      .to(navbarRef.current, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.out'
+      })
       // Simple glassmorphism entrance
-      .fromTo(overlayRef.current, 
-        { 
+      .fromTo(overlayRef.current,
+        {
           opacity: 0,
           backdropFilter: 'blur(0px)'
-        }, 
-        { 
+        },
+        {
           opacity: 1,
           backdropFilter: 'blur(20px)',
           duration: 0.6,
           ease: 'power2.out'
-        }
+        },
+        '-=0.2' // Start slightly before navbar fade completes
       )
-      // Logo entrance
-      .fromTo(logoRef.current,
-        { y: -20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' },
-        '-=0.3'
-      )
+      // Logo entrance - REMOVED (logo hidden in menu)
+      // .fromTo(logoRef.current,
+      //   { y: -20, opacity: 0 },
+      //   { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' },
+      //   '-=0.3'
+      // )
       // Menu items simple fade in
       .fromTo(menuItemsRef.current, 
         { y: 30, opacity: 0 },
@@ -97,14 +123,14 @@ export default function Navbar() {
   const closeMenu = () => {
     const tl = gsap.timeline();
     
-    // Simple exit sequence
-    tl.to([ctaButtonRef.current, ...menuItemsRef.current, logoRef.current],
-        { 
-          opacity: 0, 
+    // Simple exit sequence - REMOVED logoRef
+    tl.to([ctaButtonRef.current, ...menuItemsRef.current],
+        {
+          opacity: 0,
           y: -20,
-          duration: 0.4, 
+          duration: 0.4,
           stagger: 0.05,
-          ease: 'power2.in' 
+          ease: 'power2.in'
         }
       )
       .to(overlayRef.current,
@@ -117,10 +143,16 @@ export default function Navbar() {
         '-=0.2'
       )
       .set(menuRef.current, { display: 'none' })
+      // Show main navbar after menu closes
+      .to(navbarRef.current, {
+        opacity: 1,
+        duration: 0.4,
+        ease: 'power2.out'
+      })
       .call(() => {
         // Re-enable body scroll and reset transforms
         document.body.style.overflow = 'auto';
-        gsap.set([overlayRef.current, logoRef.current, ...menuItemsRef.current, ctaButtonRef.current], {
+        gsap.set([overlayRef.current, ...menuItemsRef.current, ctaButtonRef.current], {
           clearProps: 'all'
         });
       });
@@ -135,14 +167,15 @@ export default function Navbar() {
     // Add a small delay for the menu close animation
     setTimeout(() => {
       router.push(href);
-    }, 300);
-  };
+      }, 300);
+    };
+  
 
   return (
     <>
       {/* Glassmorphism Header Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50">
-        <div 
+      <nav ref={navbarRef} className="fixed top-0 left-0 right-0 z-50">
+        <div
           className="bg-white/70 backdrop-blur-xl border-b border-white/30"
           style={{
             background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(183,159,118,0.1) 100%)'
@@ -150,12 +183,51 @@ export default function Navbar() {
         >
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="flex justify-between items-center h-20">
-              {/* Logo */}
+              {/* 🔄 UPDATE 4: HYBRID - Text logo initially, cropped logo on scroll + Home redirect */}
               <div className="flex items-center">
-                <div className="text-xl leading-tight">
-                  <span className="altum-brand text-slate-800">ALTUM</span>{' '}
-                  <span className="legal-brand" style={{ color: '#B79F76' }}>Legal</span>
-                </div>
+                <button
+                  onClick={handleLogoClick}
+                  className="relative hover:opacity-80 transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-50 rounded-md p-2"
+                  aria-label="Ir al inicio"
+                >
+                  {/* Text Logo - Initial State */}
+                  <div
+                    className={`text-lg leading-tight transition-all duration-500 ease-out ${
+                      isScrolled ? 'opacity-0 transform scale-95 -translate-y-2' : 'opacity-100 transform scale-100 translate-y-0'
+                    }`}
+                    style={{
+                      position: isScrolled ? 'absolute' : 'relative',
+                      top: isScrolled ? '50%' : '0',
+                      left: isScrolled ? '50%' : '0',
+                      transform: isScrolled ? 'translate(-50%, -50%) scale(0.95)' : 'none'
+                    }}
+                  >
+                    <span className="altum-brand text-slate-800">ALTUM</span>{' '}
+                    <span className="legal-brand" style={{ color: '#B79F76' }}>Legal</span>
+                  </div>
+                  
+                  {/* Cropped Logo - Scrolled State */}
+                  <div
+                    className={`transition-all duration-500 ease-out ${
+                      isScrolled ? 'opacity-100 transform scale-100 translate-y-0' : 'opacity-0 transform scale-105 translate-y-2'
+                    }`}
+                    style={{
+                      position: isScrolled ? 'relative' : 'absolute',
+                      top: isScrolled ? '0' : '50%',
+                      left: isScrolled ? '0' : '50%',
+                      transform: isScrolled ? 'none' : 'translate(-50%, -50%) scale(1.05)'
+                    }}
+                  >
+                    <Image
+                      src="/images/attorneys/logos/logo-cropped.png"
+                      alt="Altum Legal"
+                      width={60}
+                      height={14}
+                      className="object-contain"
+                      priority
+                    />
+                  </div>
+                </button>
               </div>
 
               {/* Auth Section */}
@@ -220,19 +292,26 @@ export default function Navbar() {
           ref={overlayRef}
           className="absolute inset-0 flex flex-col justify-center items-center overflow-hidden"
           style={{
-            background: 'rgba(255,255,255,0.95)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)'
+            background: 'rgba(255,255,255,0.98)',
+            backdropFilter: 'blur(25px)',
+            WebkitBackdropFilter: 'blur(25px)'
           }}
         >
 
-          {/* Logo in Menu */}
-          <div 
+          {/* 🔄 UPDATE 5: HIDDEN - Logo removed from menu (looks bad) */}
+          <div
             ref={logoRef}
-            className="absolute top-8 left-8 text-xl leading-tight"
+            className="absolute top-8 left-8 opacity-0 pointer-events-none"
+            style={{ display: 'none' }}
           >
-            <span className="altum-brand text-slate-900">ALTUM</span>{' '}
-            <span className="legal-brand" style={{ color: '#B79F76' }}>Legal</span>
+            <Image
+              src="/images/attorneys/logos/logo-dark.png"
+              alt="Altum Legal"
+              width={120}
+              height={30}
+              className="object-contain"
+              priority
+            />
           </div>
 
           {/* Menu Items - High contrast for visibility */}
@@ -251,9 +330,10 @@ export default function Navbar() {
                       handleNavClick(item.href);
                     }}
                     className="group block text-2xl md:text-2xl lg:text-3xl xl:text-3xl font-light cursor-pointer leading-tight relative"
-                    style={{ 
+                    style={{
                       fontFamily: 'Minion Pro, serif',
-                      color: '#152239'
+                      color: '#0f172a',
+                      textShadow: '0 1px 3px rgba(255, 255, 255, 0.8)'
                     }}
                   >
                     <span className="relative z-10 transition-all duration-500 group-hover:opacity-70">
@@ -321,7 +401,7 @@ export default function Navbar() {
 
           {/* Refined close indicator */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-sm font-light">
-            <div className="flex items-center space-x-3 px-4 py-2 rounded-full bg-white/30 backdrop-blur-sm" style={{ color: '#152239' }}>
+            <div className="flex items-center space-x-3 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200" style={{ color: '#0f172a' }}>
               <span>ESC para cerrar</span>
             </div>
           </div>

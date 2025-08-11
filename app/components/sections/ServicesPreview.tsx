@@ -1,67 +1,114 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { DollarSign, Gavel, Calculator, Building, Users, ArrowRight, Briefcase, Scale } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface Service {
+interface ServiceItem {
+  number: string;
   title: string;
   description: string;
-  icon: JSX.Element;
 }
 
-const services: Service[] = [
+interface VerticalService {
+  title: string;
+  backgroundColor: string;
+  icon: React.ReactNode;
+}
+
+const serviceItems: ServiceItem[] = [
   {
-    title: 'Derecho Corporativo',
-    description: 'Asesoramiento integral para empresas, fusiones, adquisiciones y estructuración corporativa.',
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-      </svg>
-    )
+    number: '01',
+    title: 'Protección de intereses en tribunales estatales',
+    description: 'Defensa integral en todas las instancias de la federación'
   },
   {
-    title: 'Litigios Complejos',
-    description: 'Representación especializada en casos de alta complejidad y gran envergadura.',
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16l-3-9m3 9l3-9" />
-      </svg>
-    )
+    number: '02',
+    title: 'Protección en tribunales de arbitraje',
+    description: 'Marco de arbitraje comercial internacional'
   },
   {
-    title: 'Derecho Fiscal',
-    description: 'Estrategias fiscales, planificación tributaria y defensa ante autoridades fiscales.',
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    )
+    number: '03',
+    title: 'Cobranza de deudas vencidas',
+    description: 'Deudas por préstamos, transacciones de seguridad y disputas contractuales'
   },
   {
-    title: 'Propiedad Intelectual',
-    description: 'Protección y registro de marcas, patentes y derechos de autor.',
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    )
+    number: '04',
+    title: 'Representación en disputas inmobiliarias',
+    description: 'Disputas en construcción y bienes raíces'
+  },
+  {
+    number: '05',
+    title: 'Representación en disputas corporativas',
+    description: 'Conflictos empresariales y comerciales'
+  },
+  {
+    number: '06',
+    title: 'Disputas del mercado de valores',
+    description: 'Representación en disputas relacionadas con el mercado de valores'
+  },
+  {
+    number: '07',
+    title: 'Protección en procedimientos de cumplimiento',
+    description: 'Marco de procedimientos de aplicación'
+  },
+  {
+    number: '08',
+    title: 'Búsqueda de propiedad de deudores',
+    description: 'Para ejecutar embargo por el reembolso'
+  }
+];
+
+const verticalServices: VerticalService[] = [
+  {
+    title: 'Bankruptcy',
+    backgroundColor: '#B8956F',
+    icon: <DollarSign className="w-12 h-12 text-white" />
+  },
+  {
+    title: 'Criminal legal protection of business',
+    backgroundColor: '#5B8AAE', 
+    icon: <Gavel className="w-12 h-12 text-white" />
+  },
+  {
+    title: 'Taxes',
+    backgroundColor: '#A89B7A',
+    icon: <Calculator className="w-12 h-12 text-white" />
+  },
+  {
+    title: 'Outsourcing',
+    backgroundColor: '#3D4A5C',
+    icon: <Briefcase className="w-12 h-12 text-white" />
   }
 ];
 
 export default function ServicesPreview() {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const cardsRef = useRef<HTMLDivElement[]>([]);
+  const leftContentRef = useRef<HTMLDivElement>(null);
+  const rightContentRef = useRef<HTMLDivElement>(null);
+  const columnRefs = useRef<HTMLDivElement[]>([]);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(titleRef.current,
-        { y: 50, opacity: 0 },
+      // Initial setup - set columns to their designed incremental widths
+      columnRefs.current.forEach((column, index) => {
+        if (column) {
+          gsap.set(column, {
+            width: `${120 + (index * 25)}px`, // Set to designed widths: 120px, 145px, 170px, 195px
+            transition: 'width 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)'
+          });
+        }
+      });
+
+      // Entrance animations
+      gsap.fromTo(leftContentRef.current,
+        { x: -50, opacity: 0 },
         {
-          y: 0,
+          x: 0,
           opacity: 1,
           duration: 1,
           ease: 'power2.out',
@@ -72,17 +119,32 @@ export default function ServicesPreview() {
         }
       );
 
-      gsap.fromTo(cardsRef.current,
-        { y: 80, opacity: 0 },
+      gsap.fromTo(rightContentRef.current,
+        { x: 50, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+          }
+        }
+      );
+
+      // Staggered column entrance
+      gsap.fromTo(columnRefs.current,
+        { y: 30, opacity: 0 },
         {
           y: 0,
           opacity: 1,
           duration: 0.8,
-          stagger: 0.2,
-          ease: 'power2.out',
+          stagger: 0.1,
+          ease: 'power3.out',
           scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 70%',
+            trigger: rightContentRef.current,
+            start: 'top 85%',
           }
         }
       );
@@ -91,89 +153,160 @@ export default function ServicesPreview() {
     return () => ctx.revert();
   }, []);
 
+  // Handle column hover with attorney carousel-style expansion
+  const handleColumnHover = (index: number | null) => {
+    // Prevent animation conflicts by killing any existing animations
+    gsap.killTweensOf(columnRefs.current);
+    
+    setHoveredIndex(index);
+    
+    columnRefs.current.forEach((column, i) => {
+      if (!column) return;
+      
+      const baseWidth = 120 + (i * 25); // Original incremental width
+      
+      if (index === null) {
+        // Return to original position and width
+        gsap.to(column, {
+          x: 0,
+          width: `${baseWidth}px`,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+      } else if (i === index) {
+        // Slide card to the left like pulling it out of wallet - KEEP THIS STATE
+        gsap.to(column, {
+          x: -10, // Move only 10px to the left
+          width: `${baseWidth}px`, // Keep original width
+          duration: 0.25,
+          ease: 'power2.out'
+        });
+        
+        // Add subtle content animations
+        const overlay = column.querySelector('.column-overlay');
+        const icon = column.querySelector('.column-icon');
+        
+        if (overlay) {
+          gsap.to(overlay, {
+            opacity: 0.1,
+            duration: 0.2,
+            ease: 'power2.out'
+          });
+        }
+        
+        if (icon) {
+          gsap.to(icon, {
+            scale: 1.05,
+            duration: 0.25,
+            ease: 'power2.out'
+          });
+        }
+        
+      } else {
+        // Keep other columns in place
+        gsap.to(column, {
+          x: 0,
+          width: `${baseWidth}px`,
+          duration: 0.25,
+          ease: 'power2.out'
+        });
+      }
+    });
+  };
+
   return (
     <section
       ref={sectionRef}
-      className="py-24 bg-white"
+      className="py-24 bg-white relative"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="mb-16">
-          <div className="max-w-3xl">
-            <span className="text-amber-700 font-medium text-sm uppercase tracking-wider mb-4 block">
-              Especialidades Jurídicas
-            </span>
-            <h2
-              ref={titleRef}
-              className="text-4xl md:text-5xl font-serif font-bold text-slate-800 mb-6 leading-tight"
-            >
-              Áreas de <span className="text-amber-700 italic">Especialización</span>
-            </h2>
-            <p className="text-lg text-slate-600 leading-relaxed font-light">
-              Ofrecemos servicios jurídicos especializados con la más alta calidad 
-              y dedicación para proteger sus intereses legales y patrimoniales.
-            </p>
-          </div>
-        </div>
-
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          {services.map((service, index) => (
-            <div
-              key={service.title}
-              ref={(el) => { if (el) cardsRef.current[index] = el; }}
-              className="group bg-gradient-to-br from-stone-50 to-slate-50 border border-stone-200 hover:border-amber-200 transition-all duration-500 relative overflow-hidden"
-            >
-              {/* Decorative element */}
-              <div className="absolute top-4 right-4 w-16 h-16 bg-amber-100 rounded-full opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+        <div className="relative flex h-[600px]">
+          {/* Left Side - Settlement of Disputes */}
+          <div ref={leftContentRef} className="flex-1 space-y-8 pr-8">
+            <div className="space-y-6">
+              <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight">
+                Solución integral de
+                <span className="block text-slate-800">disputas legales</span>
+              </h2>
               
-              <div className="p-8 relative z-10">
-                <div className="mb-6">
-                  <div className="w-14 h-14 bg-slate-800 text-white flex items-center justify-center group-hover:bg-amber-700 transition-colors duration-300">
-                    {service.icon}
-                  </div>
-                </div>
-                
-                <h3 className="text-xl font-serif font-bold text-slate-800 mb-4 group-hover:text-amber-700 transition-colors duration-300">
-                  {service.title}
-                </h3>
-                
-                <p className="text-slate-600 leading-relaxed mb-6 font-light">
-                  {service.description}
-                </p>
-                
-                <button className="text-slate-800 font-medium group-hover:text-amber-700 transition-colors duration-200 flex items-center group">
-                  <span>Más información</span>
-                  <svg 
-                    className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </button>
+              <div className="flex items-center space-x-4">
+                <span className="text-slate-800 font-medium">Más</span>
+                <div className="flex-1 h-px bg-slate-300"></div>
+                <ArrowRight className="w-5 h-5 text-slate-800" />
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Bottom CTA */}
-        <div className="text-center">
-          <p className="text-slate-600 mb-6 font-light">
-            ¿Necesita asesoría en otra área del derecho?
-          </p>
-          <button className="bg-slate-800 text-white px-8 py-4 font-medium hover:bg-slate-700 transition-all duration-300 inline-flex items-center">
-            <span>Ver Todos los Servicios</span>
-            <svg 
-              className="ml-2 w-4 h-4" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
+            {/* Numbered Services List */}
+            <div className="space-y-8 overflow-y-auto max-h-[400px]">
+              {serviceItems.map((service) => (
+                <div key={service.number} className="space-y-3">
+                  <div className="flex items-start space-x-4">
+                    <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">
+                      {service.number}
+                    </span>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-bold text-slate-800">
+                        {service.title}
+                      </h3>
+                      <p className="text-slate-600 leading-relaxed text-sm">
+                        {service.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Vertical Service Columns - Independent positioning outside container */}
+      <div ref={rightContentRef} className="absolute -right-10 top-24 h-[600px]">
+        <div className="flex h-full items-end justify-end">
+          {verticalServices.map((service, index) => (
+            <div
+              key={service.title}
+              ref={(el) => {
+                if (el) columnRefs.current[index] = el;
+              }}
+              className="relative flex flex-col items-center justify-between text-white p-6 cursor-pointer overflow-hidden"
+              style={{ 
+                backgroundColor: service.backgroundColor,
+                width: `${120 + (index * 25)}px`, // Incremental width: 120px, 145px, 170px, 195px (biggest on right)
+                height: '600px', // Same height for all cards
+                marginLeft: index > 0 ? '-20px' : '0', // More overlap like wallet cards
+                zIndex: index + 1, // Higher z-index for bigger cards (right side)
+                borderRadius: '0',
+                alignSelf: 'flex-end' // Align to bottom
+              }}
+              onMouseEnter={() => handleColumnHover(index)}
+              onMouseLeave={() => handleColumnHover(null)}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </button>
+              {/* Service Title - Vertical Text at Top Left Inverted */}
+              <div className="absolute left-4 top-8">
+                <h3 
+                  className="column-title text-2xl font-bold text-white leading-none whitespace-nowrap transition-transform duration-300"
+                  style={{ 
+                    writingMode: 'vertical-lr',
+                    textOrientation: 'mixed',
+                    transform: 'rotate(0deg)',
+                    letterSpacing: '-0.5px',
+                    fontFamily: 'Minion Pro, serif'
+                  }}
+                >
+                  {service.title}
+                </h3>
+              </div>
+              
+              {/* Icon at left */}
+              <div className="column-icon absolute bottom-8 left-4 transition-transform duration-300">
+                {service.icon}
+              </div>
+
+              {/* Hover overlay */}
+              <div className="column-overlay absolute inset-0 bg-black opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
