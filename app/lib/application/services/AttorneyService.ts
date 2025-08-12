@@ -4,6 +4,7 @@ import {
   UpdateAttorneyDTO,
   PaginatedAttorneysDTO 
 } from '@/app/lib/application/dtos/AttorneyDTO';
+import { BlobStorageService } from '@/app/lib/services/BlobStorageService';
 
 export interface IAttorneyService {
   getAllAttorneys(filters?: any, pagination?: any): Promise<PaginatedAttorneysDTO>;
@@ -105,20 +106,23 @@ export class AttorneyService implements IAttorneyService {
   }
 
   async uploadAttorneyImage(file: File): Promise<string> {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
+    // Validate file before upload
+    const validation = BlobStorageService.validateFile(file, {
+      maxSize: BlobStorageService.SIZE_PRESETS.MEDIUM,
+      allowedTypes: BlobStorageService.FILE_TYPE_PRESETS.IMAGES
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Error al subir la imagen');
+    if (!validation.valid) {
+      throw new Error(validation.error);
     }
 
-    const data = await response.json();
-    return data.url;
+    // Upload using the new blob storage service
+    const result = await BlobStorageService.uploadAttorneyImage(file);
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Error al subir la imagen');
+    }
+
+    return result.url!;
   }
 }

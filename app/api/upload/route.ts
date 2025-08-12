@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
-import { existsSync } from 'fs';
+import { put } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const category = formData.get('category') as string || 'attorneys'; // Default to attorneys for backward compatibility
     
     if (!file) {
       return NextResponse.json(
@@ -16,54 +15,49 @@ export async function POST(request: NextRequest) {
     }
 
     // Validar tipo de archivo
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
     if (!validTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Tipo de archivo no válido. Solo se permiten imágenes (JPEG, PNG, WebP)' },
+        { error: 'Tipo de archivo no válido. Solo se permiten imágenes (JPEG, PNG, WebP, GIF)' },
         { status: 400 }
       );
     }
 
-    // Validar tamaño (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validar tamaño (max 10MB - increased for better quality)
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'El archivo es demasiado grande. Máximo 5MB' },
+        { error: 'El archivo es demasiado grande. Máximo 10MB' },
         { status: 400 }
       );
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     // Crear nombre único para el archivo
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const fileExtension = path.extname(file.name);
-    const fileName = `attorney-${uniqueSuffix}${fileExtension}`;
+    const timestamp = Date.now();
+    const randomSuffix = Math.round(Math.random() * 1E9);
+    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const fileName = `${category}-${timestamp}-${randomSuffix}-${originalName}`;
+    const blobPath = `uploads/${category}/${fileName}`;
 
-    // Crear directorio si no existe
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'attorneys');
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // Guardar archivo
-    const filePath = path.join(uploadDir, fileName);
-    await writeFile(filePath, buffer);
-
-    // Retornar URL pública
-    const publicUrl = `/uploads/attorneys/${fileName}`;
+    // Subir a Vercel Blob
+    const { url } = await put(blobPath, file, {
+      access: 'public',
+    });
 
     return NextResponse.json(
       { 
-        url: publicUrl,
+        url: url,
         fileName: fileName,
+        originalName: file.name,
+        size: file.size,
+        type: file.type,
+        category: category,
         message: 'Imagen subida exitosamente' 
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error('Error uploading file to Vercel Blob:', error);
     return NextResponse.json(
       { error: 'Error al subir el archivo' },
       { status: 500 }

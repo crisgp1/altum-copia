@@ -21,6 +21,7 @@ const navItems: NavItem[] = [
   { label: 'Inicio', href: '/' },
   { label: 'Servicios', href: '/services' },
   { label: 'Nosotros', href: '/about' },
+  { label: 'Equipo', href: '/equipo' },
   { label: 'Blog', href: '/blog' },
   { label: 'Contacto', href: '/contact' }
 ];
@@ -262,7 +263,7 @@ export default function Navbar() {
               {/* Elegant Menu Button */}
               <button
                 onClick={toggleMenu}
-                className="group relative w-12 h-12 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex flex-col justify-center items-center space-y-1.5 focus:outline-none transition-all duration-300 hover:bg-white/60"
+                className="group relative w-12 h-12 bg-transparent flex flex-col justify-center items-center space-y-1.5 focus:outline-none transition-all duration-300"
               >
                 <span 
                   className={`w-6 h-0.5 transition-all duration-500 ease-out ${isOpen ? 'rotate-45 translate-y-2' : ''}`}
@@ -314,6 +315,22 @@ export default function Navbar() {
             />
           </div>
 
+          {/* Close button for mobile */}
+          <button
+            onClick={() => setIsOpen(false)}
+            className="absolute top-6 right-6 w-12 h-12 flex flex-col justify-center items-center focus:outline-none transition-all duration-300 z-50"
+            aria-label="Cerrar menú"
+          >
+            <span 
+              className="absolute w-6 h-0.5 rotate-45"
+              style={{ backgroundColor: '#B79F76' }}
+            ></span>
+            <span 
+              className="absolute w-6 h-0.5 -rotate-45"
+              style={{ backgroundColor: '#B79F76' }}
+            ></span>
+          </button>
+
           {/* Menu Items - High contrast for visibility */}
           <div className="w-full max-w-6xl mx-auto px-6 lg:px-16 xl:px-20">
             <div className="text-left space-y-6 md:space-y-5 lg:space-y-6 xl:space-y-8">
@@ -351,39 +368,34 @@ export default function Navbar() {
             
             {/* Sophisticated CTA Button */}
             <div className="text-left pt-12 lg:pt-16">
-              <div style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate' }}>
-                <button
-                  ref={ctaButtonRef}
-                  onClick={() => {
-                    setIsOpen(false);
-                    setTimeout(() => {
-                      // Scroll to contact section or handle CTA
-                      const contactSection = document.querySelector('#contact');
-                      if (contactSection) {
-                        contactSection.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }, 200);
-                  }}
-                  className="group relative overflow-hidden rounded-full px-10 py-4 text-base font-medium transition-all duration-500 shadow-xl"
-                  style={{
-                    backgroundColor: '#152239',
-                    border: '2px solid #152239',
-                    color: '#FFFFFF',
-                    backdropFilter: 'none',
-                    WebkitBackdropFilter: 'none',
-                    position: 'relative',
-                    zIndex: 10
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#B79F76';
-                    e.currentTarget.style.border = '2px solid #B79F76';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#152239';
-                    e.currentTarget.style.border = '2px solid #152239';
-                  }}
-                >
-                <span className="relative z-10 flex items-center">
+              <button
+                ref={ctaButtonRef}
+                onClick={() => {
+                  setIsOpen(false);
+                  setTimeout(() => {
+                    // Scroll to contact section or handle CTA
+                    const contactSection = document.querySelector('#contact');
+                    if (contactSection) {
+                      contactSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }, 200);
+                }}
+                className="group rounded-full px-10 py-4 text-base font-medium transition-colors duration-500 shadow-xl"
+                style={{
+                  backgroundColor: '#152239',
+                  border: '2px solid #152239',
+                  color: '#FFFFFF'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#B79F76';
+                  e.currentTarget.style.border = '2px solid #B79F76';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#152239';
+                  e.currentTarget.style.border = '2px solid #152239';
+                }}
+              >
+                <span className="flex items-center" style={{ color: '#FFFFFF' }}>
                   Consulta Gratuita
                   <svg 
                     className="ml-3 w-5 h-5 transition-transform duration-500 group-hover:translate-x-2" 
@@ -395,7 +407,6 @@ export default function Navbar() {
                   </svg>
                 </span>
               </button>
-              </div>
             </div>
           </div>
 

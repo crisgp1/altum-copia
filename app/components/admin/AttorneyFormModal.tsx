@@ -5,6 +5,8 @@ import { AttorneyResponseDTO } from '@/app/lib/application/dtos/AttorneyDTO';
 import { AttorneyService } from '@/app/lib/application/services/AttorneyService';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { UploadIndicator, AnimatedUploadZone, UploadState } from './UploadAnimations';
+import { DragDropUpload } from './DragDropUpload';
 
 interface AttorneyFormModalProps {
   attorney: AttorneyResponseDTO | null;
@@ -70,6 +72,9 @@ export default function AttorneyFormModal({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadState, setUploadState] = useState<UploadState>('idle');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string>('');
   const [activeTab, setActiveTab] = useState('general');
   const [customEspecializacion, setCustomEspecializacion] = useState('');
   const [customIdioma, setCustomIdioma] = useState('');
@@ -105,28 +110,63 @@ export default function AttorneyFormModal({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('La imagen no debe superar los 5MB');
-        return;
-      }
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      handleFileSelect(file);
     }
+  };
+
+  const handleFileSelect = (file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('La imagen no debe superar los 10MB');
+      setUploadState('error');
+      setUploadError('La imagen no debe superar los 10MB');
+      return;
+    }
+    
+    // Reset upload states
+    setUploadState('idle');
+    setUploadProgress(0);
+    setUploadError('');
+    
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const uploadImage = async (): Promise<string | null> => {
     if (!imageFile) return formData.imagenUrl || null;
 
     setIsUploading(true);
+    setUploadState('uploading');
+    setUploadProgress(0);
+    
+    // Simulate progress for better UX
+    const progressInterval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 20;
+      });
+    }, 200);
+
     try {
       const url = await attorneyService.uploadAttorneyImage(imageFile);
+      
+      // Complete progress
+      setUploadProgress(100);
+      setTimeout(() => {
+        setUploadState('success');
+        clearInterval(progressInterval);
+      }, 300);
+      
       return url;
     } catch (error) {
-      toast.error('Error al subir la imagen');
+      clearInterval(progressInterval);
+      setUploadState('error');
+      const errorMessage = error instanceof Error ? error.message : 'Error al subir la imagen';
+      setUploadError(errorMessage);
+      toast.error(errorMessage);
       console.error(error);
       return null;
     } finally {
@@ -681,46 +721,57 @@ export default function AttorneyFormModal({
                   <p className="text-sm text-purple-700">Foto de perfil y enlaces a redes sociales</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-4">
                     Foto de Perfil
                   </label>
-                  <div className="flex items-start gap-6">
-                    <div className="relative w-32 h-32 bg-stone-100 rounded-lg overflow-hidden">
-                      {imagePreview ? (
+                  
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="mb-6 flex items-center gap-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden">
                         <Image
                           src={imagePreview}
                           alt="Preview"
                           fill
                           className="object-cover"
                         />
-                      ) : (
-                        <div className="flex items-center justify-center h-full text-stone-400">
-                          <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                      )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-green-800">Imagen seleccionada</p>
+                        <p className="text-sm text-green-600">
+                          {imageFile?.name} ({imageFile ? (imageFile.size / (1024 * 1024)).toFixed(2) : 0} MB)
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview('');
+                          setUploadState('idle');
+                          setUploadProgress(0);
+                          setUploadError('');
+                        }}
+                        className="text-green-600 hover:text-green-800 p-1"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </div>
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="block w-full text-sm text-slate-500
-                          file:mr-4 file:py-2 file:px-4
-                          file:rounded-full file:border-0
-                          file:text-sm file:font-semibold
-                          file:bg-amber-50 file:text-amber-700
-                          hover:file:bg-amber-100"
-                      />
-                      <p className="mt-2 text-sm text-slate-500">
-                        PNG, JPG o WebP hasta 5MB
-                      </p>
-                      {isUploading && (
-                        <p className="text-sm text-amber-600 mt-2">Subiendo imagen...</p>
-                      )}
-                    </div>
-                  </div>
+                  )}
+
+                  {/* Drag & Drop Upload */}
+                  <DragDropUpload
+                    onFileSelect={handleFileSelect}
+                    accept="image/*"
+                    maxSize={10 * 1024 * 1024} // 10MB
+                    supportedFormats={['JPG', 'PNG', 'WebP', 'GIF']}
+                    uploadState={uploadState}
+                    uploadProgress={uploadProgress}
+                    uploadError={uploadError}
+                    disabled={isUploading}
+                    className="mb-6"
+                  />
                 </div>
 
                 <div>

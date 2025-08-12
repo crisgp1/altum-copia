@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/backend": "^2.6.2",
     "@clerk/nextjs": "^6.28.1",
+    "@vercel/blob": "^1.1.1",
     "bcryptjs": "^2.4.3",
     "gsap": "^3.13.0",
     "jsonwebtoken": "^9.0.2",

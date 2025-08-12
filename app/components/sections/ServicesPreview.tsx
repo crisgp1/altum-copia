@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { DollarSign, Gavel, Calculator, Building, Users, ArrowRight, Briefcase, Scale } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -77,7 +78,7 @@ const verticalServices: VerticalServiceWithDetails[] = [
   {
     title: 'Derecho Corporativo',
     backgroundColor: '#D4A574',
-    icon: <Building className="w-12 h-12 text-white" />,
+    icon: <Image src="/assets/svg/building.svg" alt="Derecho Corporativo" width={48} height={48} className="filter brightness-0 invert" />,
     details: [
       {
         number: '01',
@@ -104,7 +105,7 @@ const verticalServices: VerticalServiceWithDetails[] = [
   {
     title: 'Litigio Estratégico',
     backgroundColor: '#7FAAB3', 
-    icon: <Gavel className="w-12 h-12 text-white" />,
+    icon: <Image src="/assets/svg/hammer.svg" alt="Litigio Estratégico" width={48} height={48} className="filter brightness-0 invert" />,
     details: [
       {
         number: '01',
@@ -131,7 +132,7 @@ const verticalServices: VerticalServiceWithDetails[] = [
   {
     title: 'Derecho Fiscal',
     backgroundColor: '#C5B299',
-    icon: <Calculator className="w-12 h-12 text-white" />,
+    icon: <Image src="/assets/svg/bank.svg" alt="Derecho Fiscal" width={48} height={48} className="filter brightness-0 invert" />,
     details: [
       {
         number: '01',
@@ -158,7 +159,7 @@ const verticalServices: VerticalServiceWithDetails[] = [
   {
     title: 'Derecho Laboral',
     backgroundColor: '#3D4A5C',
-    icon: <Users className="w-12 h-12 text-white" />,
+    icon: <Image src="/assets/svg/people.svg" alt="Derecho Laboral" width={48} height={48} className="filter brightness-0 invert" />,
     details: [
       {
         number: '01',
@@ -233,11 +234,11 @@ export default function ServicesPreview() {
         }
       );
 
-      // Staggered column entrance
+      // Staggered column entrance - Right to Left
       gsap.fromTo(columnRefs.current,
-        { y: 30, opacity: 0 },
+        { x: 50, opacity: 0 },
         {
-          y: 0,
+          x: 0,
           opacity: 1,
           duration: 0.8,
           stagger: 0.1,
@@ -368,7 +369,16 @@ export default function ServicesPreview() {
                 </div>
 
                 {/* ALTUM Legal Values as numbered list */}
-                <div className="space-y-8 overflow-y-auto max-h-[400px]">
+                <div className="space-y-8 overflow-y-auto max-h-[400px] relative">
+                  {/* Soft gradient overlay at the bottom for fade effect - fixed positioning */}
+                  <div 
+                    className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none z-10"
+                    style={{
+                      background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, #ffffff 100%)',
+                      position: 'sticky',
+                      bottom: 0
+                    }}
+                  ></div>
                   <div className="space-y-3">
                     <div className="flex items-start space-x-4">
                       <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">01</span>
@@ -440,7 +450,16 @@ export default function ServicesPreview() {
                 </div>
 
                 {/* Selected Service Details */}
-                <div className="space-y-8 overflow-y-auto max-h-[400px]">
+                <div className="space-y-8 overflow-y-auto max-h-[400px] relative">
+                  {/* Soft gradient overlay at the bottom for fade effect - fixed positioning */}
+                  <div 
+                    className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none z-10"
+                    style={{
+                      background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, #ffffff 100%)',
+                      position: 'sticky',
+                      bottom: 0
+                    }}
+                  ></div>
                   {verticalServices[clickedIndex].details.map((service) => (
                     <div key={service.number} className="space-y-3">
                       <div className="flex items-start space-x-4">
@@ -560,10 +579,13 @@ export default function ServicesPreview() {
                 </div>
                 <div className="flex items-center space-x-3 ml-4">
                   <div className="flex-shrink-0">
-                    {React.cloneElement(service.icon as React.ReactElement, {
-                      className: "w-6 h-6",
-                      style: { color: service.backgroundColor === '#8B7D5B' ? 'rgba(0,0,0,0.8)' : '#ffffff' }
-                    })}
+                    <div className="w-6 h-6 relative">
+                      {React.cloneElement(service.icon as React.ReactElement, {
+                        width: 24,
+                        height: 24,
+                        className: "filter brightness-0 invert"
+                      })}
+                    </div>
                   </div>
                   <div>
                     <ArrowRight 
@@ -578,12 +600,12 @@ export default function ServicesPreview() {
 
               {/* Expandable Content */}
               <div 
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                className={`relative overflow-hidden transition-all duration-500 ease-in-out ${
                   clickedIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                 }`}
               >
                 <div 
-                  className="px-6 pb-8 space-y-3"
+                  className="px-6 pb-8 space-y-3 relative"
                   style={{
                     borderTop: `1px solid ${service.backgroundColor === '#B8956F' ? 'rgba(255,255,255,0.3)' : 
                                            service.backgroundColor === '#5B8AAE' ? 'rgba(255,255,255,0.4)' : 
@@ -591,6 +613,15 @@ export default function ServicesPreview() {
                                            'rgba(255,255,255,0.5)'}`
                   }}
                 >
+                  {/* Soft gradient overlay at the bottom - fixed positioning for scroll */}
+                  <div 
+                    className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none z-10"
+                    style={{
+                      background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.05) 30%, ${service.backgroundColor} 100%)`,
+                      position: 'sticky',
+                      bottom: 0
+                    }}
+                  ></div>
                   {service.details.map((detail, detailIndex) => (
                     <div key={detail.number} className="pt-3 first:pt-4">
                       <div className="flex items-start space-x-3">

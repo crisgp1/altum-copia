@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 import { attorneys } from '@/app/lib/data/attorneys';
 import { Attorney } from '@/app/lib/types/Attorney';
+import Navbar from '@/app/components/navigation/Navbar';
+import Footer from '@/app/components/sections/Footer';
 
 const legalAreas = [
   {
@@ -23,7 +25,7 @@ const legalAreas = [
     color: 'blue',
     attorneys: attorneys.filter(attorney => 
       attorney.specialization.some(spec => 
-        spec.includes('Civil') || spec.includes('Litigio') || spec.includes('Penal')
+        spec.includes('Litigio') || spec.includes('Penal') || spec.includes('Civil') || spec.includes('Arbitraje')
       )
     )
   },
@@ -33,7 +35,7 @@ const legalAreas = [
     color: 'green',
     attorneys: attorneys.filter(attorney => 
       attorney.specialization.some(spec => 
-        spec.includes('Fiscal') || spec.includes('Tributario') || spec.includes('Impuestos')
+        spec.includes('Fiscal') || spec.includes('Tributario') || spec.includes('Planeación')
       )
     )
   },
@@ -43,16 +45,25 @@ const legalAreas = [
     color: 'purple',
     attorneys: attorneys.filter(attorney => 
       attorney.specialization.some(spec => 
-        spec.includes('Laboral') || spec.includes('Trabajo') || spec.includes('Social')
+        spec.includes('Laboral') || spec.includes('Seguridad Social') || spec.includes('Relaciones')
       )
     )
   }
 ];
 
 export default function EquipoPage() {
-  const [selectedAttorney, setSelectedAttorney] = useState<Attorney | null>(attorneys[0] || null);
+  const [selectedAttorney, setSelectedAttorney] = useState<Attorney | null>(null);
   const [selectedArea, setSelectedArea] = useState<string>('Derecho Corporativo');
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Initialize selected attorney on mount
+  useEffect(() => {
+    const firstAreaWithAttorneys = legalAreas.find(area => area.attorneys.length > 0);
+    if (firstAreaWithAttorneys && firstAreaWithAttorneys.attorneys.length > 0) {
+      setSelectedAttorney(firstAreaWithAttorneys.attorneys[0]);
+      setSelectedArea(firstAreaWithAttorneys.name);
+    }
+  }, []);
 
   const handleAttorneySelect = (attorney: Attorney) => {
     if (selectedAttorney?.id === attorney.id) return;
@@ -77,10 +88,35 @@ export default function EquipoPage() {
   const currentArea = legalAreas.find(area => area.name === selectedArea);
   const currentAreaAttorneys = currentArea?.attorneys || [];
 
+  // Debug logging
+  console.log('Attorneys loaded:', attorneys.length);
+  console.log('Legal areas:', legalAreas.map(area => ({ name: area.name, count: area.attorneys.length })));
+  console.log('Selected area:', selectedArea);
+  console.log('Current area attorneys:', currentAreaAttorneys.length);
+
+  // Show loading state if no data is available
+  if (attorneys.length === 0) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen bg-white flex items-center justify-center mt-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+            <h2 className="text-xl font-medium text-slate-800 mb-2">Cargando equipo...</h2>
+            <p className="text-slate-600">Obteniendo información de nuestros abogados</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-white">
-      {/* Hero Section with Featured Attorney */}
-      <section className="relative bg-gradient-to-br from-slate-100 to-slate-200 py-24">
+    <>
+      <Navbar />
+      <main className="min-h-screen bg-white">
+        {/* Hero Section with Featured Attorney */}
+        <section className="relative bg-gradient-to-br from-slate-100 to-slate-200 py-24 mt-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
@@ -227,8 +263,19 @@ export default function EquipoPage() {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8 justify-items-center">
-            {currentAreaAttorneys.map((attorney, index) => (
+          {currentAreaAttorneys.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <div className="text-slate-400 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-slate-700 mb-2">No hay abogados en esta área</h3>
+              <p className="text-slate-500">Selecciona otra área de práctica para ver nuestro equipo.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8 justify-items-center">
+              {currentAreaAttorneys.map((attorney, index) => (
               <div
                 key={attorney.id}
                 className={`group cursor-pointer transition-all duration-300 ${
@@ -277,9 +324,20 @@ export default function EquipoPage() {
                     {attorney.position}
                   </p>
                 </div>
+                
+                {/* Description Review beside photo - Desktop only */}
+                <div className="hidden lg:block absolute left-full top-0 ml-4 w-64 bg-white p-4 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 border border-slate-200">
+                  <h4 className="font-medium text-slate-800 mb-2">{attorney.name}</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-3">{attorney.bio}</p>
+                  <div className="text-xs text-slate-500">
+                    <p className="mb-1">{attorney.experience} años de experiencia</p>
+                    <p>{attorney.languages.join(', ')}</p>
+                  </div>
+                </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -303,6 +361,8 @@ export default function EquipoPage() {
           </div>
         </div>
       </section>
-    </main>
+      </main>
+      <Footer />
+    </>
   );
 }

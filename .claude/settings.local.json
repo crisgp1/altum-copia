@@ -18,7 +18,12 @@
       "Bash(npm install:*)",
       "Bash(pkill:*)",
       "WebFetch(domain:gsap.com)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npm run:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
