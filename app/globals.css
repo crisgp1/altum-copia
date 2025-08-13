@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+/* Custom animations for ALTUM Legal */
+@keyframes bounce-x {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+
+.animate-bounce-x {
+  animation: bounce-x 2s ease-in-out infinite;
+}
+
+/* Hide scrollbars */
+.hide-scrollbar {
+  /* Firefox */
+  scrollbar-width: none;
+  /* Safari and Chrome */
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ALTUM Legal Brand Typography */
 @font-face {
   font-family: 'Trajan Pro';

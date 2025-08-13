@@ -6,6 +6,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -68,6 +69,7 @@ interface ServiceDetail {
   number: string;
   title: string;
   description: string;
+  slug?: string; // Optional slug for navigation
 }
 
 interface VerticalServiceWithDetails extends VerticalService {
@@ -83,22 +85,26 @@ const verticalServices: VerticalServiceWithDetails[] = [
       {
         number: '01',
         title: 'Constitución de empresas',
-        description: 'Asesoría integral para la constitución de sociedades mercantiles y civiles'
+        description: 'Asesoría integral para la constitución de sociedades mercantiles y civiles',
+        slug: 'derecho-corporativo'
       },
       {
         number: '02', 
         title: 'Fusiones y adquisiciones',
-        description: 'Estructuración y ejecución de operaciones de M&A empresariales'
+        description: 'Estructuración y ejecución de operaciones de M&A empresariales',
+        slug: 'derecho-corporativo'
       },
       {
         number: '03',
         title: 'Contratos comerciales',
-        description: 'Redacción y negociación de contratos mercantiles complejos'
+        description: 'Redacción y negociación de contratos mercantiles complejos',
+        slug: 'derecho-corporativo'
       },
       {
         number: '04',
         title: 'Compliance corporativo',
-        description: 'Implementación de programas de cumplimiento normativo'
+        description: 'Implementación de programas de cumplimiento normativo',
+        slug: 'derecho-corporativo'
       }
     ]
   },
@@ -110,22 +116,26 @@ const verticalServices: VerticalServiceWithDetails[] = [
       {
         number: '01',
         title: 'Litigio civil y mercantil',
-        description: 'Representación en controversias civiles y comerciales complejas'
+        description: 'Representación en controversias civiles y comerciales complejas',
+        slug: 'derecho-civil'
       },
       {
         number: '02',
         title: 'Arbitraje comercial',
-        description: 'Resolución de disputas mediante arbitraje nacional e internacional'
+        description: 'Resolución de disputas mediante arbitraje nacional e internacional',
+        slug: 'derecho-civil'
       },
       {
         number: '03',
         title: 'Litigio constitucional',
-        description: 'Amparo y controversias constitucionales'
+        description: 'Amparo y controversias constitucionales',
+        slug: 'derecho-administrativo'
       },
       {
         number: '04',
         title: 'Ejecución de sentencias',
-        description: 'Estrategias de cobro y ejecución de resoluciones judiciales'
+        description: 'Estrategias de cobro y ejecución de resoluciones judiciales',
+        slug: 'derecho-civil'
       }
     ]
   },
@@ -137,22 +147,26 @@ const verticalServices: VerticalServiceWithDetails[] = [
       {
         number: '01',
         title: 'Planeación fiscal',
-        description: 'Estructuras fiscales eficientes para personas físicas y morales'
+        description: 'Estructuras fiscales eficientes para personas físicas y morales',
+        slug: 'derecho-administrativo'
       },
       {
         number: '02',
         title: 'Defensa fiscal',
-        description: 'Representación ante autoridades fiscales y tribunales'
+        description: 'Representación ante autoridades fiscales y tribunales',
+        slug: 'derecho-administrativo'
       },
       {
         number: '03',
         title: 'Precios de transferencia',
-        description: 'Estudios y defensa en materia de precios de transferencia'
+        description: 'Estudios y defensa en materia de precios de transferencia',
+        slug: 'derecho-administrativo'
       },
       {
         number: '04',
         title: 'Comercio exterior',
-        description: 'Asesoría en operaciones de importación y exportación'
+        description: 'Asesoría en operaciones de importación y exportación',
+        slug: 'derecho-administrativo'
       }
     ]
   },
@@ -164,34 +178,46 @@ const verticalServices: VerticalServiceWithDetails[] = [
       {
         number: '01',
         title: 'Relaciones laborales',
-        description: 'Asesoría preventiva en derecho del trabajo'
+        description: 'Asesoría preventiva en derecho del trabajo',
+        slug: 'derecho-familiar'
       },
       {
         number: '02',
         title: 'Litigio laboral',
-        description: 'Defensa en conflictos individuales y colectivos de trabajo'
+        description: 'Defensa en conflictos individuales y colectivos de trabajo',
+        slug: 'derecho-civil'
       },
       {
         number: '03',
         title: 'Seguridad social',
-        description: 'Trámites y defensa ante el IMSS, INFONAVIT y AFORE'
+        description: 'Trámites y defensa ante el IMSS, INFONAVIT y AFORE',
+        slug: 'derecho-administrativo'
       },
       {
         number: '04',
         title: 'Outsourcing legal',
-        description: 'Esquemas de tercerización conforme a la nueva legislación'
+        description: 'Esquemas de tercerización conforme a la nueva legislación',
+        slug: 'derecho-corporativo'
       }
     ]
   }
 ];
 
 export default function ServicesPreview() {
+  const router = useRouter();
   const sectionRef = useRef<HTMLElement>(null);
   const leftContentRef = useRef<HTMLDivElement>(null);
   const rightContentRef = useRef<HTMLDivElement>(null);
   const columnRefs = useRef<HTMLDivElement[]>([]);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLDivElement>(null);
+  const selectedTitleRef = useRef<HTMLHeadingElement>(null);
+  const selectedHeaderRef = useRef<HTMLDivElement>(null);
+  const selectedListRef = useRef<HTMLDivElement>(null);
+  const confirmationRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
+  const [selectedForNavigation, setSelectedForNavigation] = useState<string | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -205,54 +231,111 @@ export default function ServicesPreview() {
         }
       });
 
-      // Entrance animations
-      gsap.fromTo(leftContentRef.current,
-        { x: -50, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 1,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
+      // Animate only text elements individually when no card is selected - smooth
+      if (clickedIndex === null && titleRef.current && subtitleRef.current) {
+        // Title text animation - smooth fade and slide
+        gsap.fromTo(titleRef.current,
+          { 
+            opacity: 0,
+            y: 20
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 80%',
+            }
           }
-        }
-      );
+        );
 
-      gsap.fromTo(rightContentRef.current,
-        { x: 50, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 1,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
+        // Subtitle text animation - smooth slide with delay  
+        gsap.fromTo(subtitleRef.current,
+          { 
+            opacity: 0,
+            x: -20
+          },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            delay: 0.4,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 80%',
+            }
           }
-        }
-      );
+        );
 
-      // Staggered column entrance - Right to Left
-      gsap.fromTo(columnRefs.current,
-        { x: 50, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: rightContentRef.current,
-            start: 'top 85%',
+        // Subtle breathing effect for title only - very gentle
+        gsap.to(titleRef.current, {
+          scale: 1.01,
+          duration: 4,
+          ease: 'power2.inOut',
+          yoyo: true,
+          repeat: -1,
+          delay: 2
+        });
+      }
+
+      // Animate selected service content when card is clicked - smooth, no jumps
+      if (clickedIndex !== null && selectedTitleRef.current && selectedHeaderRef.current && selectedListRef.current) {
+        // Selected title animation - smooth fade in
+        gsap.fromTo(selectedTitleRef.current,
+          { 
+            opacity: 0,
+            y: 10
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+            delay: 0.1
           }
-        }
-      );
+        );
+
+        // Selected header animation - smooth slide
+        gsap.fromTo(selectedHeaderRef.current,
+          { 
+            opacity: 0,
+            x: 15
+          },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.6,
+            ease: 'power2.out',
+            delay: 0.3
+          }
+        );
+
+        // Selected services list - staggered smooth entrance
+        const serviceItems = selectedListRef.current.children;
+        gsap.fromTo(serviceItems,
+          { 
+            opacity: 0,
+            y: 8
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            stagger: 0.08,
+            delay: 0.4
+          }
+        );
+      }
+
+      // No animations for cards - they appear instantly
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [clickedIndex]);
 
   // Handle column hover with attorney carousel-style expansion
   const handleColumnHover = (index: number | null) => {
@@ -315,10 +398,107 @@ export default function ServicesPreview() {
     });
   };
 
-  // Simple card click - visual feedback only
+  // Card click with smooth content transitions only
   const handleCardClick = (clickedCardIndex: number) => {
-    // Toggle: if clicking the same card, collapse it, otherwise expand the new one
-    setClickedIndex(clickedIndex === clickedCardIndex ? null : clickedCardIndex);
+    const newClickedIndex = clickedIndex === clickedCardIndex ? null : clickedCardIndex;
+    
+    // If there's currently selected content, animate it out first
+    if (clickedIndex !== null && newClickedIndex !== clickedIndex) {
+      // Animate current content out
+      if (selectedTitleRef.current && selectedHeaderRef.current && selectedListRef.current) {
+        const timeline = gsap.timeline();
+        
+        // Fade out current content
+        timeline.to([selectedTitleRef.current, selectedHeaderRef.current], {
+          opacity: 0,
+          y: -10,
+          duration: 0.3,
+          ease: 'power2.in'
+        });
+        
+        timeline.to(selectedListRef.current.children, {
+          opacity: 0,
+          y: -8,
+          duration: 0.2,
+          stagger: 0.05,
+          ease: 'power2.in'
+        }, "-=0.1");
+        
+        // After fade out, change the index
+        timeline.call(() => {
+          setClickedIndex(newClickedIndex);
+        });
+      } else {
+        setClickedIndex(newClickedIndex);
+      }
+    } else {
+      // No current selection or same card clicked
+      setClickedIndex(newClickedIndex);
+    }
+  };
+
+  // Handle navigation tap with discrete confirmation for service items
+  const handleServiceNavigationTap = (serviceDetail: ServiceDetail, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (!serviceDetail.slug) return; // No navigation if no slug
+    
+    const serviceKey = `${serviceDetail.number}-${serviceDetail.title}`;
+    
+    if (selectedForNavigation === serviceKey) {
+      // Second tap - navigate with smooth exit animation
+      const confirmationEl = confirmationRefs.current[serviceKey];
+      if (confirmationEl) {
+        gsap.to(confirmationEl, {
+          scale: 1.1,
+          opacity: 0,
+          duration: 0.2,
+          ease: 'power2.out',
+          onComplete: () => {
+            router.push(`/services/${serviceDetail.slug}`);
+          }
+        });
+      }
+    } else {
+      // First tap - show discrete confirmation
+      setSelectedForNavigation(serviceKey);
+      
+      // Animate confirmation indicator
+      const confirmationEl = confirmationRefs.current[serviceKey];
+      if (confirmationEl) {
+        gsap.fromTo(confirmationEl, 
+          { 
+            scale: 0.8, 
+            opacity: 0,
+            y: 10 
+          },
+          {
+            scale: 1,
+            opacity: 1,
+            y: 0,
+            duration: 0.3,
+            ease: 'back.out(1.7)'
+          }
+        );
+      }
+      
+      // Auto-reset after 3 seconds if no second tap
+      setTimeout(() => {
+        if (selectedForNavigation === serviceKey) {
+          setSelectedForNavigation(null);
+          if (confirmationEl) {
+            gsap.to(confirmationEl, {
+              scale: 0.9,
+              opacity: 0,
+              y: -5,
+              duration: 0.2,
+              ease: 'power2.out'
+            });
+          }
+        }
+      }, 3000);
+    }
   };
 
   return (
@@ -351,92 +531,43 @@ export default function ServicesPreview() {
             </div>
           </div>
 
-          {/* Left Side - Dynamic ALTUM Content - Desktop only */}
-          <div ref={leftContentRef} className="hidden lg:flex flex-1 flex-col space-y-8 lg:pr-24 lg:max-w-2xl">
+          {/* Left Side - Dynamic ALTUM Content - Responsive */}
+          <div ref={leftContentRef} className="flex flex-1 flex-col justify-center items-center text-center lg:pr-24 lg:max-w-2xl">
             {clickedIndex === null ? (
-              // Default ALTUM Legal content formatted for this section
+              // Simple default content - Centered and Responsive
               <>
-                <div className="space-y-6">
-                  <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight">
+                <div className="space-y-6 lg:space-y-8">
+                  <h2 
+                    ref={titleRef}
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-slate-800 leading-tight"
+                  >
                     ALTUM LEGAL
                   </h2>
                   
-                  <div className="flex items-center space-x-4">
-                    <span className="text-slate-800 font-medium">Defensa jurídica con ética, transparencia y compromiso real</span>
-                    <div className="flex-1 h-px bg-slate-300"></div>
-                    <ArrowRight className="w-5 h-5 text-slate-800" />
-                  </div>
-                </div>
-
-                {/* ALTUM Legal Values as numbered list */}
-                <div className="space-y-8 overflow-y-auto max-h-[400px] relative">
-                  {/* Soft gradient overlay at the bottom for fade effect - fixed positioning */}
                   <div 
-                    className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none z-10"
-                    style={{
-                      background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, #ffffff 100%)',
-                      position: 'sticky',
-                      bottom: 0
-                    }}
-                  ></div>
-                  <div className="space-y-3">
-                    <div className="flex items-start space-x-4">
-                      <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">01</span>
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-bold text-slate-800">Compromiso Personal</h3>
-                        <p className="text-slate-600 leading-relaxed text-sm">
-                          Sabemos que detrás de cada asunto legal hay personas, familias y empresas que confían en nosotros. Defendemos causas, cuidamos intereses y protegemos derechos.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start space-x-4">
-                      <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">02</span>
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-bold text-slate-800">Especialistas Éticos</h3>
-                        <p className="text-slate-600 leading-relaxed text-sm">
-                          Despacho conformado por especialistas que trabajan bajo un código de ética estricto, garantizando trato respetuoso, cercano y profesional desde el primer contacto.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start space-x-4">
-                      <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">03</span>
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-bold text-slate-800">Transparencia y Confianza</h3>
-                        <p className="text-slate-600 leading-relaxed text-sm">
-                          La transparencia, honestidad y confianza son la base de cada acción. Buscamos relaciones de asociación a largo plazo para brindar soluciones integrales.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start space-x-4">
-                      <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">04</span>
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-bold text-slate-800">Trabajo Colaborativo</h3>
-                        <p className="text-slate-600 leading-relaxed text-sm">
-                          Impulsamos la colaboración entre especialistas para ofrecer soluciones legales integrales. Trabajamos coordinados, como un solo equipo con amplia capacidad.
-                        </p>
-                      </div>
-                    </div>
+                    ref={subtitleRef}
+                    className="flex items-center justify-center space-x-3 lg:space-x-4"
+                  >
+                    <span className="text-base lg:text-lg text-slate-800 font-medium">Seleccione un servicio</span>
+                    <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5 text-slate-800 animate-bounce-x" />
                   </div>
                 </div>
               </>
             ) : (
-              // Selected service content
-              <>
+              // Selected service content - Left aligned
+              <div className="w-full text-left self-start">
                 <div className="space-y-6">
-                  <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight">
+                  <h2 
+                    ref={selectedTitleRef}
+                    className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight"
+                  >
                     {verticalServices[clickedIndex].title}
                   </h2>
                   
-                  <div className="flex items-center space-x-4">
+                  <div 
+                    ref={selectedHeaderRef}
+                    className="flex items-center space-x-4"
+                  >
                     <span className="text-slate-800 font-medium">Más</span>
                     <div className="flex-1 h-px bg-slate-300"></div>
                     <ArrowRight className="w-5 h-5 text-slate-800" />
@@ -450,7 +581,7 @@ export default function ServicesPreview() {
                 </div>
 
                 {/* Selected Service Details */}
-                <div className="space-y-8 overflow-y-auto max-h-[400px] relative">
+                <div className="space-y-8 overflow-y-auto max-h-[400px] relative hide-scrollbar">
                   {/* Soft gradient overlay at the bottom for fade effect - fixed positioning */}
                   <div 
                     className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none z-10"
@@ -460,25 +591,51 @@ export default function ServicesPreview() {
                       bottom: 0
                     }}
                   ></div>
-                  {verticalServices[clickedIndex].details.map((service) => (
-                    <div key={service.number} className="space-y-3">
-                      <div className="flex items-start space-x-4">
-                        <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem]">
+                  <div ref={selectedListRef}>
+                    {verticalServices[clickedIndex].details.map((service) => (
+                    <div key={service.number} className="space-y-3 relative">
+                      <div 
+                        className="flex items-start space-x-4 cursor-pointer p-2 -m-2 rounded-lg hover:bg-slate-50 transition-colors duration-200 group"
+                        onClick={(e) => handleServiceNavigationTap(service, e)}
+                      >
+                        <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem] group-hover:text-slate-600 transition-colors duration-200">
                           {service.number}
                         </span>
-                        <div className="space-y-2">
-                          <h3 className="text-lg font-bold text-slate-800">
+                        <div className="space-y-2 flex-1">
+                          <h3 className="text-lg font-bold text-slate-800 group-hover:text-slate-900 transition-colors duration-200">
                             {service.title}
                           </h3>
-                          <p className="text-slate-600 leading-relaxed text-sm">
+                          <p className="text-slate-600 leading-relaxed text-sm group-hover:text-slate-700 transition-colors duration-200">
                             {service.description}
                           </p>
                         </div>
+                        {service.slug && (
+                          <div className="flex items-center text-slate-400 group-hover:text-slate-600 transition-colors duration-200">
+                            <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Discrete confirmation indicator */}
+                      <div 
+                        ref={(el) => {
+                          const serviceKey = `${service.number}-${service.title}`;
+                          confirmationRefs.current[serviceKey] = el;
+                        }}
+                        className={`absolute right-2 top-2 bg-slate-800 text-white text-xs px-2 py-1 rounded-full shadow-lg pointer-events-none z-20 ${
+                          selectedForNavigation === `${service.number}-${service.title}` ? 'block' : 'hidden'
+                        }`}
+                        style={{ opacity: 0 }}
+                      >
+                        Tap again
                       </div>
                     </div>
                   ))}
+                  </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -623,34 +780,66 @@ export default function ServicesPreview() {
                     }}
                   ></div>
                   {service.details.map((detail, detailIndex) => (
-                    <div key={detail.number} className="pt-3 first:pt-4">
-                      <div className="flex items-start space-x-3">
+                    <div key={detail.number} className="pt-3 first:pt-4 relative">
+                      <div 
+                        className="flex items-start space-x-3 cursor-pointer p-2 -m-2 rounded-lg hover:bg-black hover:bg-opacity-10 transition-colors duration-200 group"
+                        onClick={(e) => handleServiceNavigationTap(detail, e)}
+                      >
                         <span 
-                          className="font-bold text-sm min-w-[2rem]"
+                          className="font-bold text-sm min-w-[2rem] group-hover:opacity-80 transition-opacity duration-200"
                           style={{
-                            color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.8)' : '#ffffff' // Dark text for yellow background
+                            color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.8)' : '#ffffff'
                           }}
                         >
                           {detail.number}
                         </span>
-                        <div className="space-y-1">
+                        <div className="space-y-1 flex-1">
                           <h4 
-                            className="font-medium text-sm"
+                            className="font-medium text-sm group-hover:opacity-90 transition-opacity duration-200"
                             style={{
-                              color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.95)' : '#ffffff' // Dark text for yellow background
+                              color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.95)' : '#ffffff'
                             }}
                           >
                             {detail.title}
                           </h4>
                           <p 
-                            className="text-xs leading-relaxed"
+                            className="text-xs leading-relaxed group-hover:opacity-80 transition-opacity duration-200"
                             style={{
-                              color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.95)' // Dark text for yellow background
+                              color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.95)'
                             }}
                           >
                             {detail.description}
                           </p>
                         </div>
+                        {detail.slug && (
+                          <div className="flex items-center group-hover:opacity-70 transition-opacity duration-200">
+                            <svg 
+                              className="w-3 h-3 transform group-hover:translate-x-1 transition-transform duration-200" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              style={{
+                                color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.7)'
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Mobile confirmation indicator */}
+                      <div 
+                        ref={(el) => {
+                          const serviceKey = `${detail.number}-${detail.title}`;
+                          confirmationRefs.current[serviceKey] = el;
+                        }}
+                        className={`absolute right-2 top-2 bg-white text-slate-800 text-xs px-2 py-1 rounded-full shadow-lg pointer-events-none z-20 ${
+                          selectedForNavigation === `${detail.number}-${detail.title}` ? 'block' : 'hidden'
+                        }`}
+                        style={{ opacity: 0 }}
+                      >
+                        Tap again
                       </div>
                     </div>
                   ))}
