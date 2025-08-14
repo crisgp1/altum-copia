@@ -78,130 +78,203 @@ interface VerticalServiceWithDetails extends VerticalService {
 
 const verticalServices: VerticalServiceWithDetails[] = [
   {
-    title: 'Derecho Corporativo',
-    backgroundColor: '#D4A574',
-    icon: <Image src="/assets/svg/building.svg" alt="Derecho Corporativo" width={48} height={48} className="filter brightness-0 invert" />,
+    title: 'Derecho Administrativo',
+    backgroundColor: '#B79F76',
+    icon: <Image src="/assets/svg/derecho_administrativo.svg" alt="Derecho Administrativo" width={40} height={40} className="filter brightness-0 invert" />,
     details: [
       {
         number: '01',
-        title: 'Constitución de empresas',
-        description: 'Asesoría integral para la constitución de sociedades mercantiles y civiles',
-        slug: 'derecho-corporativo'
+        title: 'Licencias municipales',
+        description: 'Tramitación ágil de permisos y licencias ante autoridades locales',
+        slug: 'derecho-administrativo'
       },
       {
         number: '02', 
-        title: 'Fusiones y adquisiciones',
-        description: 'Estructuración y ejecución de operaciones de M&A empresariales',
-        slug: 'derecho-corporativo'
+        title: 'Transparencia gubernamental',
+        description: 'Ejercicio efectivo del derecho de acceso a la información pública',
+        slug: 'derecho-administrativo'
       },
       {
         number: '03',
-        title: 'Contratos comerciales',
-        description: 'Redacción y negociación de contratos mercantiles complejos',
-        slug: 'derecho-corporativo'
+        title: 'Defensa contra multas',
+        description: 'Impugnación estratégica de sanciones administrativas',
+        slug: 'derecho-administrativo'
       },
       {
         number: '04',
-        title: 'Compliance corporativo',
-        description: 'Implementación de programas de cumplimiento normativo',
-        slug: 'derecho-corporativo'
+        title: 'Juicios de nulidad',
+        description: 'Anulación de actos administrativos ilegales o inconstitucionales',
+        slug: 'derecho-administrativo'
+      },
+      {
+        number: '05',
+        title: 'Créditos fiscales',
+        description: 'Defensa especializada en procedimientos de cobro del fisco',
+        slug: 'derecho-administrativo'
       }
     ]
   },
   {
-    title: 'Litigio Estratégico',
-    backgroundColor: '#7FAAB3', 
-    icon: <Image src="/assets/svg/hammer.svg" alt="Litigio Estratégico" width={48} height={48} className="filter brightness-0 invert" />,
+    title: 'Derecho Notarial',
+    backgroundColor: '#9C8A6B', 
+    icon: <Image src="/assets/svg/derecho_notarial.svg" alt="Derecho Notarial" width={40} height={40} className="filter brightness-0 invert" />,
     details: [
       {
         number: '01',
-        title: 'Litigio civil y mercantil',
-        description: 'Representación en controversias civiles y comerciales complejas',
-        slug: 'derecho-civil'
+        title: 'Escrituración inmobiliaria',
+        description: 'Formalización de compraventas, donaciones y permutas de bienes',
+        slug: 'derecho-notarial'
       },
       {
         number: '02',
-        title: 'Arbitraje comercial',
-        description: 'Resolución de disputas mediante arbitraje nacional e internacional',
-        slug: 'derecho-civil'
+        title: 'Cancelación de gravámenes',
+        description: 'Liberación de hipotecas y cargas sobre propiedades',
+        slug: 'derecho-notarial'
       },
       {
         number: '03',
-        title: 'Litigio constitucional',
-        description: 'Amparo y controversias constitucionales',
-        slug: 'derecho-administrativo'
+        title: 'Trámites sucesorios',
+        description: 'Regularización patrimonial por fallecimiento de titulares',
+        slug: 'derecho-notarial'
       },
       {
         number: '04',
-        title: 'Ejecución de sentencias',
-        description: 'Estrategias de cobro y ejecución de resoluciones judiciales',
-        slug: 'derecho-civil'
+        title: 'Cartas notariales',
+        description: 'Autorizaciones especiales para viaje de menores al extranjero',
+        slug: 'derecho-notarial'
+      },
+      {
+        number: '05',
+        title: 'Ratificación de firmas',
+        description: 'Validación notarial de documentos y contratos privados',
+        slug: 'derecho-notarial'
       }
     ]
   },
   {
-    title: 'Derecho Fiscal',
-    backgroundColor: '#C5B299',
-    icon: <Image src="/assets/svg/bank.svg" alt="Derecho Fiscal" width={48} height={48} className="filter brightness-0 invert" />,
+    title: 'Derecho Corporativo',
+    backgroundColor: '#D4A574',
+    icon: <Image src="/assets/svg/derecho_corporativo.svg" alt="Derecho Corporativo" width={40} height={40} className="filter brightness-0 invert" />,
     details: [
       {
         number: '01',
-        title: 'Planeación fiscal',
-        description: 'Estructuras fiscales eficientes para personas físicas y morales',
-        slug: 'derecho-administrativo'
+        title: 'Constitución societaria',
+        description: 'Creación de sociedades mercantiles y civiles con estructura óptima',
+        slug: 'derecho-corporativo'
       },
       {
         number: '02',
-        title: 'Defensa fiscal',
-        description: 'Representación ante autoridades fiscales y tribunales',
-        slug: 'derecho-administrativo'
+        title: 'Actas corporativas',
+        description: 'Formalización de decisiones en asambleas y consejos de administración',
+        slug: 'derecho-corporativo'
       },
       {
         number: '03',
-        title: 'Precios de transferencia',
-        description: 'Estudios y defensa en materia de precios de transferencia',
-        slug: 'derecho-administrativo'
+        title: 'Estrategia empresarial',
+        description: 'Planificación corporativa y estructuración de operaciones complejas',
+        slug: 'derecho-corporativo'
       },
       {
         number: '04',
-        title: 'Comercio exterior',
-        description: 'Asesoría en operaciones de importación y exportación',
-        slug: 'derecho-administrativo'
+        title: 'Resolución de conflictos',
+        description: 'Mediación y conciliación en disputas empresariales',
+        slug: 'derecho-corporativo'
+      },
+      {
+        number: '05',
+        title: 'Comercio digital',
+        description: 'Asesoría legal especializada en operaciones de comercio electrónico',
+        slug: 'derecho-corporativo'
       }
     ]
   },
   {
-    title: 'Derecho Laboral',
-    backgroundColor: '#3D4A5C',
-    icon: <Image src="/assets/svg/people.svg" alt="Derecho Laboral" width={48} height={48} className="filter brightness-0 invert" />,
+    title: 'Derecho Familiar',
+    backgroundColor: '#7FAAB3',
+    icon: <Image src="/assets/svg/derecho_familiar.svg" alt="Derecho Familiar" width={40} height={40} className="filter brightness-0 invert" />,
     details: [
       {
         number: '01',
-        title: 'Relaciones laborales',
-        description: 'Asesoría preventiva en derecho del trabajo',
+        title: 'Procesos de divorcio',
+        description: 'Disolución matrimonial con protección integral de intereses familiares',
         slug: 'derecho-familiar'
       },
       {
         number: '02',
-        title: 'Litigio laboral',
-        description: 'Defensa en conflictos individuales y colectivos de trabajo',
+        title: 'Pensiones alimenticias',
+        description: 'Establecimiento y modificación de obligaciones de manutención',
+        slug: 'derecho-familiar'
+      },
+      {
+        number: '03',
+        title: 'Juicios sucesorios',
+        description: 'Tramitación de herencias testamentarias e intestamentarias',
+        slug: 'derecho-familiar'
+      },
+      {
+        number: '04',
+        title: 'Custodia de menores',
+        description: 'Determinación de patria potestad y régimen de convivencias',
+        slug: 'derecho-familiar'
+      },
+      {
+        number: '05',
+        title: 'Mediación familiar',
+        description: 'Resolución pacífica de conflictos mediante acuerdos consensuados',
+        slug: 'derecho-familiar'
+      }
+    ]
+  },
+  {
+    title: 'Derecho Civil',
+    backgroundColor: '#3D4A5C',
+    icon: <Image src="/assets/svg/derecho_civil.svg" alt="Derecho Civil" width={40} height={40} className="filter brightness-0 invert" />,
+    details: [
+      {
+        number: '01',
+        title: 'Contratos especializados',
+        description: 'Elaboración y revisión de instrumentos contractuales complejos',
+        slug: 'derecho-civil'
+      },
+      {
+        number: '02',
+        title: 'Litigio hipotecario',
+        description: 'Defensa en procedimientos de ejecución de garantías inmobiliarias',
         slug: 'derecho-civil'
       },
       {
         number: '03',
-        title: 'Seguridad social',
-        description: 'Trámites y defensa ante el IMSS, INFONAVIT y AFORE',
-        slug: 'derecho-administrativo'
+        title: 'Arrendamientos',
+        description: 'Terminación y rescisión de contratos de arrendamiento inmobiliario',
+        slug: 'derecho-civil'
       },
       {
         number: '04',
-        title: 'Outsourcing legal',
-        description: 'Esquemas de tercerización conforme a la nueva legislación',
-        slug: 'derecho-corporativo'
+        title: 'Copropiedad',
+        description: 'Disolución de regímenes de propiedad compartida entre copropietarios',
+        slug: 'derecho-civil'
+      },
+      {
+        number: '05',
+        title: 'Recuperación posesoria',
+        description: 'Acciones judiciales para recuperar la posesión de bienes inmuebles',
+        slug: 'derecho-civil'
       }
     ]
   }
 ];
+
+// Function to convert service title to slug
+const getServiceSlug = (title: string): string => {
+  const slugMap: { [key: string]: string } = {
+    'Derecho Administrativo': 'derecho-administrativo',
+    'Derecho Notarial': 'derecho-notarial',
+    'Derecho Corporativo': 'derecho-corporativo',
+    'Derecho Familiar': 'derecho-familiar',
+    'Derecho Civil': 'derecho-civil'
+  };
+  return slugMap[title] || title.toLowerCase().replace(/\s+/g, '-');
+};
 
 export default function ServicesPreview() {
   const router = useRouter();
@@ -218,14 +291,22 @@ export default function ServicesPreview() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
   const [selectedForNavigation, setSelectedForNavigation] = useState<string | null>(null);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  // Detect touch device
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Initial setup - set columns to their designed incremental widths
+      // Initial setup - set all columns to same width
       columnRefs.current.forEach((column, index) => {
         if (column) {
           gsap.set(column, {
-            width: `${120 + (index * 25)}px`, // Set to designed widths: 120px, 145px, 170px, 195px
+            width: '120px', // Same width for all cards
             transition: 'width 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)'
           });
         }
@@ -337,6 +418,48 @@ export default function ServicesPreview() {
     return () => ctx.revert();
   }, [clickedIndex]);
 
+  // Touch handling functions for preventing accidental clicks
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
+    setTouchEnd(null);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touch = e.changedTouches[0];
+    setTouchEnd({ x: touch.clientX, y: touch.clientY });
+  };
+
+  // Check if movement was intentional tap vs scroll
+  const isIntentionalTap = (): boolean => {
+    if (!touchStart || !touchEnd) return false;
+    
+    const deltaX = Math.abs(touchEnd.x - touchStart.x);
+    const deltaY = Math.abs(touchEnd.y - touchStart.y);
+    const totalMovement = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    
+    // Allow up to 10px of movement for intentional tap
+    return totalMovement < 10;
+  };
+
+  // Smart navigation handler
+  const handleSmartNavigation = (slug: string, e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // For touch devices, check if it was intentional tap
+    if (isTouchDevice && !isIntentionalTap()) {
+      return; // Ignore accidental touches during scroll
+    }
+    
+    // Add small delay for touch devices to feel more intentional
+    const navigationDelay = isTouchDevice ? 100 : 0;
+    
+    setTimeout(() => {
+      router.push(`/services/${slug}`);
+    }, navigationDelay);
+  };
+
   // Handle column hover with attorney carousel-style expansion
   const handleColumnHover = (index: number | null) => {
     // Prevent animation conflicts by killing any existing animations
@@ -347,7 +470,7 @@ export default function ServicesPreview() {
     columnRefs.current.forEach((column, i) => {
       if (!column) return;
       
-      const baseWidth = 120 + (i * 25); // Original incremental width
+      const baseWidth = 120; // Same width for all cards
       
       if (index === null) {
         // Return to original position and width
@@ -518,7 +641,7 @@ export default function ServicesPreview() {
           setClickedIndex(null);
         }
       }}>
-        <div className="relative flex flex-col lg:flex-row h-auto lg:h-[600px] gap-8 lg:gap-0">
+        <div className="relative flex flex-col lg:flex-row h-auto lg:h-[550px] gap-8 lg:gap-0">
           {/* Mobile Title */}
           <div className="lg:hidden mb-6">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-800 leading-tight text-center">
@@ -557,12 +680,32 @@ export default function ServicesPreview() {
               // Selected service content - Left aligned
               <div className="w-full text-left self-start">
                 <div className="space-y-6">
-                  <h2 
-                    ref={selectedTitleRef}
-                    className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight"
-                  >
-                    {verticalServices[clickedIndex].title}
-                  </h2>
+                  {/* Clickeable Header - Smart for desktop/tablet */}
+                  {!isTouchDevice || window.innerWidth > 768 ? (
+                    <div
+                      className="cursor-pointer group"
+                      onTouchStart={handleTouchStart}
+                      onTouchEnd={handleTouchEnd}
+                      onClick={(e) => handleSmartNavigation(getServiceSlug(verticalServices[clickedIndex].title), e)}
+                    >
+                      <h2 
+                        ref={selectedTitleRef}
+                        className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight group-hover:text-[#B79F76] transition-colors duration-300 flex items-center gap-3"
+                      >
+                        {verticalServices[clickedIndex].title}
+                        <svg className="w-6 h-6 text-[#B79F76] opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </h2>
+                    </div>
+                  ) : (
+                    <h2 
+                      ref={selectedTitleRef}
+                      className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight"
+                    >
+                      {verticalServices[clickedIndex].title}
+                    </h2>
+                  )}
                   
                   <div 
                     ref={selectedHeaderRef}
@@ -634,6 +777,22 @@ export default function ServicesPreview() {
                     </div>
                   ))}
                   </div>
+                  
+                  {/* Main Action Button */}
+                  <div className="mt-8 pt-6 border-t border-slate-200">
+                    <button
+                      onTouchStart={handleTouchStart}
+                      onTouchEnd={handleTouchEnd}
+                      onClick={(e) => handleSmartNavigation(getServiceSlug(verticalServices[clickedIndex].title), e)}
+                      className="w-full bg-gradient-to-r from-[#B79F76] to-[#D4A574] text-white px-8 py-4 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-[#B79F76]/25 transform hover:scale-[1.02] active:scale-[0.98] rounded-lg group flex items-center justify-center gap-3"
+                      style={{ minHeight: '44px' }} // Minimum touch target size
+                    >
+                      <span>Ver Información Completa</span>
+                      <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -643,7 +802,7 @@ export default function ServicesPreview() {
 
 
       {/* Right Side - Vertical Service Columns - Responsive Layout */}
-      <div ref={rightContentRef} className="lg:absolute lg:-right-10 lg:top-24 lg:h-[600px] w-full lg:w-auto">
+      <div ref={rightContentRef} className="lg:absolute lg:-right-10 lg:top-24 lg:h-[550px] w-full lg:w-auto">
         {/* Desktop Layout - Wallet Cards */}
         <div className="hidden lg:flex h-full items-end justify-end">
           {verticalServices.map((service, index) => (
@@ -656,10 +815,10 @@ export default function ServicesPreview() {
               className="relative flex flex-col items-center justify-between text-white p-6 cursor-pointer overflow-hidden"
               style={{ 
                 backgroundColor: service.backgroundColor,
-                width: `${120 + (index * 25)}px`, // Incremental width: 120px, 145px, 170px, 195px (biggest on right)
-                height: '600px', // Same height for all cards
-                marginLeft: index > 0 ? '-20px' : '0', // More overlap like wallet cards
-                zIndex: index + 1, // Higher z-index for bigger cards (right side)
+                width: '120px', // Same width for all cards
+                height: '550px', // Proportional height to container
+                marginLeft: index > 0 ? '-15px' : '0', // Overlap for wallet effect
+                zIndex: index + 1, // Higher z-index for cards on right
                 borderRadius: '0',
                 alignSelf: 'flex-end', // Align to bottom
                 filter: clickedIndex === null ? 'brightness(1.1) saturate(1.05)' : (clickedIndex === index ? 'brightness(1.3) saturate(1.4)' : 'brightness(0.8)'),
