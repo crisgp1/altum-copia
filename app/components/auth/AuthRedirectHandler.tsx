@@ -17,7 +17,7 @@ export default function AuthRedirectHandler() {
     const handlePostSignInRedirect = async () => {
       if (!user) return;
 
-      const publicMetadata = user.publicMetadata as UserPublicMetadata;
+      const publicMetadata = user.publicMetadata as any;
       const userRole = publicMetadata?.role;
 
       // Check if user has any admin permissions

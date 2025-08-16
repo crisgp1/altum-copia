@@ -192,7 +192,7 @@ export default function EquipoPage() {
                   <div className="space-y-3">
                     <div className="flex items-center text-slate-600">
                       <Mail className="w-5 h-5 mr-3 text-amber-600" />
-                      <span>{selectedAttorney.email}</span>
+                      <span>{(selectedAttorney as any).email}</span>
                     </div>
                     <div className="flex items-center text-slate-600">
                       <Phone className="w-5 h-5 mr-3 text-amber-600" />
@@ -234,7 +234,7 @@ export default function EquipoPage() {
                           ))}
                         </div>
                         <p className="text-slate-500 text-xs">
-                          {selectedAttorney.anosExperiencia} años de experiencia • {selectedAttorney.idiomas.join(' • ')}
+                          {(selectedAttorney as any).anosExperiencia} años de experiencia • {selectedAttorney.idiomas.join(' • ')}
                         </p>
                       </div>
                     </div>

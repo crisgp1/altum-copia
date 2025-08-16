@@ -113,39 +113,40 @@ export default function BlogManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Gestión de Blog</h1>
-          <p className="text-slate-600 mt-1">Administra todos los posts del blog</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">Gestión de Blog</h1>
+          <p className="text-sm sm:text-base text-slate-600 mt-1">Administra todos los posts del blog</p>
         </div>
         <Link
           href="/admin/blog/new"
-          className="px-6 py-3 text-white font-medium rounded-lg transition-colors duration-200"
+          className="px-4 sm:px-6 py-3 text-white font-medium rounded-lg transition-colors duration-200 min-h-[48px] flex items-center justify-center whitespace-nowrap"
           style={{ backgroundColor: '#B79F76' }}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#9C8A6B'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#B79F76'}
         >
-          Nuevo Post
+          <span className="hidden sm:inline">Nuevo Post</span>
+          <span className="sm:hidden">+ Post</span>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <input
               type="text"
               placeholder="Buscar posts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-h-[48px]"
             />
           </div>
-          <div>
+          <div className="w-full sm:w-auto">
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="w-full sm:w-auto px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-h-[48px]"
             >
               <option value="all">Todos los estados</option>
               <option value="published">Publicados</option>
@@ -164,20 +165,82 @@ export default function BlogManagement() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-            <thead className="bg-stone-50 border-b border-stone-200">
-              <tr>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Título</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Estado</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Categoría</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Vistas</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Fecha</th>
-                <th className="text-left py-4 px-6 font-medium text-slate-900">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-200">
+          <>
+            {/* Vista de tarjetas para móvil */}
+            <div className="block lg:hidden space-y-4">
               {filteredPosts.map((post) => (
+                <div key={post.id} className="bg-white rounded-lg border border-stone-200 p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-medium text-slate-900 text-sm line-clamp-2 flex-1 mr-2">
+                      {post.title}
+                    </h3>
+                    {getStatusBadge(post.status)}
+                  </div>
+                  
+                  <p className="text-xs text-slate-500 mb-3 line-clamp-2">
+                    {post.excerpt}
+                  </p>
+                  
+                  <div className="flex justify-between items-center text-xs text-slate-600 mb-3">
+                    <span>{post.categoryId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                    <span>{post.viewCount.toLocaleString()} vistas</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-slate-500">
+                      {new Date(post.createdAt).toLocaleDateString('es-ES')}
+                    </span>
+                    <div className="flex items-center space-x-1">
+                      <Link
+                        href={`/admin/blog/${post.id}/edit`}
+                        className="p-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        title="Editar"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </Link>
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        target="_blank"
+                        className="p-3 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        title="Ver"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        className="p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        title="Eliminar"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Vista de tabla para desktop */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full">
+              <thead className="bg-stone-50 border-b border-stone-200">
+                <tr>
+                  <th className="text-left py-4 px-6 font-medium text-slate-900">Título</th>
+                  <th className="text-left py-4 px-6 font-medium text-slate-900">Estado</th>
+                  <th className="text-left py-4 px-6 font-medium text-slate-900">Categoría</th>
+                  <th className="text-left py-4 px-6 font-medium text-slate-900">Vistas</th>
+                  <th className="text-left py-4 px-6 font-medium text-slate-900">Fecha</th>
+                  <th className="text-left py-4 px-6 font-medium text-slate-900">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-200">
+                {filteredPosts.map((post) => (
                 <tr key={post.id} className="hover:bg-stone-50">
                   <td className="py-4 px-6">
                     <div>
@@ -205,30 +268,30 @@ export default function BlogManagement() {
                     <div className="flex items-center space-x-2">
                       <Link
                         href={`/admin/blog/${post.id}/edit`}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                        className="p-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
                         title="Editar"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </Link>
                       <Link
                         href={`/blog/${post.slug}`}
                         target="_blank"
-                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                        className="p-3 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
                         title="Ver"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                       </Link>
                       <button
                         onClick={() => handleDelete(post.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                        className="p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
                         title="Eliminar"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
@@ -237,9 +300,12 @@ export default function BlogManagement() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
+          </>
+        )}
 
-          {filteredPosts.length === 0 && !isLoading && (
+        {filteredPosts.length === 0 && !isLoading && (
             <div className="text-center py-12">
               <div className="w-24 h-24 bg-stone-200 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,8 +332,6 @@ export default function BlogManagement() {
               )}
             </div>
           )}
-          </div>
-        )}
       </div>
 
       {/* Stats */}

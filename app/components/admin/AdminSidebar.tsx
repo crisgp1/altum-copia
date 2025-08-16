@@ -12,6 +12,11 @@ interface SidebarItem {
   roles?: string[];
 }
 
+interface AdminSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
 const sidebarItems: SidebarItem[] = [
   {
     name: 'Dashboard',
@@ -74,7 +79,7 @@ const sidebarItems: SidebarItem[] = [
   }
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ isOpen = true, onClose }: AdminSidebarProps) {
   const { hasPermission, role } = useUserRole();
   const pathname = usePathname();
 
@@ -95,8 +100,28 @@ export default function AdminSidebar() {
     return true;
   };
 
+  const handleLinkClick = () => {
+    // Cerrar menú en móvil cuando se hace clic en un enlace
+    if (onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <aside className="fixed left-0 top-16 h-full w-64 bg-white border-r border-stone-200 z-30">
+    <>
+      {/* Overlay para móvil */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 backdrop-blur-sm bg-white/10 z-40 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`fixed left-0 top-16 h-full w-64 bg-white border-r border-stone-200 z-50 transform transition-transform duration-300 ease-in-out ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0 lg:z-30`}>
       <div className="p-6">
         <div className="flex items-center mb-8">
           <div className="text-xl leading-tight">
@@ -110,7 +135,8 @@ export default function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${
+              onClick={handleLinkClick}
+              className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 min-h-[48px] ${
                 isActive(item.href)
                   ? 'bg-amber-50 text-amber-700 border-l-4 border-amber-600'
                   : 'text-slate-600 hover:bg-stone-50 hover:text-slate-900'
@@ -127,7 +153,8 @@ export default function AdminSidebar() {
         <div className="mt-12 pt-6 border-t border-stone-200">
           <Link
             href="/"
-            className="flex items-center px-4 py-3 text-slate-600 hover:bg-stone-50 hover:text-slate-900 rounded-lg transition-all duration-200"
+            onClick={handleLinkClick}
+            className="flex items-center px-4 py-3 text-slate-600 hover:bg-stone-50 hover:text-slate-900 rounded-lg transition-all duration-200 min-h-[48px]"
           >
             <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -137,5 +164,6 @@ export default function AdminSidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

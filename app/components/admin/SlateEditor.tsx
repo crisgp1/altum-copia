@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { createEditor, Descendant, Editor, Transforms, Element as SlateElement, Text, Range } from 'slate';
-import { Slate, Editable, withReact, RenderElementProps, RenderLeafProps } from 'slate-react';
-import { withHistory } from 'slate-history';
+import { createEditor, Descendant, Editor, Transforms, Element as SlateElement, Text, Range, BaseEditor } from 'slate';
+import { Slate, Editable, withReact, RenderElementProps, RenderLeafProps, ReactEditor } from 'slate-react';
+import { withHistory, HistoryEditor } from 'slate-history';
 import LinkModal from './LinkModal';
 
 // Define custom types
@@ -22,7 +22,7 @@ type CustomText = {
 
 declare module 'slate' {
   interface CustomTypes {
-    Editor: Editor;
+    Editor: BaseEditor & ReactEditor & HistoryEditor;
     Element: CustomElement;
     Text: CustomText;
   }
@@ -227,9 +227,9 @@ const SlateEditor: React.FC<SlateEditorProps> = ({ value, onChange, placeholder 
     }
   };
 
-  const isMarkActive = (editor: Editor, format: keyof CustomText) => {
+  const isMarkActive = (editor: Editor, format: string) => {
     const marks = Editor.marks(editor);
-    return marks ? marks[format] === true : false;
+    return marks ? (marks as any)[format] === true : false;
   };
 
   const isBlockActive = (editor: Editor, format: string) => {

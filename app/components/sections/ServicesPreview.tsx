@@ -841,7 +841,7 @@ export default function ServicesPreview() {
                 if (el) columnRefs.current[index] = el;
               }}
               data-service-card
-              className="relative flex flex-col items-center justify-between text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden"
+              className="relative flex flex-col items-center justify-between text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden lg:w-[100px] lg:h-[500px] xl:w-[120px] xl:h-[550px]"
               style={{ 
                 backgroundColor: service.backgroundColor,
                 width: '100px', // Responsive width for smaller screens
@@ -853,7 +853,6 @@ export default function ServicesPreview() {
                 filter: clickedIndex === null ? 'brightness(1.1) saturate(1.05)' : (clickedIndex === index ? 'brightness(1.3) saturate(1.4)' : 'brightness(0.8)'),
                 transition: 'filter 0.3s ease-in-out'
               }}
-              className="lg:w-[100px] lg:h-[500px] xl:w-[120px] xl:h-[550px]"
               onMouseEnter={() => handleColumnHover(index)}
               onMouseLeave={() => handleColumnHover(null)}
               onClick={(e) => {

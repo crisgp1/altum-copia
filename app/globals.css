@@ -441,3 +441,11 @@ textarea::placeholder {
   opacity: 1 !important;
   font-weight: 400 !important;
 }
+
+/* Utilidades para responsive design */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

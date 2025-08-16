@@ -104,21 +104,21 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
-          <Users className="h-8 w-8 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
+          <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
           Total: {users.length} usuarios
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
             <div className="relative">
@@ -128,17 +128,17 @@ export default function UsersPage() {
                 placeholder="Buscar por nombre o email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder:text-slate-700"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder:text-slate-700 min-h-[48px]"
               />
             </div>
           </div>
 
           {/* Role Filter */}
-          <div className="min-w-[160px]">
+          <div className="w-full sm:min-w-[160px] sm:w-auto">
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900"
+              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 min-h-[48px]"
             >
               <option value="">Todos los roles</option>
               {USER_ROLES.map(role => (
@@ -150,11 +150,11 @@ export default function UsersPage() {
           </div>
 
           {/* Status Filter */}
-          <div className="min-w-[140px]">
+          <div className="w-full sm:min-w-[140px] sm:w-auto">
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900"
+              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 min-h-[48px]"
             >
               <option value="">Todos los estados</option>
               <option value="active">Activos</option>
@@ -166,66 +166,53 @@ export default function UsersPage() {
 
       {/* Users Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Usuario
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rol
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Último acceso
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {loading ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                      <span>Cargando usuarios...</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : users.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                    No se encontraron usuarios
-                  </td>
-                </tr>
-              ) : (
-                users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <img
-                            className="h-10 w-10 rounded-full object-cover"
-                            src={user.imageUrl || '/images/default-avatar.png'}
-                            alt={user.fullName}
-                          />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.fullName}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {user.email}
-                          </div>
-                        </div>
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              <span className="text-gray-500">Cargando usuarios...</span>
+            </div>
+          </div>
+        ) : users.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Users className="w-12 h-12 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No se encontraron usuarios
+            </h3>
+            <p className="text-gray-600">
+              {searchTerm || selectedRole || selectedStatus 
+                ? 'Intenta ajustar los filtros de búsqueda'
+                : 'No hay usuarios registrados en el sistema'
+              }
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Vista de tarjetas para móvil */}
+            <div className="block lg:hidden space-y-4 p-4">
+              {users.map((user) => (
+                <div key={user.id} className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex-shrink-0">
+                        <img
+                          className="h-12 w-12 rounded-full object-cover"
+                          src={user.imageUrl || '/images/default-avatar.png'}
+                          alt={user.fullName}
+                        />
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <h3 className="font-medium text-gray-900 text-sm">
+                          {user.fullName}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-1">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         user.role === 'admin' 
                           ? 'bg-red-100 text-red-800'
@@ -236,74 +223,175 @@ export default function UsersPage() {
                         <Shield className="w-3 h-3 mr-1" />
                         {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {user.isActive ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.lastSignInAt ? formatDate(user.lastSignInAt) : 'Nunca'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleView(user)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded"
-                          title="Ver detalles"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleEdit(user)}
-                          className="text-indigo-600 hover:text-indigo-900 p-1 rounded"
-                          title="Editar rol"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user)}
-                          className="text-red-600 hover:text-red-900 p-1 rounded"
-                          title="Eliminar usuario"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-xs text-gray-600 mb-3">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      user.isActive
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {user.isActive ? 'Activo' : 'Inactivo'}
+                    </span>
+                    <span>
+                      {user.lastSignInAt ? formatDate(user.lastSignInAt) : 'Nunca accedió'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-end space-x-1">
+                    <button
+                      onClick={() => handleView(user)}
+                      className="p-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                      title="Ver detalles"
+                    >
+                      <Eye className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => handleEdit(user)}
+                      className="p-3 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                      title="Editar rol"
+                    >
+                      <Edit className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(user)}
+                      className="p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                      title="Eliminar usuario"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Vista de tabla para desktop */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Usuario
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Rol
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Estado
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Último acceso
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Acciones
+                    </th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <img
+                              className="h-10 w-10 rounded-full object-cover"
+                              src={user.imageUrl || '/images/default-avatar.png'}
+                              alt={user.fullName}
+                            />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.fullName}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {user.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.role === 'admin' 
+                            ? 'bg-red-100 text-red-800'
+                            : user.role === 'editor'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          <Shield className="w-3 h-3 mr-1" />
+                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.isActive
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {user.isActive ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {user.lastSignInAt ? formatDate(user.lastSignInAt) : 'Nunca'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleView(user)}
+                            className="p-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                            title="Ver detalles"
+                          >
+                            <Eye className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(user)}
+                            className="p-3 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                            title="Editar rol"
+                          >
+                            <Edit className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(user)}
+                            className="p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                            title="Eliminar usuario"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between bg-white px-6 py-3 border border-gray-200 rounded-lg">
-          <div className="flex items-center">
-            <p className="text-sm text-gray-700">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white px-4 sm:px-6 py-3 border border-gray-200 rounded-lg gap-3">
+          <div className="flex items-center justify-center sm:justify-start">
+            <p className="text-xs sm:text-sm text-gray-700">
               Página {currentPage} de {totalPages}
             </p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center space-x-2">
             <button
               onClick={() => fetchUsers(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 border border-gray-300 rounded text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[80px]"
             >
-              Anterior
+              <span className="hidden sm:inline">Anterior</span>
+              <span className="sm:hidden">←</span>
             </button>
             <button
               onClick={() => fetchUsers(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 border border-gray-300 rounded text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[80px]"
             >
-              Siguiente
+              <span className="hidden sm:inline">Siguiente</span>
+              <span className="sm:hidden">→</span>
             </button>
           </div>
         </div>

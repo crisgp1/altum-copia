@@ -32,7 +32,7 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
         { y: 50, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' }
       )
-      .fromTo(cardsRef.current.children,
+      .fromTo(cardsRef.current?.children || [],
         { y: 80, opacity: 0, scale: 0.95 },
         { 
           y: 0, 
