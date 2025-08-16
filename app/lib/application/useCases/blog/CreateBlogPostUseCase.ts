@@ -38,6 +38,7 @@ export class CreateBlogPostUseCase {
       seoTitle: dto.seoTitle,
       seoDescription: dto.seoDescription,
       status: dto.status || PostStatus.DRAFT,
+      publishedAt: dto.status === PostStatus.PUBLISHED ? new Date() : undefined,
       viewCount: 0
     });
 

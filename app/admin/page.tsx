@@ -26,14 +26,54 @@ export default function AdminDashboard() {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    // Mock data - replace with real API calls
-    setStats({
-      totalPosts: 24,
-      publishedPosts: 18,
-      draftPosts: 6,
-      totalUsers: 12,
-      totalViews: 8420
-    });
+    // Fetch real dashboard stats
+    const fetchDashboardStats = async () => {
+      try {
+        const [postsResponse, usersResponse] = await Promise.all([
+          fetch('/api/blog/posts'),
+          fetch('/api/users')
+        ]);
+
+        let totalPosts = 0;
+        let publishedPosts = 0;
+        let draftPosts = 0;
+        let totalViews = 0;
+
+        if (postsResponse.ok) {
+          const postsData = await postsResponse.json();
+          totalPosts = postsData.posts?.length || 0;
+          publishedPosts = postsData.posts?.filter((post: any) => post.status === 'published').length || 0;
+          draftPosts = postsData.posts?.filter((post: any) => post.status === 'draft').length || 0;
+          totalViews = postsData.posts?.reduce((sum: number, post: any) => sum + (post.viewCount || 0), 0) || 0;
+        }
+
+        let totalUsers = 0;
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json();
+          totalUsers = usersData.users?.length || 0;
+        }
+
+        setStats({
+          totalPosts,
+          publishedPosts,
+          draftPosts,
+          totalUsers,
+          totalViews
+        });
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+        // Fallback to default values on error
+        setStats({
+          totalPosts: 0,
+          publishedPosts: 0,
+          draftPosts: 0,
+          totalUsers: 0,
+          totalViews: 0
+        });
+      }
+    };
+
+    fetchDashboardStats();
 
     // Check for welcome parameter
     const welcome = searchParams.get('welcome');

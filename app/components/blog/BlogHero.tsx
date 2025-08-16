@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
 import { formatBlogDate, calculateReadingTime } from '@/app/lib/data/blogPosts';
@@ -64,8 +65,9 @@ export default function BlogHero({ featuredPosts }: BlogHeroProps) {
 
         {/* Featured Post Card */}
         <div ref={featuredCardRef} className="max-w-5xl mx-auto">
-          <div className="relative group cursor-pointer">
-            <div className="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-amber-200">
+          <Link href={`/blog/${featuredPost.slug}`} className="block">
+            <div className="relative group cursor-pointer">
+              <div className="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-amber-200">
               <div className="grid lg:grid-cols-2 gap-0">
                 {/* Featured Image */}
                 <div className="relative h-64 lg:h-96 bg-gradient-to-br from-stone-200 via-slate-200 to-stone-300">
@@ -136,6 +138,7 @@ export default function BlogHero({ featuredPosts }: BlogHeroProps) {
               </div>
             </div>
           </div>
+          </Link>
         </div>
       </div>
     </section>

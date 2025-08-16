@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -294,11 +295,39 @@ export default function ServicesPreview() {
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [services, setServices] = useState<VerticalServiceWithDetails[]>(verticalServices);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Detect touch device
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    fetchServices();
   }, []);
+
+  const fetchServices = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/services');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.services && data.services.length > 0) {
+          // Map API data to component format, fallback to hardcoded if needed
+          const mappedServices = data.services.map((service: any, index: number) => ({
+            title: service.title || verticalServices[index]?.title,
+            backgroundColor: service.backgroundColor || verticalServices[index]?.backgroundColor,
+            icon: verticalServices[index]?.icon, // Keep existing icons
+            details: service.details || verticalServices[index]?.details || []
+          }));
+          setServices(mappedServices);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      // Keep using fallback data on error
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -686,13 +715,13 @@ export default function ServicesPreview() {
                       className="cursor-pointer group"
                       onTouchStart={handleTouchStart}
                       onTouchEnd={handleTouchEnd}
-                      onClick={(e) => handleSmartNavigation(getServiceSlug(verticalServices[clickedIndex].title), e)}
+                      onClick={(e) => handleSmartNavigation(getServiceSlug(services[clickedIndex].title), e)}
                     >
                       <h2 
                         ref={selectedTitleRef}
                         className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight group-hover:text-[#B79F76] transition-colors duration-300 flex items-center gap-3"
                       >
-                        {verticalServices[clickedIndex].title}
+                        {services[clickedIndex].title}
                         <svg className="w-6 h-6 text-[#B79F76] opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
@@ -703,7 +732,7 @@ export default function ServicesPreview() {
                       ref={selectedTitleRef}
                       className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight"
                     >
-                      {verticalServices[clickedIndex].title}
+                      {services[clickedIndex].title}
                     </h2>
                   )}
                   
@@ -735,7 +764,7 @@ export default function ServicesPreview() {
                     }}
                   ></div>
                   <div ref={selectedListRef}>
-                    {verticalServices[clickedIndex].details.map((service) => (
+                    {services[clickedIndex].details.map((service) => (
                     <div key={service.number} className="space-y-3 relative">
                       <div 
                         className="flex items-start space-x-4 cursor-pointer p-2 -m-2 rounded-lg hover:bg-slate-50 transition-colors duration-200 group"
@@ -783,7 +812,7 @@ export default function ServicesPreview() {
                     <button
                       onTouchStart={handleTouchStart}
                       onTouchEnd={handleTouchEnd}
-                      onClick={(e) => handleSmartNavigation(getServiceSlug(verticalServices[clickedIndex].title), e)}
+                      onClick={(e) => handleSmartNavigation(getServiceSlug(services[clickedIndex].title), e)}
                       className="w-full bg-gradient-to-r from-[#B79F76] to-[#D4A574] text-white px-8 py-4 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-[#B79F76]/25 transform hover:scale-[1.02] active:scale-[0.98] rounded-lg group flex items-center justify-center gap-3"
                       style={{ minHeight: '44px' }} // Minimum touch target size
                     >
@@ -805,7 +834,7 @@ export default function ServicesPreview() {
       <div ref={rightContentRef} className="lg:absolute lg:-right-10 lg:top-24 lg:h-[550px] w-full lg:w-auto">
         {/* Desktop Layout - Wallet Cards */}
         <div className="hidden lg:flex h-full items-end justify-end">
-          {verticalServices.map((service, index) => (
+          {services.map((service, index) => (
             <div
               key={service.title}
               ref={(el) => {
@@ -860,7 +889,7 @@ export default function ServicesPreview() {
 
         {/* Mobile Layout - Dropdown Style Cards */}
         <div className="flex lg:hidden flex-col order-first lg:order-last w-full">
-          {verticalServices.map((service, index) => (
+          {services.map((service, index) => (
             <div
               key={service.title}
               data-service-card

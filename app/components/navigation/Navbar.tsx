@@ -23,7 +23,7 @@ const navItems: NavItem[] = [
   { label: 'Nosotros', href: '/about' },
   { label: 'Equipo', href: '/equipo' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Contacto', href: '/contact' }
+  { label: 'Contacto', href: '/contacto' }
 ];
 
 export default function Navbar() {
@@ -153,9 +153,20 @@ export default function Navbar() {
       .call(() => {
         // Re-enable body scroll and reset transforms
         document.body.style.overflow = 'auto';
-        gsap.set([overlayRef.current, ...menuItemsRef.current, ctaButtonRef.current], {
-          clearProps: 'all'
+        
+        // Clear props with null checks
+        const elementsToReset = [];
+        if (overlayRef.current) elementsToReset.push(overlayRef.current);
+        if (ctaButtonRef.current) elementsToReset.push(ctaButtonRef.current);
+        menuItemsRef.current.forEach(item => {
+          if (item) elementsToReset.push(item);
         });
+        
+        if (elementsToReset.length > 0) {
+          gsap.set(elementsToReset, {
+            clearProps: 'all'
+          });
+        }
       });
   };
 

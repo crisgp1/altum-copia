@@ -4,8 +4,9 @@ import { connectToDatabase } from '@/app/lib/infrastructure/database/connection'
 // GET /api/attorneys/specialization/[specialization]
 export async function GET(
   request: NextRequest,
-  { params }: { params: { specialization: string } }
+  context: { params: Promise<{ specialization: string }> }
 ) {
+  const params = await context.params;
   try {
     await connectToDatabase();
     

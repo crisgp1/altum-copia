@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createBlogPosts, blogAuthors, blogCategories } from '@/app/lib/data/blogPosts';
-import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
+// Note: Author and category data should be fetched from API in a real implementation
+import { BlogPost, PostStatus } from '@/app/lib/domain/entities/BlogPost';
 import Navbar from '@/app/components/navigation/Navbar';
 import Footer from '@/app/components/sections/Footer';
 import PostHeader from './components/PostHeader';
@@ -12,35 +12,131 @@ import RelatedPosts from './components/RelatedPosts';
 import PostNavigation from './components/PostNavigation';
 
 interface BlogPostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
   const [post, setPost] = useState<BlogPost | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [resolvedParams, setResolvedParams] = useState<{slug: string} | null>(null);
 
   useEffect(() => {
-    const allPosts = createBlogPosts();
-    const foundPost = allPosts.find(p => p.slug === params.slug);
+    params.then(p => setResolvedParams(p));
+  }, [params]);
+
+  useEffect(() => {
+    if (!resolvedParams) return;
     
-    if (foundPost) {
-      setPost(foundPost);
-      
-      // Get related posts (same category, different post)
-      const related = allPosts
-        .filter(p => p.categoryId === foundPost.categoryId && p.id !== foundPost.id)
-        .slice(0, 3);
-      setRelatedPosts(related);
-      
-      // Increment view count (in a real app, this would be an API call)
-      foundPost.incrementViewCount();
-    }
+    const fetchPost = async () => {
+      try {
+        setLoading(true);
+        
+        // First, get all posts to find the one with the matching slug
+        const postsResponse = await fetch('/api/blog/posts');
+        if (!postsResponse.ok) {
+          console.error('Failed to fetch posts');
+          setLoading(false);
+          return;
+        }
+        
+        const postsResult = await postsResponse.json();
+        if (!postsResult.success || !postsResult.data) {
+          console.error('Invalid posts response');
+          setLoading(false);
+          return;
+        }
+        
+        // Find the post with matching slug
+        const foundPostData = postsResult.data.find((p: any) => p.slug === resolvedParams.slug);
+        if (!foundPostData) {
+          console.error('Post not found');
+          setLoading(false);
+          return;
+        }
+        
+        // Get the full post content
+        const postResponse = await fetch(`/api/admin/blog/posts/${foundPostData.id}`);
+        if (!postResponse.ok) {
+          console.error('Failed to fetch full post');
+          setLoading(false);
+          return;
+        }
+        
+        const postResult = await postResponse.json();
+        if (!postResult.success || !postResult.data) {
+          console.error('Invalid post response');
+          setLoading(false);
+          return;
+        }
+        
+        const postData = postResult.data;
+        
+        // Convert to BlogPost entity
+        const foundPost = new BlogPost({
+          id: postData.id,
+          title: postData.title,
+          slug: postData.slug,
+          excerpt: postData.excerpt,
+          content: postData.content,
+          featuredImage: postData.featuredImage,
+          authorId: postData.authorId,
+          categoryId: postData.categoryId,
+          tags: postData.tags,
+          status: PostStatus.PUBLISHED,
+          publishedAt: postData.publishedAt ? new Date(postData.publishedAt) : new Date(),
+          seoTitle: postData.seoTitle,
+          seoDescription: postData.seoDescription,
+          viewCount: postData.viewCount,
+          createdAt: postData.createdAt ? new Date(postData.createdAt) : new Date(),
+          updatedAt: postData.updatedAt ? new Date(postData.updatedAt) : new Date()
+        });
+        
+        setPost(foundPost);
+        
+        // Get related posts (same category, different post)
+        const related = postsResult.data
+          .filter((p: any) => p.categoryId === foundPost.categoryId && p.id !== foundPost.id && p.publishedAt)
+          .slice(0, 3)
+          .map((p: any) => new BlogPost({
+            id: p.id,
+            title: p.title,
+            slug: p.slug,
+            excerpt: p.excerpt,
+            content: '',
+            featuredImage: p.featuredImage,
+            authorId: p.authorId,
+            categoryId: p.categoryId,
+            tags: p.tags,
+            status: PostStatus.PUBLISHED,
+            publishedAt: new Date(p.publishedAt),
+            seoTitle: p.title,
+            seoDescription: p.excerpt,
+            viewCount: p.viewCount,
+            createdAt: new Date(p.publishedAt),
+            updatedAt: new Date(p.publishedAt)
+          }));
+        
+        setRelatedPosts(related);
+        
+        // Increment view count
+        try {
+          await fetch(`/api/blog/posts/${foundPost.id}/view`, { method: 'POST' });
+        } catch (error) {
+          console.warn('Failed to increment view count:', error);
+        }
+        
+      } catch (error) {
+        console.error('Error fetching post:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    setLoading(false);
-  }, [params.slug]);
+    fetchPost();
+  }, [resolvedParams]);
 
   if (loading) {
     return (
@@ -95,8 +191,23 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     );
   }
 
-  const author = blogAuthors.find(a => a.id === post.authorId);
-  const category = blogCategories.find(c => c.id === post.categoryId);
+  // Create placeholder author and category objects from the post data
+  const author = {
+    id: post.authorId,
+    name: post.authorId === 'admin' ? 'Administrador' : 'Autor',
+    position: 'Abogado Especialista',
+    bio: 'Especialista en derecho con amplia experiencia en el área legal.',
+    avatar: '',
+    expertise: ['Derecho Corporativo', 'Asesoría Legal', 'Litigios']
+  };
+  
+  const category = {
+    id: post.categoryId,
+    name: post.categoryId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    slug: post.categoryId,
+    description: '',
+    color: '#B79F76'
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -147,7 +258,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         )}
         
         {/* Post Navigation */}
-        <PostNavigation currentPost={post} allPosts={createBlogPosts()} />
+        <PostNavigation currentPost={post} allPosts={[]} />
       </main>
       
       {/* Footer */}

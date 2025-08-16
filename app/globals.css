@@ -14,7 +14,41 @@
   animation: bounce-x 2s ease-in-out infinite;
 }
 
-/* Hide scrollbars */
+/* Hide all scrollbars globally */
+* {
+  /* Firefox */
+  scrollbar-width: none;
+  /* IE and Edge */
+  -ms-overflow-style: none;
+}
+
+/* Webkit browsers (Chrome, Safari, newer Edge) */
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Optional: Keep scroll functionality but hide scrollbar */
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Class for elements that need scrollbar hidden */
 .hide-scrollbar {
   /* Firefox */
   scrollbar-width: none;
@@ -23,6 +57,16 @@
 }
 
 .hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure all scrollable elements hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 

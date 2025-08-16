@@ -4,8 +4,9 @@ import { auth } from '@clerk/nextjs/server';
 // PUT /api/users/[id]/role
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     const { userId } = await auth();
     if (!userId) {

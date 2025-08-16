@@ -39,7 +39,7 @@ const BlogPostSchema = new Schema<IBlogPostDocument>(
   }
 );
 
-BlogPostSchema.index({ slug: 1 });
+// Remove duplicate slug index since unique: true already creates one
 BlogPostSchema.index({ status: 1, publishedAt: -1 });
 BlogPostSchema.index({ categoryId: 1 });
 BlogPostSchema.index({ authorId: 1 });

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 import { PostStatus } from '@/app/lib/domain/entities/BlogPost';
 import SlateEditor from '@/app/components/admin/SlateEditor';
@@ -30,10 +30,13 @@ const categories = [
   { id: 'compliance', name: 'Compliance' }
 ];
 
-export default function NewBlogPost() {
+export default function EditBlogPost() {
   const router = useRouter();
+  const params = useParams();
+  const postId = params?.id as string;
   const { user, hasPermission } = useUserRole();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPost, setIsLoadingPost] = useState(true);
   const [activeTab, setActiveTab] = useState<'content' | 'seo' | 'settings'>('content');
   
   const [formData, setFormData] = useState<BlogFormData>({
@@ -51,6 +54,51 @@ export default function NewBlogPost() {
 
   const [tagInput, setTagInput] = useState('');
 
+  // Load existing post data
+  useEffect(() => {
+    const loadPost = async () => {
+      if (!postId) return;
+      
+      try {
+        setIsLoadingPost(true);
+        const response = await fetch(`/api/admin/blog/posts/${postId}`);
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            const post = result.data;
+            setFormData({
+              title: post.title || '',
+              slug: post.slug || '',
+              excerpt: post.excerpt || '',
+              content: post.content || '',
+              featuredImage: post.featuredImage || '',
+              categoryId: post.categoryId || '',
+              tags: post.tags || [],
+              status: post.status?.toUpperCase() as PostStatus || PostStatus.DRAFT,
+              seoTitle: post.seoTitle || '',
+              seoDescription: post.seoDescription || '',
+              publishedAt: post.publishedAt ? new Date(post.publishedAt) : undefined
+            });
+          } else {
+            toast.error('Post no encontrado');
+            router.push('/admin/blog');
+          }
+        } else {
+          toast.error('Error al cargar el post');
+          router.push('/admin/blog');
+        }
+      } catch (error) {
+        console.error('Error loading post:', error);
+        toast.error('Error al cargar el post');
+        router.push('/admin/blog');
+      } finally {
+        setIsLoadingPost(false);
+      }
+    };
+
+    loadPost();
+  }, [postId, router]);
+
   // Generate slug from title
   const generateSlug = (title: string) => {
     return title
@@ -67,12 +115,7 @@ export default function NewBlogPost() {
     setFormData(prev => {
       const updated = { ...prev, [field]: value };
       
-      // Auto-generate slug when title changes
-      if (field === 'title' && !prev.slug) {
-        updated.slug = generateSlug(value);
-      }
-      
-      // Auto-generate SEO title if empty
+      // Auto-generate SEO title if empty when title changes
       if (field === 'title' && !prev.seoTitle) {
         updated.seoTitle = value;
       }
@@ -97,10 +140,9 @@ export default function NewBlogPost() {
     handleInputChange('tags', formData.tags.filter(tag => tag !== tagToRemove));
   };
 
-
   const handleSubmit = async (status: PostStatus) => {
-    if (!hasPermission('create_content')) {
-      toast.error('No tienes permisos para crear contenido');
+    if (!hasPermission('edit_content')) {
+      toast.error('No tienes permisos para editar contenido');
       return;
     }
 
@@ -126,12 +168,13 @@ export default function NewBlogPost() {
       const postData = {
         ...formData,
         status,
-        authorId: user?.id || '',
-        publishedAt: status === PostStatus.PUBLISHED ? new Date() : undefined
+        publishedAt: status === PostStatus.PUBLISHED && formData.status !== PostStatus.PUBLISHED 
+          ? new Date() 
+          : formData.publishedAt
       };
 
-      const response = await fetch('/api/blog/posts', {
-        method: 'POST',
+      const response = await fetch(`/api/admin/blog/posts/${postId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -141,21 +184,21 @@ export default function NewBlogPost() {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        toast.success(`Post ${status === PostStatus.PUBLISHED ? 'publicado' : 'guardado como borrador'} exitosamente!`);
+        toast.success(`Post ${status === PostStatus.PUBLISHED ? 'publicado' : 'guardado'} exitosamente!`);
         router.push('/admin/blog');
       } else {
-        toast.error(result.error || 'Error al crear el post');
+        toast.error(result.error || 'Error al actualizar el post');
       }
       
     } catch (error) {
-      console.error('Error creating post:', error);
-      toast.error('Error al crear el post');
+      console.error('Error updating post:', error);
+      toast.error('Error al actualizar el post');
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!hasPermission('create_content')) {
+  if (!hasPermission('edit_content')) {
     return (
       <div className="text-center py-12">
         <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -164,11 +207,19 @@ export default function NewBlogPost() {
           </svg>
         </div>
         <h1 className="text-3xl font-bold text-slate-800 mb-4">
-          Sin permisos de creación
+          Sin permisos de edición
         </h1>
         <p className="text-slate-600">
-          No tienes permisos para crear contenido.
+          No tienes permisos para editar contenido.
         </p>
+      </div>
+    );
+  }
+
+  if (isLoadingPost) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
       </div>
     );
   }
@@ -178,8 +229,8 @@ export default function NewBlogPost() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Nuevo Post</h1>
-          <p className="text-slate-600 mt-1">Crea un nuevo artículo para el blog</p>
+          <h1 className="text-3xl font-bold text-slate-900">Editar Post</h1>
+          <p className="text-slate-600 mt-1">Modifica el artículo del blog</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
@@ -423,6 +474,7 @@ export default function NewBlogPost() {
                           <p className="text-slate-600 mb-2">Subir imagen destacada</p>
                           <input
                             type="url"
+                            value={formData.featuredImage}
                             placeholder="https://ejemplo.com/imagen.jpg"
                             onChange={(e) => handleInputChange('featuredImage', e.target.value)}
                             className="w-full max-w-sm px-3 py-2 border border-stone-300 rounded text-sm text-slate-900 placeholder:text-slate-400"
@@ -501,12 +553,14 @@ export default function NewBlogPost() {
                   {user?.firstName} {user?.lastName}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-600">Creado:</span>
-                <span className="text-sm text-slate-600">
-                  {new Date().toLocaleDateString('es-ES')}
-                </span>
-              </div>
+              {formData.publishedAt && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-600">Publicado:</span>
+                  <span className="text-sm text-slate-600">
+                    {new Date(formData.publishedAt).toLocaleDateString('es-ES')}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -514,11 +568,11 @@ export default function NewBlogPost() {
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
             <h3 className="font-semibold text-amber-900 mb-4">💡 Consejos</h3>
             <ul className="text-sm text-amber-800 space-y-2">
-              <li>• Un buen título atrae más lectores</li>
-              <li>• El extracto aparece en las previews</li>
-              <li>• Usa etiquetas relevantes para SEO</li>
-              <li>• La imagen destacada es importante</li>
-              <li>• Revisa la vista previa SEO</li>
+              <li>• Revisa los cambios antes de publicar</li>
+              <li>• Actualiza la fecha si es relevante</li>
+              <li>• Verifica que los enlaces funcionen</li>
+              <li>• Considera el impacto SEO de los cambios</li>
+              <li>• Guarda como borrador si no estás seguro</li>
             </ul>
           </div>
         </div>

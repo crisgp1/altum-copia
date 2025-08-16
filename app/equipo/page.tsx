@@ -3,69 +3,105 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
-import { attorneys } from '@/app/lib/data/attorneys';
-import { Attorney } from '@/app/lib/types/Attorney';
+import { AttorneyResponseDTO } from '@/app/lib/application/dtos/AttorneyDTO';
 import Navbar from '@/app/components/navigation/Navbar';
 import Footer from '@/app/components/sections/Footer';
+import toast from 'react-hot-toast';
 
-const legalAreas = [
-  {
-    name: 'Derecho Corporativo',
-    description: 'Especialistas en constitución de empresas, fusiones y adquisiciones',
-    color: 'amber',
-    attorneys: attorneys.filter(attorney => 
-      attorney.specialization.some(spec => 
-        spec.includes('Corporativo') || spec.includes('Empresarial') || spec.includes('Mercantil')
-      )
-    )
-  },
-  {
-    name: 'Litigio Estratégico',
-    description: 'Expertos en resolución de disputas civiles y comerciales',
-    color: 'blue',
-    attorneys: attorneys.filter(attorney => 
-      attorney.specialization.some(spec => 
-        spec.includes('Litigio') || spec.includes('Penal') || spec.includes('Civil') || spec.includes('Arbitraje')
-      )
-    )
-  },
-  {
-    name: 'Derecho Fiscal',
-    description: 'Asesores en planeación fiscal y defensa tributaria',
-    color: 'green',
-    attorneys: attorneys.filter(attorney => 
-      attorney.specialization.some(spec => 
-        spec.includes('Fiscal') || spec.includes('Tributario') || spec.includes('Planeación')
-      )
-    )
-  },
-  {
-    name: 'Derecho Laboral',
-    description: 'Especialistas en relaciones laborales y seguridad social',
-    color: 'purple',
-    attorneys: attorneys.filter(attorney => 
-      attorney.specialization.some(spec => 
-        spec.includes('Laboral') || spec.includes('Seguridad Social') || spec.includes('Relaciones')
-      )
-    )
-  }
-];
+interface LegalArea {
+  name: string;
+  description: string;
+  color: string;
+  attorneys: AttorneyResponseDTO[];
+}
 
 export default function EquipoPage() {
-  const [selectedAttorney, setSelectedAttorney] = useState<Attorney | null>(null);
+  const [selectedAttorney, setSelectedAttorney] = useState<AttorneyResponseDTO | null>(null);
   const [selectedArea, setSelectedArea] = useState<string>('Derecho Corporativo');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [attorneys, setAttorneys] = useState<AttorneyResponseDTO[]>([]);
+  const [legalAreas, setLegalAreas] = useState<LegalArea[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize selected attorney on mount
+  // Fetch attorneys from API
+  useEffect(() => {
+    fetchAttorneys();
+  }, []);
+
+  // Initialize selected attorney when data is loaded
   useEffect(() => {
     const firstAreaWithAttorneys = legalAreas.find(area => area.attorneys.length > 0);
     if (firstAreaWithAttorneys && firstAreaWithAttorneys.attorneys.length > 0) {
       setSelectedAttorney(firstAreaWithAttorneys.attorneys[0]);
       setSelectedArea(firstAreaWithAttorneys.name);
     }
-  }, []);
+  }, [legalAreas]);
 
-  const handleAttorneySelect = (attorney: Attorney) => {
+  const fetchAttorneys = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/attorneys');
+      if (response.ok) {
+        const data = await response.json();
+        setAttorneys(data.attorneys || []);
+        
+        // Create legal areas based on fetched attorneys
+        const areas: LegalArea[] = [
+          {
+            name: 'Derecho Corporativo',
+            description: 'Especialistas en constitución de empresas, fusiones y adquisiciones',
+            color: 'amber',
+            attorneys: (data.attorneys || []).filter((attorney: AttorneyResponseDTO) => 
+              attorney.especializaciones.some(spec => 
+                spec.includes('Corporativo') || spec.includes('Empresarial') || spec.includes('Mercantil')
+              )
+            )
+          },
+          {
+            name: 'Litigio Estratégico',
+            description: 'Expertos en resolución de disputas civiles y comerciales',
+            color: 'blue',
+            attorneys: (data.attorneys || []).filter((attorney: AttorneyResponseDTO) => 
+              attorney.especializaciones.some(spec => 
+                spec.includes('Litigio') || spec.includes('Penal') || spec.includes('Civil') || spec.includes('Arbitraje')
+              )
+            )
+          },
+          {
+            name: 'Derecho Fiscal',
+            description: 'Asesores en planeación fiscal y defensa tributaria',
+            color: 'green',
+            attorneys: (data.attorneys || []).filter((attorney: AttorneyResponseDTO) => 
+              attorney.especializaciones.some(spec => 
+                spec.includes('Fiscal') || spec.includes('Tributario') || spec.includes('Planeación')
+              )
+            )
+          },
+          {
+            name: 'Derecho Laboral',
+            description: 'Especialistas en relaciones laborales y seguridad social',
+            color: 'purple',
+            attorneys: (data.attorneys || []).filter((attorney: AttorneyResponseDTO) => 
+              attorney.especializaciones.some(spec => 
+                spec.includes('Laboral') || spec.includes('Seguridad Social') || spec.includes('Relaciones')
+              )
+            )
+          }
+        ];
+        
+        setLegalAreas(areas);
+      } else {
+        toast.error('Error al cargar el equipo de abogados');
+      }
+    } catch (error) {
+      console.error('Error fetching attorneys:', error);
+      toast.error('Error al cargar el equipo de abogados');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAttorneySelect = (attorney: AttorneyResponseDTO) => {
     if (selectedAttorney?.id === attorney.id) return;
     
     setIsTransitioning(true);
@@ -95,7 +131,7 @@ export default function EquipoPage() {
   console.log('Current area attorneys:', currentAreaAttorneys.length);
 
   // Show loading state if no data is available
-  if (attorneys.length === 0) {
+  if (isLoading) {
     return (
       <>
         <Navbar />
@@ -137,12 +173,12 @@ export default function EquipoPage() {
                 <div className="space-y-6">
                   <div>
                     <h2 className="text-3xl font-light text-slate-800 mb-2">
-                      {selectedAttorney.name}
+                      {selectedAttorney.nombre}
                     </h2>
                     <p className="text-xl text-amber-600 mb-4">
-                      {selectedAttorney.position}
+                      {selectedAttorney.cargo}
                     </p>
-                    {selectedAttorney.isPartner && (
+                    {selectedAttorney.esSocio && (
                       <span className="inline-block bg-amber-100 text-amber-800 px-3 py-1 text-sm font-medium rounded-full">
                         Socio Fundador
                       </span>
@@ -150,7 +186,7 @@ export default function EquipoPage() {
                   </div>
                   
                   <p className="text-lg text-slate-600 leading-relaxed max-w-lg">
-                    {selectedAttorney.bio}
+                    {selectedAttorney.biografia}
                   </p>
                   
                   <div className="space-y-3">
@@ -160,11 +196,11 @@ export default function EquipoPage() {
                     </div>
                     <div className="flex items-center text-slate-600">
                       <Phone className="w-5 h-5 mr-3 text-amber-600" />
-                      <span>{selectedAttorney.phone}</span>
+                      <span>{selectedAttorney.telefono}</span>
                     </div>
                     <div className="flex items-center text-slate-600">
                       <MapPin className="w-5 h-5 mr-3 text-amber-600" />
-                      <span>Ciudad de México</span>
+                      <span>Guadalajara, Jalisco</span>
                     </div>
                   </div>
                 </div>
@@ -184,11 +220,11 @@ export default function EquipoPage() {
                         {selectedArea}
                       </h3>
                       <p className="text-slate-600 leading-relaxed text-sm">
-                        {selectedAttorney.bio}
+                        {selectedAttorney.biografia}
                       </p>
                       <div className="mt-6 space-y-2">
                         <div className="flex flex-wrap gap-2">
-                          {selectedAttorney.specialization.slice(0, 3).map((spec, index) => (
+                          {selectedAttorney.especializaciones.slice(0, 3).map((spec, index) => (
                             <span 
                               key={index}
                               className="bg-slate-400/20 text-slate-700 px-2 py-1 rounded text-xs"
@@ -198,7 +234,7 @@ export default function EquipoPage() {
                           ))}
                         </div>
                         <p className="text-slate-500 text-xs">
-                          {selectedAttorney.experience} años de experiencia • {selectedAttorney.languages.join(' • ')}
+                          {selectedAttorney.anosExperiencia} años de experiencia • {selectedAttorney.idiomas.join(' • ')}
                         </p>
                       </div>
                     </div>
@@ -207,8 +243,8 @@ export default function EquipoPage() {
                   {/* Attorney Image */}
                   <div className="relative bg-gradient-to-br from-slate-300 to-slate-400 rounded-2xl overflow-hidden aspect-[4/5] shadow-2xl ml-8 mt-8">
                     <Image
-                      src={selectedAttorney.image}
-                      alt={selectedAttorney.name}
+                      src={selectedAttorney.imagenUrl || '/images/attorneys/attorney1.png'}
+                      alt={selectedAttorney.nombre}
                       fill
                       className="object-cover object-center"
                       priority
@@ -287,8 +323,8 @@ export default function EquipoPage() {
               >
                 <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden aspect-[4/5] shadow-lg group-hover:shadow-xl transition-shadow duration-300">
                   <Image
-                    src={attorney.image}
-                    alt={attorney.name}
+                    src={attorney.imagenUrl || '/images/attorneys/attorney1.png'}
+                    alt={attorney.nombre}
                     fill
                     className="object-cover object-center"
                   />
@@ -297,13 +333,13 @@ export default function EquipoPage() {
                   {/* Overlay Info */}
                   <div className="absolute bottom-0 left-0 right-0 p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <h3 className="font-medium text-lg leading-tight">
-                      {attorney.name}
+                      {attorney.nombre}
                     </h3>
                     <p className="text-amber-200 text-sm">
-                      {attorney.position}
+                      {attorney.cargo}
                     </p>
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {attorney.specialization.slice(0, 2).map((spec, specIndex) => (
+                      {attorney.especializaciones.slice(0, 2).map((spec, specIndex) => (
                         <span
                           key={specIndex}
                           className="bg-white/20 backdrop-blur-sm px-2 py-1 text-xs rounded-full"
@@ -318,20 +354,20 @@ export default function EquipoPage() {
                 {/* Name below image for mobile */}
                 <div className="mt-4 text-center lg:hidden">
                   <h3 className="font-medium text-slate-800">
-                    {attorney.name}
+                    {attorney.nombre}
                   </h3>
                   <p className="text-amber-600 text-sm">
-                    {attorney.position}
+                    {attorney.cargo}
                   </p>
                 </div>
                 
                 {/* Description Review beside photo - Desktop only */}
                 <div className="hidden lg:block absolute left-full top-0 ml-4 w-64 bg-white p-4 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 border border-slate-200">
-                  <h4 className="font-medium text-slate-800 mb-2">{attorney.name}</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-3">{attorney.bio}</p>
+                  <h4 className="font-medium text-slate-800 mb-2">{attorney.nombre}</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-3">{attorney.biografia}</p>
                   <div className="text-xs text-slate-500">
-                    <p className="mb-1">{attorney.experience} años de experiencia</p>
-                    <p>{attorney.languages.join(', ')}</p>
+                    <p className="mb-1">{attorney.anosExperiencia} años de experiencia</p>
+                    <p>{attorney.idiomas.join(', ')}</p>
                   </div>
                 </div>
               </div>

@@ -4,8 +4,9 @@ import { connectToDatabase } from '@/app/lib/infrastructure/database/connection'
 // GET /api/attorneys/[id]
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     await connectToDatabase();
     
@@ -39,8 +40,9 @@ export async function GET(
 // PUT /api/attorneys/[id]
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     await connectToDatabase();
     
@@ -84,8 +86,9 @@ export async function PUT(
 // DELETE /api/attorneys/[id]
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     await connectToDatabase();
     

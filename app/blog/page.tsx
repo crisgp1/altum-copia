@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createBlogPosts } from '@/app/lib/data/blogPosts';
 import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
 import Navbar from '@/app/components/navigation/Navbar';
 import Footer from '@/app/components/sections/Footer';
@@ -10,13 +9,71 @@ import BlogCategories from '@/app/components/blog/BlogCategories';
 import BlogGrid from '@/app/components/blog/BlogGrid';
 import BlogSearch from '@/app/components/blog/BlogSearch';
 
+interface BlogPostAPI {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  featuredImage: string;
+  authorId: string;
+  categoryId: string;
+  tags: string[];
+  publishedAt: string;
+  viewCount: number;
+}
+
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<BlogPost[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
-  
-  const blogPosts = createBlogPosts();
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch blog posts from API
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/blog/posts');
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            // Convert API response to BlogPost entities
+            const posts = result.data
+              .filter((post: BlogPostAPI) => post.publishedAt) // Only include posts with publishedAt
+              .map((post: BlogPostAPI) => new BlogPost({
+                id: post.id,
+                title: post.title,
+                slug: post.slug,
+                excerpt: post.excerpt,
+                content: '', // Content not needed for listing
+                featuredImage: post.featuredImage,
+                authorId: post.authorId,
+                categoryId: post.categoryId,
+                tags: post.tags,
+                status: 'PUBLISHED' as any,
+                publishedAt: new Date(post.publishedAt),
+                seoTitle: post.title,
+                seoDescription: post.excerpt,
+                viewCount: post.viewCount,
+                createdAt: new Date(post.publishedAt),
+                updatedAt: new Date(post.publishedAt)
+              }));
+            setBlogPosts(posts);
+          }
+        } else {
+          console.error('Failed to fetch blog posts');
+        }
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBlogPosts();
+  }, []);
   
   // Get featured posts (first 3 most viewed)
   const featuredPosts = [...blogPosts]
@@ -66,6 +123,20 @@ export default function BlogPage() {
     window.addEventListener('resetCategory', handleResetCategory);
     return () => window.removeEventListener('resetCategory', handleResetCategory);
   }, [isSearchActive]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <main>
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

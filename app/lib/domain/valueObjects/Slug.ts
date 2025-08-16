@@ -10,6 +10,10 @@ export class Slug {
   }
 
   private generate(text: string): string {
+    if (!text || typeof text !== 'string') {
+      throw new Error('Slug text must be a non-empty string');
+    }
+    
     return text
       .toLowerCase()
       .normalize('NFD')

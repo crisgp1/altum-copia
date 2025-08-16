@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
 import { formatBlogDate, calculateReadingTime, blogCategories, blogAuthors } from '@/app/lib/data/blogPosts';
@@ -67,11 +68,15 @@ export default function BlogCard({ post, index }: BlogCardProps) {
   return (
     <article 
       ref={cardRef}
-      className="group cursor-pointer opacity-0"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className="group opacity-0"
     >
-      <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden transition-all duration-500 hover:shadow-xl hover:border-amber-200 hover:-translate-y-2">
+      <Link 
+        href={`/blog/${post.slug}`}
+        className="block cursor-pointer"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden transition-all duration-500 hover:shadow-xl hover:border-amber-200 hover:-translate-y-2">
         {/* Featured Image */}
         <div className="relative h-48 bg-gradient-to-br from-stone-200 via-slate-200 to-stone-300 overflow-hidden">
           <div 
@@ -173,6 +178,7 @@ export default function BlogCard({ post, index }: BlogCardProps) {
           </div>
         </div>
       </div>
+      </Link>
     </article>
   );
 }

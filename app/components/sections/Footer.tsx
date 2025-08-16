@@ -82,16 +82,25 @@ export default function Footer() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <p className="text-slate-400 text-sm">
-                  Av. Reforma 123, Col. Juárez<br />
-                  Ciudad de México, 06600
+                  Av. Faro #2522<br />
+                  Bosque de la Victoria<br />
+                  CP. 44538. Guadalajara, Jalisco
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <a href="tel:+525555551234" className="text-slate-400 hover:text-white transition-colors text-sm">
-                  +52 55 5555 1234
+                <a href="tel:+523336297531" className="text-slate-400 hover:text-white transition-colors text-sm">
+                  +52 33 3629 7531
+                </a>
+              </div>
+              <div className="flex items-center space-x-3">
+                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <a href="https://wa.me/523315681688" className="text-slate-400 hover:text-white transition-colors text-sm">
+                  +52 33 1568 1688
                 </a>
               </div>
               <div className="flex items-center space-x-3">
@@ -101,6 +110,14 @@ export default function Footer() {
                 <a href="mailto:contacto@altumlegal.com" className="text-slate-400 hover:text-white transition-colors text-sm">
                   contacto@altumlegal.com
                 </a>
+              </div>
+              <div className="flex items-center space-x-3">
+                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-slate-400 text-sm">
+                  Lun - Vie: 09:00 - 18:00
+                </p>
               </div>
             </div>
           </div>
