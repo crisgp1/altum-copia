@@ -203,22 +203,22 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/30" />
       </div>
 
-      {/* Content - Small centered container with left-aligned text */}
+      {/* Content - Responsive centered container */}
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto text-left">
-          {/* Persistent ALTUM Legal Branding - Official typography and colors */}
-          <div className="persistent-branding mb-6 sm:mb-8">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight" style={{ color: '#000000' }}>
+        <div className="max-w-xl sm:max-w-2xl lg:max-w-3xl mx-auto text-left w-full">
+          {/* Persistent ALTUM Legal Branding - Responsive typography */}
+          <div className="persistent-branding mb-4 sm:mb-6 lg:mb-8">
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight" style={{ color: '#000000' }}>
                 <span className="altum-brand">ALTUM</span>{' '}
                 <span className="legal-brand" style={{ color: '#B79F76' }}>Legal</span>
               </h1>
             </div>
 
           {/* Dynamic Content - Changes with transitions */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <span 
               ref={eyebrowRef}
-              className="font-medium text-sm uppercase tracking-wider"
+              className="font-medium text-xs sm:text-sm uppercase tracking-wider"
               style={{ color: '#B79F76' }}
             >
               {currentSlideData.eyebrow}
@@ -227,7 +227,7 @@ export default function HeroSection() {
           
           <h2
             ref={titleRef}
-            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif font-bold mb-2 leading-tight"
+            className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold mb-2 leading-tight"
             style={{ color: '#000000' }}
           >
             {currentSlideData.title}
@@ -242,15 +242,15 @@ export default function HeroSection() {
 
           <p
             ref={descriptionRef}
-            className="text-base sm:text-lg mb-6 sm:mb-8 lg:mb-10 leading-relaxed font-light"
+            className="text-sm xs:text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 lg:mb-10 leading-relaxed font-light max-w-prose"
             style={{ color: '#152239' }}
           >
             {currentSlideData.description}
           </p>
 
-          <div ref={ctaRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div ref={ctaRef} className="flex flex-col xs:flex-row gap-3 xs:gap-2 sm:gap-4 max-w-md xs:max-w-none">
             <button 
-              className="group px-6 sm:px-8 py-3 sm:py-4 font-medium transition-all duration-300 text-sm sm:text-base"
+              className="group px-4 xs:px-5 sm:px-6 lg:px-8 py-3 xs:py-3 sm:py-4 font-medium transition-all duration-300 text-xs xs:text-sm sm:text-base flex-shrink-0"
               style={{ 
                 backgroundColor: '#152239',
                 color: '#FFFFFF'
@@ -259,9 +259,9 @@ export default function HeroSection() {
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#152239'}
             >
               <span className="flex items-center justify-center">
-                {currentSlideData.primaryCta}
+                <span className="truncate">{currentSlideData.primaryCta}</span>
                 <svg 
-                  className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" 
+                  className="ml-1 xs:ml-2 w-3 xs:w-4 h-3 xs:h-4 group-hover:translate-x-1 transition-transform duration-200 flex-shrink-0" 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -273,7 +273,7 @@ export default function HeroSection() {
             
             <button
               onClick={() => router.push('/services')}
-              className="group px-6 sm:px-8 py-3 sm:py-4 font-medium border-2 transition-all duration-300 text-sm sm:text-base"
+              className="group px-4 xs:px-5 sm:px-6 lg:px-8 py-3 xs:py-3 sm:py-4 font-medium border-2 transition-all duration-300 text-xs xs:text-sm sm:text-base flex-shrink-0"
               style={{
                 borderColor: '#B79F76',
                 color: '#152239',
@@ -289,9 +289,9 @@ export default function HeroSection() {
               }}
             >
               <span className="flex items-center justify-center">
-                {currentSlideData.secondaryCta}
+                <span className="truncate">{currentSlideData.secondaryCta}</span>
                 <svg
-                  className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-200"
+                  className="ml-1 xs:ml-2 w-3 xs:w-4 h-3 xs:h-4 group-hover:translate-x-1 transition-transform duration-200 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -305,32 +305,32 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Mainletter.ru Style Navigation */}
-      <div className="absolute bottom-6 sm:bottom-12 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="flex items-center justify-center space-x-6 sm:space-x-12 bg-white/30 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20 shadow-lg">
-          {/* Previous Button - ALTUM brand colors */}
+      {/* Navigation - Responsive design */}
+      <div className="absolute bottom-4 xs:bottom-6 sm:bottom-8 lg:bottom-12 left-1/2 transform -translate-x-1/2 z-20 px-4 w-full max-w-md sm:max-w-none">
+        <div className="flex items-center justify-center space-x-3 xs:space-x-4 sm:space-x-6 lg:space-x-12 bg-white/30 backdrop-blur-sm rounded-full px-3 xs:px-4 sm:px-6 py-2 xs:py-3 border border-white/20 shadow-lg">
+          {/* Previous Button - Responsive */}
           <button
             onClick={prevSlide}
             disabled={isTransitioning}
-            className="flex items-center space-x-3 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+            className="flex items-center space-x-1 xs:space-x-2 sm:space-x-3 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group min-w-0"
             style={{ color: '#152239' }}
             onMouseEnter={(e) => e.currentTarget.style.color = '#B79F76'}
             onMouseLeave={(e) => e.currentTarget.style.color = '#152239'}
           >
-            <svg className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 xs:w-5 h-4 xs:h-5 transition-transform duration-200 group-hover:scale-110 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
               <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
             </svg>
-            <span className="text-xs sm:text-sm font-medium uppercase tracking-wider">ATRÁS</span>
+            <span className="hidden xs:inline text-xs sm:text-sm font-medium uppercase tracking-wider">ATRÁS</span>
           </button>
 
-          {/* Slide Indicators - ALTUM brand colors */}
-          <div className="flex space-x-2">
+          {/* Slide Indicators - Responsive */}
+          <div className="flex space-x-1.5 xs:space-x-2">
             {heroSlides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => transitionToSlide(index)}
                 disabled={isTransitioning}
-                className="w-2 h-2 rounded-full transition-all duration-200 disabled:cursor-not-allowed"
+                className="w-1.5 xs:w-2 h-1.5 xs:h-2 rounded-full transition-all duration-200 disabled:cursor-not-allowed"
                 style={{
                   backgroundColor: index === currentSlide ? '#152239' : '#B79F76',
                   opacity: index === currentSlide ? 1 : 0.4
@@ -349,17 +349,17 @@ export default function HeroSection() {
             ))}
           </div>
 
-          {/* Next Button - ALTUM brand colors */}
+          {/* Next Button - Responsive */}
           <button
             onClick={nextSlide}
             disabled={isTransitioning}
-            className="flex items-center space-x-3 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+            className="flex items-center space-x-1 xs:space-x-2 sm:space-x-3 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group min-w-0"
             style={{ color: '#152239' }}
             onMouseEnter={(e) => e.currentTarget.style.color = '#B79F76'}
             onMouseLeave={(e) => e.currentTarget.style.color = '#152239'}
           >
-            <span className="text-xs sm:text-sm font-medium uppercase tracking-wider">SIGUIENTE</span>
-            <svg className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+            <span className="hidden xs:inline text-xs sm:text-sm font-medium uppercase tracking-wider">SIGUIENTE</span>
+            <svg className="w-4 xs:w-5 h-4 xs:h-5 transition-transform duration-200 group-hover:scale-110 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
             </svg>
           </button>

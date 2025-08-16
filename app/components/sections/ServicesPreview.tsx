@@ -670,45 +670,45 @@ export default function ServicesPreview() {
           setClickedIndex(null);
         }
       }}>
-        <div className="relative flex flex-col lg:flex-row h-auto lg:h-[550px] gap-8 lg:gap-0">
+        <div className="relative flex flex-col lg:flex-row h-auto lg:h-[550px] gap-6 sm:gap-8 lg:gap-0">
           {/* Mobile Title */}
-          <div className="lg:hidden mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-800 leading-tight text-center">
+          <div className="lg:hidden mb-8 sm:mb-12">
+            <h2 className="text-2xl xs:text-3xl sm:text-3xl md:text-4xl font-serif font-bold text-slate-800 leading-tight text-center px-4">
               Nuestros Servicios
             </h2>
             <div className="flex items-center justify-center mt-4">
-              <div className="flex-1 h-px bg-slate-300 max-w-20"></div>
-              <ArrowRight className="w-5 h-5 text-slate-800 mx-4" />
-              <div className="flex-1 h-px bg-slate-300 max-w-20"></div>
+              <div className="flex-1 h-px bg-slate-300 max-w-16 sm:max-w-20"></div>
+              <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 text-slate-800 mx-3 sm:mx-4" />
+              <div className="flex-1 h-px bg-slate-300 max-w-16 sm:max-w-20"></div>
             </div>
           </div>
 
           {/* Left Side - Dynamic ALTUM Content - Responsive */}
-          <div ref={leftContentRef} className={`flex flex-1 flex-col justify-center items-center text-center lg:pr-24 lg:max-w-2xl ${clickedIndex !== null ? 'hidden lg:flex' : ''}`}>
+          <div ref={leftContentRef} className={`flex flex-1 flex-col justify-center items-center text-center lg:pr-16 xl:pr-24 lg:max-w-2xl xl:max-w-3xl ${clickedIndex !== null ? 'hidden lg:flex' : ''}`}>
             {clickedIndex === null ? (
               // Simple default content - Centered and Responsive
               <>
-                <div className="space-y-6 lg:space-y-8 mb-12 lg:mb-0">
+                <div className="space-y-4 sm:space-y-6 lg:space-y-8 mb-8 sm:mb-12 lg:mb-0 px-4 lg:px-0">
                   <h2 
                     ref={titleRef}
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-slate-800 leading-tight"
+                    className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold text-slate-800 leading-tight"
                   >
                     ALTUM LEGAL
                   </h2>
                   
                   <div 
                     ref={subtitleRef}
-                    className="flex items-center justify-center space-x-3 lg:space-x-4"
+                    className="flex items-center justify-center space-x-2 sm:space-x-3 lg:space-x-4"
                   >
-                    <span className="text-base lg:text-lg text-slate-800 font-medium">Seleccione un servicio</span>
-                    <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5 text-slate-800 animate-bounce-x" />
+                    <span className="text-sm sm:text-base lg:text-lg text-slate-800 font-medium">Seleccione un servicio</span>
+                    <ArrowRight className="w-3 sm:w-4 lg:w-5 h-3 sm:h-4 lg:h-5 text-slate-800 animate-bounce-x" />
                   </div>
                 </div>
               </>
             ) : (
               // Selected service content - Left aligned
-              <div className="w-full text-left self-start">
-                <div className="space-y-6">
+              <div className="w-full text-left self-start px-4 lg:px-0">
+                <div className="space-y-4 sm:space-y-6">
                   {/* Clickeable Header - Smart for desktop/tablet */}
                   {!isTouchDevice || window.innerWidth > 768 ? (
                     <div
@@ -719,10 +719,10 @@ export default function ServicesPreview() {
                     >
                       <h2 
                         ref={selectedTitleRef}
-                        className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight group-hover:text-[#B79F76] transition-colors duration-300 flex items-center gap-3"
+                        className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl font-serif font-bold text-slate-800 leading-tight group-hover:text-[#B79F76] transition-colors duration-300 flex items-start gap-2 sm:gap-3"
                       >
-                        {services[clickedIndex].title}
-                        <svg className="w-6 h-6 text-[#B79F76] opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <span className="flex-1 min-w-0">{services[clickedIndex].title}</span>
+                        <svg className="w-5 sm:w-6 h-5 sm:h-6 text-[#B79F76] opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
                       </h2>
@@ -730,7 +730,7 @@ export default function ServicesPreview() {
                   ) : (
                     <h2 
                       ref={selectedTitleRef}
-                      className="text-4xl md:text-5xl font-serif font-bold text-slate-800 leading-tight"
+                      className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl font-serif font-bold text-slate-800 leading-tight"
                     >
                       {services[clickedIndex].title}
                     </h2>
@@ -738,25 +738,25 @@ export default function ServicesPreview() {
                   
                   <div 
                     ref={selectedHeaderRef}
-                    className="flex items-center space-x-4"
+                    className="flex items-center space-x-3 sm:space-x-4"
                   >
-                    <span className="text-slate-800 font-medium">Más</span>
+                    <span className="text-slate-800 font-medium text-sm sm:text-base">Más</span>
                     <div className="flex-1 h-px bg-slate-300"></div>
-                    <ArrowRight className="w-5 h-5 text-slate-800" />
+                    <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 text-slate-800" />
                     <button 
                       onClick={() => setClickedIndex(null)}
-                      className="ml-4 text-slate-500 hover:text-slate-800 transition-colors"
+                      className="ml-2 sm:ml-4 text-slate-500 hover:text-slate-800 transition-colors p-1"
                     >
-                      ✕
+                      <span className="text-lg">✕</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Selected Service Details */}
-                <div className="space-y-8 overflow-y-auto max-h-[400px] relative hide-scrollbar">
+                <div className="space-y-6 sm:space-y-8 overflow-y-auto max-h-[300px] sm:max-h-[400px] relative hide-scrollbar">
                   {/* Soft gradient overlay at the bottom for fade effect - fixed positioning */}
                   <div 
-                    className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none z-10"
+                    className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 pointer-events-none z-10"
                     style={{
                       background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, #ffffff 100%)',
                       position: 'sticky',
@@ -765,25 +765,25 @@ export default function ServicesPreview() {
                   ></div>
                   <div ref={selectedListRef}>
                     {services[clickedIndex].details.map((service) => (
-                    <div key={service.number} className="space-y-3 relative">
+                    <div key={service.number} className="space-y-2 sm:space-y-3 relative">
                       <div 
-                        className="flex items-start space-x-4 cursor-pointer p-2 -m-2 rounded-lg hover:bg-slate-50 transition-colors duration-200 group"
+                        className="flex items-start space-x-3 sm:space-x-4 cursor-pointer p-2 -m-2 rounded-lg hover:bg-slate-50 transition-colors duration-200 group"
                         onClick={(e) => handleServiceNavigationTap(service, e)}
                       >
-                        <span className="text-2xl font-bold text-slate-400 mt-1 min-w-[3rem] group-hover:text-slate-600 transition-colors duration-200">
+                        <span className="text-xl sm:text-2xl font-bold text-slate-400 mt-1 min-w-[2.5rem] sm:min-w-[3rem] group-hover:text-slate-600 transition-colors duration-200 flex-shrink-0">
                           {service.number}
                         </span>
-                        <div className="space-y-2 flex-1">
-                          <h3 className="text-lg font-bold text-slate-800 group-hover:text-slate-900 transition-colors duration-200">
+                        <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
+                          <h3 className="text-base sm:text-lg font-bold text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight">
                             {service.title}
                           </h3>
-                          <p className="text-slate-600 leading-relaxed text-sm group-hover:text-slate-700 transition-colors duration-200">
+                          <p className="text-slate-600 leading-relaxed text-xs sm:text-sm group-hover:text-slate-700 transition-colors duration-200">
                             {service.description}
                           </p>
                         </div>
                         {service.slug && (
-                          <div className="flex items-center text-slate-400 group-hover:text-slate-600 transition-colors duration-200">
-                            <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="flex items-center text-slate-400 group-hover:text-slate-600 transition-colors duration-200 flex-shrink-0">
+                            <svg className="w-3 sm:w-4 h-3 sm:h-4 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                           </div>
@@ -808,16 +808,16 @@ export default function ServicesPreview() {
                   </div>
                   
                   {/* Main Action Button */}
-                  <div className="mt-8 pt-6 border-t border-slate-200">
+                  <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-200">
                     <button
                       onTouchStart={handleTouchStart}
                       onTouchEnd={handleTouchEnd}
                       onClick={(e) => handleSmartNavigation(getServiceSlug(services[clickedIndex].title), e)}
-                      className="w-full bg-gradient-to-r from-[#B79F76] to-[#D4A574] text-white px-8 py-4 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-[#B79F76]/25 transform hover:scale-[1.02] active:scale-[0.98] rounded-lg group flex items-center justify-center gap-3"
+                      className="w-full bg-gradient-to-r from-[#B79F76] to-[#D4A574] text-white px-6 sm:px-8 py-3 sm:py-4 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-[#B79F76]/25 transform hover:scale-[1.02] active:scale-[0.98] rounded-lg group flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
                       style={{ minHeight: '44px' }} // Minimum touch target size
                     >
-                      <span>Ver Información Completa</span>
-                      <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <span className="truncate">Ver Información Completa</span>
+                      <svg className="w-4 sm:w-5 h-4 sm:h-5 transition-transform duration-300 group-hover:translate-x-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </button>
@@ -831,7 +831,7 @@ export default function ServicesPreview() {
 
 
       {/* Right Side - Vertical Service Columns - Responsive Layout */}
-      <div ref={rightContentRef} className="lg:absolute lg:right-0 lg:top-24 lg:h-[550px] w-full lg:w-auto">
+      <div ref={rightContentRef} className="lg:absolute lg:right-0 lg:top-16 xl:top-24 lg:h-[500px] xl:h-[550px] w-full lg:w-auto">
         {/* Desktop Layout - Wallet Cards */}
         <div className="hidden lg:flex h-full items-end justify-end overflow-hidden">
           {services.map((service, index) => (
@@ -841,29 +841,30 @@ export default function ServicesPreview() {
                 if (el) columnRefs.current[index] = el;
               }}
               data-service-card
-              className="relative flex flex-col items-center justify-between text-white p-6 cursor-pointer overflow-hidden"
+              className="relative flex flex-col items-center justify-between text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden"
               style={{ 
                 backgroundColor: service.backgroundColor,
-                width: '120px', // Same width for all cards
-                height: '550px', // Proportional height to container
-                marginLeft: index > 0 ? '-15px' : '0', // Overlap for wallet effect
-                zIndex: index + 1, // Higher z-index for cards on right
+                width: '100px', // Responsive width for smaller screens
+                height: '500px', // Responsive height
+                marginLeft: index > 0 ? '-12px' : '0', // Slightly less overlap for smaller screens
+                zIndex: index + 1,
                 borderRadius: '0',
-                alignSelf: 'flex-end', // Align to bottom
+                alignSelf: 'flex-end',
                 filter: clickedIndex === null ? 'brightness(1.1) saturate(1.05)' : (clickedIndex === index ? 'brightness(1.3) saturate(1.4)' : 'brightness(0.8)'),
                 transition: 'filter 0.3s ease-in-out'
               }}
+              className="lg:w-[100px] lg:h-[500px] xl:w-[120px] xl:h-[550px]"
               onMouseEnter={() => handleColumnHover(index)}
               onMouseLeave={() => handleColumnHover(null)}
               onClick={(e) => {
-                e.stopPropagation(); // Prevent event bubbling to section
+                e.stopPropagation();
                 handleCardClick(index);
               }}
             >
               {/* Service Title - Vertical Text at Top Left Inverted */}
-              <div className="absolute left-4 top-8">
+              <div className="absolute left-3 lg:left-4 top-6 lg:top-8">
                 <h3 
-                  className="column-title text-2xl font-bold text-white leading-none whitespace-nowrap transition-transform duration-300"
+                  className="column-title text-lg lg:text-xl xl:text-2xl font-bold text-white leading-none whitespace-nowrap transition-transform duration-300"
                   style={{ 
                     writingMode: 'vertical-lr',
                     textOrientation: 'mixed',
@@ -877,8 +878,10 @@ export default function ServicesPreview() {
               </div>
               
               {/* Icon at left */}
-              <div className="column-icon absolute bottom-8 left-4 transition-transform duration-300">
-                {service.icon}
+              <div className="column-icon absolute bottom-6 lg:bottom-8 left-3 lg:left-4 transition-transform duration-300">
+                <div className="w-8 lg:w-9 xl:w-10 h-8 lg:h-9 xl:h-10">
+                  {service.icon}
+                </div>
               </div>
 
               {/* Hover overlay */}
@@ -888,7 +891,7 @@ export default function ServicesPreview() {
         </div>
 
         {/* Mobile Layout - Dropdown Style Cards */}
-        <div className="flex lg:hidden flex-col order-first lg:order-last w-full">
+        <div className="flex lg:hidden flex-col order-first lg:order-last w-full gap-1 sm:gap-2">
           {services.map((service, index) => (
             <div
               key={service.title}
@@ -900,21 +903,21 @@ export default function ServicesPreview() {
                 transition: 'filter 0.3s ease-in-out, height 0.3s ease-in-out',
                 height: clickedIndex === index 
                   ? 'auto' 
-                  : '80px', // Same height for all cards - wider
-                width: '100vw', // Full viewport width
-                marginLeft: 'calc(-50vw + 50%)', // Center and extend to full width
+                  : '70px', // Reduced height for mobile
+                width: '100vw',
+                marginLeft: 'calc(-50vw + 50%)',
                 marginRight: 'calc(-50vw + 50%)'
               }}
               onClick={(e) => {
-                e.stopPropagation(); // Prevent event bubbling to section
+                e.stopPropagation();
                 handleCardClick(index);
               }}
             >
               {/* Card Header */}
-              <div className="flex items-start justify-between px-6 py-4">
-                <div className="flex-1">
+              <div className="flex items-start justify-between px-4 sm:px-6 py-3 sm:py-4">
+                <div className="flex-1 min-w-0">
                   <h3 
-                    className="text-lg font-bold leading-tight"
+                    className="text-base sm:text-lg font-bold leading-tight truncate"
                     style={{
                       color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.95)' : '#ffffff'
                     }}
@@ -922,15 +925,15 @@ export default function ServicesPreview() {
                     {service.title}
                   </h3>
                 </div>
-                <div className="flex items-center space-x-3 ml-4">
+                <div className="flex items-center space-x-2 sm:space-x-3 ml-3 sm:ml-4 flex-shrink-0">
                   <div className="flex-shrink-0">
-                    <div className="w-6 h-6 relative filter brightness-0 invert">
+                    <div className="w-5 sm:w-6 h-5 sm:h-6 relative filter brightness-0 invert">
                       {service.icon}
                     </div>
                   </div>
                   <div>
                     <ArrowRight 
-                      className={`w-4 h-4 transition-transform duration-300 ${
+                      className={`w-3 sm:w-4 h-3 sm:h-4 transition-transform duration-300 ${
                         clickedIndex === index ? 'rotate-90' : 'rotate-0'
                       }`}
                       style={{ color: service.backgroundColor === '#8B7D5B' ? 'rgba(0,0,0,0.8)' : '#ffffff' }}
@@ -942,11 +945,11 @@ export default function ServicesPreview() {
               {/* Expandable Content */}
               <div 
                 className={`relative overflow-hidden transition-all duration-500 ease-in-out ${
-                  clickedIndex === index ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                  clickedIndex === index ? 'max-h-[400px] sm:max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
                 }`}
               >
                 <div 
-                  className="px-6 pt-4 pb-6 relative"
+                  className="px-4 sm:px-6 pt-3 sm:pt-4 pb-4 sm:pb-6 relative"
                   style={{
                     borderTop: `1px solid ${service.backgroundColor === '#B8956F' ? 'rgba(255,255,255,0.3)' : 
                                            service.backgroundColor === '#5B8AAE' ? 'rgba(255,255,255,0.4)' : 
@@ -964,22 +967,22 @@ export default function ServicesPreview() {
                     }}
                   />
                   {service.details.map((detail, detailIndex) => (
-                    <div key={detail.number} className="relative mb-2">
+                    <div key={detail.number} className="relative mb-1.5 sm:mb-2">
                       <div 
-                        className="flex items-start space-x-3 cursor-pointer p-2 -m-2 rounded-lg transition-colors duration-200 group"
+                        className="flex items-start space-x-2 sm:space-x-3 cursor-pointer p-1.5 sm:p-2 -m-1.5 sm:-m-2 rounded-lg transition-colors duration-200 group"
                         onClick={(e) => handleServiceNavigationTap(detail, e)}
                       >
                         <span 
-                          className="font-bold text-sm min-w-[2rem] group-hover:scale-105 transition-all duration-200"
+                          className="font-bold text-xs sm:text-sm min-w-[1.5rem] sm:min-w-[2rem] group-hover:scale-105 transition-all duration-200 flex-shrink-0"
                           style={{
                             color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.8)' : '#ffffff'
                           }}
                         >
                           {detail.number}
                         </span>
-                        <div className="space-y-1 flex-1">
+                        <div className="space-y-0.5 sm:space-y-1 flex-1 min-w-0">
                           <h4 
-                            className="font-medium text-sm group-hover:font-semibold transition-all duration-200"
+                            className="font-medium text-xs sm:text-sm group-hover:font-semibold transition-all duration-200 leading-tight"
                             style={{
                               color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.95)' : '#ffffff'
                             }}
@@ -996,9 +999,9 @@ export default function ServicesPreview() {
                           </p>
                         </div>
                         {detail.slug && (
-                          <div className="flex items-center group-hover:scale-110 transition-transform duration-200">
+                          <div className="flex items-center group-hover:scale-110 transition-transform duration-200 flex-shrink-0">
                             <svg 
-                              className="w-3 h-3 transform group-hover:translate-x-1 transition-transform duration-200" 
+                              className="w-2.5 sm:w-3 h-2.5 sm:h-3 transform group-hover:translate-x-1 transition-transform duration-200" 
                               fill="none" 
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1018,7 +1021,7 @@ export default function ServicesPreview() {
                           const serviceKey = `${detail.number}-${detail.title}`;
                           confirmationRefs.current[serviceKey] = el;
                         }}
-                        className={`absolute right-2 top-2 bg-white text-slate-800 text-xs px-2 py-1 rounded-full shadow-lg pointer-events-none z-20 ${
+                        className={`absolute right-1.5 sm:right-2 top-1.5 sm:top-2 bg-white text-slate-800 text-xs px-2 py-1 rounded-full shadow-lg pointer-events-none z-20 ${
                           selectedForNavigation === `${detail.number}-${detail.title}` ? 'block' : 'hidden'
                         }`}
                         style={{ opacity: 0 }}

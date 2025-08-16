@@ -46,38 +46,35 @@ export const AttorneyGSAPCarousel: React.FC = () => {
 
   return (
     <>
-      <section className="py-16 pb-24 bg-neutral-50">
+      <section className="py-12 sm:py-16 pb-16 sm:pb-24 bg-neutral-50">
         <div className="w-full" style={{ margin: 0, padding: 0 }}>
           {/* Section Header */}
-          <div className="text-center mb-12 px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12 px-4 sm:px-6 lg:px-8">
             <span 
-              className="font-normal mb-4 block uppercase tracking-[0.2em] text-sm"
+              className="font-normal mb-3 sm:mb-4 block uppercase tracking-[0.2em] text-xs sm:text-sm"
               style={{ color: '#ad866b' }}
             >
               Nuestro Equipo Legal
             </span>
             <h2 
-              className="text-slate-800 mb-6"
+              className="text-slate-800 mb-4 sm:mb-6 text-2xl xs:text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-light leading-tight"
               style={{
-                fontSize: '48px',
-                fontWeight: '300',
-                lineHeight: '1.2',
                 fontFamily: 'Minion Pro, serif'
               }}
             >
               Abogados <span style={{ color: '#ad866b', fontStyle: 'italic' }}>Especialistas</span>
             </h2>
-            <p className="text-lg text-slate-600 max-w-3xl mx-auto font-light">
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl sm:max-w-3xl mx-auto font-light px-4 sm:px-0">
               Conozca a nuestro equipo de profesionales con décadas de experiencia
             </p>
           </div>
 
-          {/* Simple Cards Container - Mobile Responsive */}
+          {/* Cards Container - Fully Responsive */}
           <div className="relative w-full">
             <div
               className="relative w-full overflow-hidden"
               style={{
-                height: 'clamp(500px, 60vh, 650px)', // Mobile responsive height - more rectangular
+                height: 'clamp(400px, 50vh, 650px)', // More responsive height range
                 margin: 0,
                 padding: 0
               }}
@@ -85,7 +82,7 @@ export const AttorneyGSAPCarousel: React.FC = () => {
               <div
                 className="flex h-full w-full"
                 style={{
-                  gap: 'clamp(5px, 1vw, 10px)', // Mobile responsive gap
+                  gap: 'clamp(2px, 0.5vw, 10px)', // Tighter responsive gap
                   margin: 0,
                   padding: 0
                 }}
@@ -173,7 +170,7 @@ const AttorneyDetailModal: React.FC<AttorneyDetailModalProps> = ({ attorney, onC
   return (
     <div 
       ref={modalRef}
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4"
     >
       {/* Backdrop */}
       <div 
@@ -184,22 +181,22 @@ const AttorneyDetailModal: React.FC<AttorneyDetailModalProps> = ({ attorney, onC
       {/* Modal Content */}
       <div 
         ref={contentRef}
-        className="attorney-modal-content relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto"
+        className="attorney-modal-content relative bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-xs sm:max-w-lg md:max-w-3xl lg:max-w-5xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 w-12 h-12 flex items-center justify-center rounded-full bg-white/90 hover:bg-white transition-colors shadow-lg"
+          className="absolute top-3 sm:top-4 lg:top-6 right-3 sm:right-4 lg:right-6 z-10 w-8 sm:w-10 lg:w-12 h-8 sm:h-10 lg:h-12 flex items-center justify-center rounded-full bg-white/90 hover:bg-white transition-colors shadow-lg"
         >
-          <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        {/* Two Column Layout */}
+        {/* Responsive Layout */}
         <div className="flex flex-col lg:flex-row min-h-full">
           {/* Left Column - Image */}
-          <div className="relative lg:w-2/5 h-64 lg:h-auto">
+          <div className="relative lg:w-2/5 h-48 xs:h-56 sm:h-64 lg:h-auto">
             <Image
               src={attorney.image}
               alt={attorney.name}
@@ -209,11 +206,11 @@ const AttorneyDetailModal: React.FC<AttorneyDetailModalProps> = ({ attorney, onC
             <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/50 to-transparent" />
             
             {/* Name Overlay on Image */}
-            <div className="absolute bottom-0 left-0 p-8">
-              <h2 className="text-4xl font-light text-white mb-2">{attorney.name}</h2>
-              <p className="text-amber-400 text-lg">{attorney.position}</p>
+            <div className="absolute bottom-0 left-0 p-4 sm:p-6 lg:p-8">
+              <h2 className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-light text-white mb-1 sm:mb-2">{attorney.name}</h2>
+              <p className="text-amber-400 text-sm sm:text-base lg:text-lg">{attorney.position}</p>
               {attorney.isPartner && (
-                <span className="inline-block mt-2 bg-amber-600 text-white px-3 py-1 text-xs font-medium uppercase tracking-wider rounded">
+                <span className="inline-block mt-1 sm:mt-2 bg-amber-600 text-white px-2 sm:px-3 py-1 text-xs font-medium uppercase tracking-wider rounded">
                   Socio
                 </span>
               )}
@@ -221,17 +218,17 @@ const AttorneyDetailModal: React.FC<AttorneyDetailModalProps> = ({ attorney, onC
           </div>
 
           {/* Right Column - Content */}
-          <div className="flex-1 p-8 lg:p-12">
+          <div className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-12">
             {/* Quick Info */}
-            <div className="flex flex-wrap gap-4 mb-8">
-              <div className="flex items-center text-slate-600">
-                <svg className="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex flex-col xs:flex-row xs:flex-wrap gap-2 sm:gap-4 mb-6 sm:mb-8">
+              <div className="flex items-center text-slate-600 text-sm sm:text-base">
+                <svg className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>{attorney.experience} años de experiencia</span>
               </div>
-              <div className="flex items-center text-slate-600">
-                <svg className="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center text-slate-600 text-sm sm:text-base">
+                <svg className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                 </svg>
                 <span>{attorney.languages.join(', ')}</span>
@@ -239,15 +236,15 @@ const AttorneyDetailModal: React.FC<AttorneyDetailModalProps> = ({ attorney, onC
             </div>
 
             {/* Biography */}
-            <div className="mb-8">
-              <h3 className="text-2xl font-light text-slate-800 mb-4">Biografía</h3>
-              <p className="text-slate-600 leading-relaxed">{attorney.bio}</p>
+            <div className="mb-6 sm:mb-8">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-light text-slate-800 mb-3 sm:mb-4">Biografía</h3>
+              <p className="text-slate-600 leading-relaxed text-sm sm:text-base">{attorney.bio}</p>
             </div>
 
             {/* Specializations */}
-            <div className="mb-8">
-              <h3 className="text-2xl font-light text-slate-800 mb-4">Especialización</h3>
-              <div className="flex flex-wrap gap-2">
+            <div className="mb-6 sm:mb-8">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-light text-slate-800 mb-3 sm:mb-4">Especialización</h3>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {attorney.specialization.map((spec, index) => (
                   <span
                     key={index}

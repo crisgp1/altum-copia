@@ -28,7 +28,8 @@ const navItems: NavItem[] = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false); // 🔄 UPDATE 2: Added scroll state
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<HTMLDivElement[]>([]);
@@ -42,16 +43,23 @@ export default function Navbar() {
     router.push('/');
   };
 
-  // 🔄 UPDATE 3: NEW - Scroll detection effect for logo switching
+  // Mount detection to prevent hydration mismatch
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Scroll detection effect for logo switching
+  useEffect(() => {
+    if (!isMounted) return;
+    
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50); // Switch logos after 50px scroll
+      setIsScrolled(scrollTop > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMounted]);
 
   useEffect(() => {
     if (isOpen) {
@@ -193,25 +201,25 @@ export default function Navbar() {
             background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(183,159,118,0.1) 100%)'
           }}
         >
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="flex justify-between items-center h-20">
-              {/* 🔄 UPDATE 4: HYBRID - Text logo initially, cropped logo on scroll + Home redirect */}
-              <div className="flex items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16 sm:h-18 lg:h-20">
+              {/* Logo Section - Responsive */}
+              <div className="flex items-center flex-shrink-0 min-w-0">
                 <button
                   onClick={handleLogoClick}
-                  className="relative hover:opacity-80 transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-50 rounded-md p-2"
+                  className="relative hover:opacity-80 transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-50 rounded-md p-1 sm:p-2"
                   aria-label="Ir al inicio"
                 >
                   {/* Text Logo - Initial State */}
                   <div
-                    className={`text-lg leading-tight transition-all duration-500 ease-out ${
-                      isScrolled ? 'opacity-0 transform scale-95 -translate-y-2' : 'opacity-100 transform scale-100 translate-y-0'
+                    className={`text-sm sm:text-base lg:text-lg leading-tight transition-all duration-500 ease-out ${
+                      isMounted && isScrolled ? 'opacity-0 transform scale-95 -translate-y-2' : 'opacity-100 transform scale-100 translate-y-0'
                     }`}
                     style={{
-                      position: isScrolled ? 'absolute' : 'relative',
-                      top: isScrolled ? '50%' : '0',
-                      left: isScrolled ? '50%' : '0',
-                      transform: isScrolled ? 'translate(-50%, -50%) scale(0.95)' : 'none'
+                      position: isMounted && isScrolled ? 'absolute' : 'relative',
+                      top: isMounted && isScrolled ? '50%' : '0',
+                      left: isMounted && isScrolled ? '50%' : '0',
+                      transform: isMounted && isScrolled ? 'translate(-50%, -50%) scale(0.95)' : 'none'
                     }}
                   >
                     <span className="altum-brand text-slate-800">ALTUM</span>{' '}
@@ -221,42 +229,43 @@ export default function Navbar() {
                   {/* Cropped Logo - Scrolled State */}
                   <div
                     className={`transition-all duration-500 ease-out ${
-                      isScrolled ? 'opacity-100 transform scale-100 translate-y-0' : 'opacity-0 transform scale-105 translate-y-2'
+                      isMounted && isScrolled ? 'opacity-100 transform scale-100 translate-y-0' : 'opacity-0 transform scale-105 translate-y-2'
                     }`}
                     style={{
-                      position: isScrolled ? 'relative' : 'absolute',
-                      top: isScrolled ? '0' : '50%',
-                      left: isScrolled ? '0' : '50%',
-                      transform: isScrolled ? 'none' : 'translate(-50%, -50%) scale(1.05)'
+                      position: isMounted && isScrolled ? 'relative' : 'absolute',
+                      top: isMounted && isScrolled ? '0' : '50%',
+                      left: isMounted && isScrolled ? '0' : '50%',
+                      transform: isMounted && isScrolled ? 'none' : 'translate(-50%, -50%) scale(1.05)'
                     }}
                   >
                     <Image
-                      src="/images/attorneys/logos/logo-cropped.png"
+                      src="/images/attorneys/logos/logo-dark.png"
                       alt="Altum Legal"
-                      width={60}
-                      height={14}
-                      className="object-contain"
+                      width={120}
+                      height={30}
+                      className="object-contain w-[85px] h-auto sm:w-[95px] sm:h-auto lg:w-[120px] lg:h-auto"
                       priority
                     />
                   </div>
                 </button>
               </div>
 
-              {/* Auth Section */}
-              <div className="flex items-center gap-4 mr-4">
+              {/* Auth Section - Responsive */}
+              <div className="hidden sm:flex items-center gap-2 sm:gap-3 lg:gap-4 mr-2 sm:mr-3 lg:mr-4">
                 <SignedOut>
                   <SignInButton mode="modal">
-                    <button className="text-xs font-medium text-slate-700 hover:text-slate-900 transition-colors">
+                    <button className="text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors px-2 py-1">
                       Iniciar Sesión
                     </button>
                   </SignInButton>
                   <SignUpButton mode="modal">
-                    <button className="px-4 py-2 text-xs font-medium text-white rounded-full transition-colors"
+                    <button className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white rounded-full transition-colors"
                       style={{ backgroundColor: '#B79F76' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#152239'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#B79F76'}
                     >
-                      Registrarse
+                      <span className="hidden sm:inline">Registrarse</span>
+                      <span className="sm:hidden">Registro</span>
                     </button>
                   </SignUpButton>
                 </SignedOut>
@@ -264,28 +273,41 @@ export default function Navbar() {
                   <UserButton 
                     appearance={{
                       elements: {
-                        avatarBox: "w-8 h-8"
+                        avatarBox: "w-7 h-7 sm:w-8 sm:h-8"
                       }
                     }}
                   />
                 </SignedIn>
               </div>
 
-              {/* Elegant Menu Button */}
+              {/* Mobile Auth Section */}
+              <div className="flex sm:hidden items-center gap-2 mr-2">
+                <SignedIn>
+                  <UserButton 
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-6 h-6"
+                      }
+                    }}
+                  />
+                </SignedIn>
+              </div>
+
+              {/* Menu Button - Responsive */}
               <button
                 onClick={toggleMenu}
-                className="group relative w-12 h-12 bg-transparent flex flex-col justify-center items-center space-y-1.5 focus:outline-none transition-all duration-300"
+                className="group relative w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 bg-transparent flex flex-col justify-center items-center space-y-1 sm:space-y-1.5 focus:outline-none transition-all duration-300 flex-shrink-0"
               >
                 <span 
-                  className={`w-6 h-0.5 transition-all duration-500 ease-out ${isOpen ? 'rotate-45 translate-y-2' : ''}`}
+                  className={`w-5 sm:w-6 h-0.5 transition-all duration-500 ease-out ${isOpen ? 'rotate-45 translate-y-1.5 sm:translate-y-2' : ''}`}
                   style={{ backgroundColor: '#B79F76' }}
                 ></span>
                 <span 
-                  className={`w-6 h-0.5 transition-all duration-300 ${isOpen ? 'opacity-0' : ''}`}
+                  className={`w-5 sm:w-6 h-0.5 transition-all duration-300 ${isOpen ? 'opacity-0' : ''}`}
                   style={{ backgroundColor: '#B79F76' }}
                 ></span>
                 <span 
-                  className={`w-6 h-0.5 transition-all duration-500 ease-out ${isOpen ? '-rotate-45 -translate-y-2' : ''}`}
+                  className={`w-5 sm:w-6 h-0.5 transition-all duration-500 ease-out ${isOpen ? '-rotate-45 -translate-y-1.5 sm:-translate-y-2' : ''}`}
                   style={{ backgroundColor: '#B79F76' }}
                 ></span>
               </button>
@@ -343,8 +365,8 @@ export default function Navbar() {
           </button>
 
           {/* Menu Items - High contrast for visibility */}
-          <div className="w-full max-w-6xl mx-auto px-6 lg:px-16 xl:px-20">
-            <div className="text-left space-y-6 md:space-y-5 lg:space-y-6 xl:space-y-8">
+          <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-16 xl:px-20">
+            <div className="text-left space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6 xl:space-y-8">
               {navItems.map((item, index) => (
                 <div
                   key={item.href}
@@ -357,7 +379,7 @@ export default function Navbar() {
                       e.preventDefault();
                       handleNavClick(item.href);
                     }}
-                    className="group block text-2xl md:text-2xl lg:text-3xl xl:text-3xl font-light cursor-pointer leading-tight relative"
+                    className="group block text-xl sm:text-2xl md:text-2xl lg:text-3xl xl:text-3xl font-light cursor-pointer leading-tight relative"
                     style={{
                       fontFamily: 'Minion Pro, serif',
                       color: '#0f172a',
@@ -369,7 +391,7 @@ export default function Navbar() {
                     </span>
                     {/* Elegant underline effect */}
                     <div 
-                      className="absolute bottom-0 left-0 h-0.5 w-0 transition-all duration-500 group-hover:w-16"
+                      className="absolute bottom-0 left-0 h-0.5 w-0 transition-all duration-500 group-hover:w-12 sm:group-hover:w-16"
                       style={{ backgroundColor: '#B79F76' }}
                     ></div>
                   </a>
@@ -377,8 +399,30 @@ export default function Navbar() {
               ))}
             </div>
             
+            {/* Mobile Auth Section in Menu */}
+            <div className="flex sm:hidden justify-center pt-8 pb-4 border-t border-slate-200 mt-8">
+              <SignedOut>
+                <div className="flex flex-col gap-3 w-full max-w-xs">
+                  <SignInButton mode="modal">
+                    <button className="w-full text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors px-4 py-3 border border-slate-300 rounded-lg">
+                      Iniciar Sesión
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="w-full px-4 py-3 text-sm font-medium text-white rounded-lg transition-colors"
+                      style={{ backgroundColor: '#B79F76' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#152239'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#B79F76'}
+                    >
+                      Registrarse
+                    </button>
+                  </SignUpButton>
+                </div>
+              </SignedOut>
+            </div>
+            
             {/* Sophisticated CTA Button */}
-            <div className="text-left pt-12 lg:pt-16">
+            <div className="text-left pt-8 sm:pt-10 lg:pt-16">
               <button
                 ref={ctaButtonRef}
                 onClick={() => {
@@ -391,7 +435,7 @@ export default function Navbar() {
                     }
                   }, 200);
                 }}
-                className="group rounded-full px-10 py-4 text-base font-medium transition-colors duration-500 shadow-xl"
+                className="group rounded-full px-6 sm:px-8 lg:px-10 py-3 sm:py-4 text-sm sm:text-base font-medium transition-colors duration-500 shadow-xl w-full sm:w-auto"
                 style={{
                   backgroundColor: '#152239',
                   border: '2px solid #152239',
@@ -406,10 +450,11 @@ export default function Navbar() {
                   e.currentTarget.style.border = '2px solid #152239';
                 }}
               >
-                <span className="flex items-center" style={{ color: '#FFFFFF' }}>
-                  Consulta Gratuita
+                <span className="flex items-center justify-center" style={{ color: '#FFFFFF' }}>
+                  <span className="hidden sm:inline">Consulta Gratuita</span>
+                  <span className="sm:hidden">Consulta</span>
                   <svg 
-                    className="ml-3 w-5 h-5 transition-transform duration-500 group-hover:translate-x-2" 
+                    className="ml-2 sm:ml-3 w-4 sm:w-5 h-4 sm:h-5 transition-transform duration-500 group-hover:translate-x-1 sm:group-hover:translate-x-2" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"

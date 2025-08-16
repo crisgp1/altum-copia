@@ -163,38 +163,38 @@ export default function ContactSection() {
     <section
       id="contact"
       ref={sectionRef}
-      className="py-24 bg-slate-800"
+      className="py-16 sm:py-20 lg:py-24 bg-slate-800"
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <span className="text-amber-400 font-medium text-sm uppercase tracking-wider mb-4 block">
+        <div className="text-center mb-12 sm:mb-16">
+          <span className="text-amber-400 font-medium text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4 block">
             Contacto Profesional
           </span>
           <h2
             ref={titleRef}
-            className="text-4xl md:text-5xl text-white mb-6 leading-tight"
+            className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl text-white mb-4 sm:mb-6 leading-tight"
             style={{ fontFamily: 'Minion Pro, serif', fontWeight: 'bold' }}
           >
             ¿Necesita <span className="text-amber-400 italic">Asesoría Legal</span>?
           </h2>
-          <p className="text-lg text-slate-300 max-w-3xl mx-auto font-light">
+          <p className="text-base sm:text-lg text-slate-300 max-w-2xl sm:max-w-3xl mx-auto font-light px-4 sm:px-0">
             Contáctenos hoy mismo para una consulta gratuita. 
             Estamos aquí para proteger sus intereses legales.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16">
           {/* Contact Form */}
-          <div ref={formRef} className="bg-white p-8 border border-stone-200">
-            <h3 className="text-2xl text-slate-800 mb-6" style={{ fontFamily: 'Minion Pro, serif', fontWeight: 'bold' }}>
+          <div ref={formRef} className="bg-white p-4 sm:p-6 lg:p-8 border border-stone-200">
+            <h3 className="text-xl sm:text-2xl text-slate-800 mb-4 sm:mb-6" style={{ fontFamily: 'Minion Pro, serif', fontWeight: 'bold' }}>
               Consulta Gratuita
             </h3>
             
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-2">
                     Nombre completo *
                   </label>
                   <input
@@ -203,18 +203,18 @@ export default function ContactSection() {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className={`w-full px-4 py-3 border transition-all duration-200 focus:outline-none focus:ring-1 ${
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 border transition-all duration-200 focus:outline-none focus:ring-1 text-sm sm:text-base ${
                       errors.name 
                         ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
                         : 'border-stone-300 focus:ring-amber-500 focus:border-amber-500'
                     }`}
                   />
                   {errors.name && (
-                    <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                    <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.name}</p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-2">
                     Correo electrónico *
                   </label>
                   <input
@@ -223,21 +223,21 @@ export default function ContactSection() {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className={`w-full px-4 py-3 border transition-all duration-200 focus:outline-none focus:ring-1 ${
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 border transition-all duration-200 focus:outline-none focus:ring-1 text-sm sm:text-base ${
                       errors.email 
                         ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
                         : 'border-stone-300 focus:ring-amber-500 focus:border-amber-500'
                     }`}
                   />
                   {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                    <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.email}</p>
                   )}
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-2">
                     Teléfono
                   </label>
                   <input
@@ -245,25 +245,25 @@ export default function ContactSection() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border transition-all duration-200 focus:outline-none focus:ring-1 ${
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 border transition-all duration-200 focus:outline-none focus:ring-1 text-sm sm:text-base ${
                       errors.phone 
                         ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
                         : 'border-stone-300 focus:ring-amber-500 focus:border-amber-500'
                     }`}
                   />
                   {errors.phone && (
-                    <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                    <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.phone}</p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-2">
                     Área de interés
                   </label>
                   <select 
                     name="area"
                     value={formData.area}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-stone-300 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 text-sm sm:text-base"
                   >
                     <option value="">Seleccione un área</option>
                     <option value="corporativo">Derecho Corporativo</option>
@@ -275,7 +275,7 @@ export default function ContactSection() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-2">
                   Describa su consulta *
                 </label>
                 <textarea
@@ -284,28 +284,29 @@ export default function ContactSection() {
                   onChange={handleInputChange}
                   required
                   rows={4}
-                  className={`w-full px-4 py-3 border transition-all duration-200 focus:outline-none focus:ring-1 resize-none ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 border transition-all duration-200 focus:outline-none focus:ring-1 resize-none text-sm sm:text-base ${
                     errors.message 
                       ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
                       : 'border-stone-300 focus:ring-amber-500 focus:border-amber-500'
                   }`}
                 ></textarea>
                 {errors.message && (
-                  <p className="mt-1 text-sm text-red-600">{errors.message}</p>
+                  <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.message}</p>
                 )}
               </div>
               
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full bg-slate-800 text-white px-8 py-4 font-medium transition-all duration-300 inline-flex items-center justify-center ${
+                className={`w-full bg-slate-800 text-white px-6 sm:px-8 py-3 sm:py-4 font-medium transition-all duration-300 inline-flex items-center justify-center text-sm sm:text-base ${
                   isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-700'
                 }`}
+                style={{ minHeight: '44px' }}
               >
                 <span>{isSubmitting ? 'Enviando...' : 'Enviar Consulta'}</span>
                 {!isSubmitting && (
                   <svg 
-                    className="ml-2 w-4 h-4" 
+                    className="ml-2 w-3 sm:w-4 h-3 sm:h-4" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
@@ -318,32 +319,34 @@ export default function ContactSection() {
           </div>
 
           {/* Contact Information */}
-          <div ref={contactRef} className="space-y-8">
+          <div ref={contactRef} className="space-y-6 sm:space-y-8">
             <div>
-              <h3 className="text-2xl text-white mb-6" style={{ fontFamily: 'Minion Pro, serif', fontWeight: 'bold' }}>
+              <h3 className="text-xl sm:text-2xl text-white mb-4 sm:mb-6" style={{ fontFamily: 'Minion Pro, serif', fontWeight: 'bold' }}>
                 Información de Contacto
               </h3>
-              <p className="text-slate-300 text-lg leading-relaxed mb-8 font-light">
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-6 sm:mb-8 font-light">
                 Nuestro equipo está disponible para atenderle de lunes a viernes 
                 de 9:00 AM a 7:00 PM. Para casos urgentes, contamos con atención 24/7.
               </p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {contactInfo.map((item, index) => (
                 <a
                   key={index}
                   href={item.href}
-                  className="flex items-center p-6 bg-slate-700 border border-slate-600 hover:border-amber-500 transition-all duration-300 group"
+                  className="flex items-center p-4 sm:p-6 bg-slate-700 border border-slate-600 hover:border-amber-500 transition-all duration-300 group"
                 >
-                  <div className="w-12 h-12 bg-amber-600 text-white flex items-center justify-center mr-4 group-hover:bg-amber-500 transition-colors duration-200">
-                    {item.icon}
+                  <div className="w-10 sm:w-12 h-10 sm:h-12 bg-amber-600 text-white flex items-center justify-center mr-3 sm:mr-4 group-hover:bg-amber-500 transition-colors duration-200 flex-shrink-0">
+                    <div className="w-5 sm:w-6 h-5 sm:h-6">
+                      {item.icon}
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-slate-400 text-sm font-medium">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-slate-400 text-xs sm:text-sm font-medium">
                       {item.title}
                     </div>
-                    <div className="text-white font-medium">
+                    <div className="text-white font-medium text-sm sm:text-base leading-tight">
                       {item.info}
                     </div>
                   </div>
@@ -351,9 +354,9 @@ export default function ContactSection() {
               ))}
             </div>
 
-            <div className="bg-slate-700 border border-slate-600 p-6">
-              <h4 className="text-white mb-4" style={{ fontFamily: 'Minion Pro, serif', fontWeight: 'bold' }}>Horarios de Atención</h4>
-              <div className="space-y-2 text-slate-300">
+            <div className="bg-slate-700 border border-slate-600 p-4 sm:p-6">
+              <h4 className="text-white mb-3 sm:mb-4 text-base sm:text-lg" style={{ fontFamily: 'Minion Pro, serif', fontWeight: 'bold' }}>Horarios de Atención</h4>
+              <div className="space-y-2 text-slate-300 text-sm sm:text-base">
                 <div className="flex justify-between font-light">
                   <span>Lunes - Viernes:</span>
                   <span>9:00 AM - 7:00 PM</span>
