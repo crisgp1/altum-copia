@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     const useCase = container.getCreateAttorneyUseCase();
 
     const createData = AttorneyMapper.fromCreateDTO(body);
-    const attorney = await useCase.execute(createData);
+    const attorney = await useCase.execute(createData as any);
     const response = AttorneyMapper.toResponseDTO(attorney);
 
     return NextResponse.json(response, { status: 201 });

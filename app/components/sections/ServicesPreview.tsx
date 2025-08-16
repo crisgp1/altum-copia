@@ -656,7 +656,7 @@ export default function ServicesPreview() {
   return (
     <section
       ref={sectionRef}
-      className="py-24 bg-white relative"
+      className="py-24 bg-white relative overflow-hidden"
       onClick={(e) => {
         // Check if click is outside all cards - reset selection
         if (e.target === sectionRef.current || e.target === e.currentTarget) {
@@ -666,13 +666,13 @@ export default function ServicesPreview() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8" onClick={(e) => {
         // Allow clicks on content to reset selection too
-        if (!e.target.closest('[data-service-card]')) {
+        if (!(e.target as HTMLElement).closest('[data-service-card]')) {
           setClickedIndex(null);
         }
       }}>
         <div className="relative flex flex-col lg:flex-row h-auto lg:h-[550px] gap-8 lg:gap-0">
           {/* Mobile Title */}
-          <div className="lg:hidden mb-6">
+          <div className="lg:hidden mb-12">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-800 leading-tight text-center">
               Nuestros Servicios
             </h2>
@@ -684,11 +684,11 @@ export default function ServicesPreview() {
           </div>
 
           {/* Left Side - Dynamic ALTUM Content - Responsive */}
-          <div ref={leftContentRef} className="flex flex-1 flex-col justify-center items-center text-center lg:pr-24 lg:max-w-2xl">
+          <div ref={leftContentRef} className={`flex flex-1 flex-col justify-center items-center text-center lg:pr-24 lg:max-w-2xl ${clickedIndex !== null ? 'hidden lg:flex' : ''}`}>
             {clickedIndex === null ? (
               // Simple default content - Centered and Responsive
               <>
-                <div className="space-y-6 lg:space-y-8">
+                <div className="space-y-6 lg:space-y-8 mb-12 lg:mb-0">
                   <h2 
                     ref={titleRef}
                     className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-slate-800 leading-tight"
@@ -831,9 +831,9 @@ export default function ServicesPreview() {
 
 
       {/* Right Side - Vertical Service Columns - Responsive Layout */}
-      <div ref={rightContentRef} className="lg:absolute lg:-right-10 lg:top-24 lg:h-[550px] w-full lg:w-auto">
+      <div ref={rightContentRef} className="lg:absolute lg:right-0 lg:top-24 lg:h-[550px] w-full lg:w-auto">
         {/* Desktop Layout - Wallet Cards */}
-        <div className="hidden lg:flex h-full items-end justify-end">
+        <div className="hidden lg:flex h-full items-end justify-end overflow-hidden">
           {services.map((service, index) => (
             <div
               key={service.title}
@@ -924,12 +924,8 @@ export default function ServicesPreview() {
                 </div>
                 <div className="flex items-center space-x-3 ml-4">
                   <div className="flex-shrink-0">
-                    <div className="w-6 h-6 relative">
-                      {React.cloneElement(service.icon as React.ReactElement, {
-                        width: 24,
-                        height: 24,
-                        className: "filter brightness-0 invert"
-                      })}
+                    <div className="w-6 h-6 relative filter brightness-0 invert">
+                      {service.icon}
                     </div>
                   </div>
                   <div>
@@ -946,11 +942,11 @@ export default function ServicesPreview() {
               {/* Expandable Content */}
               <div 
                 className={`relative overflow-hidden transition-all duration-500 ease-in-out ${
-                  clickedIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                  clickedIndex === index ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
                 }`}
               >
                 <div 
-                  className="px-6 pb-8 space-y-3 relative"
+                  className="px-6 pt-4 pb-6 relative"
                   style={{
                     borderTop: `1px solid ${service.backgroundColor === '#B8956F' ? 'rgba(255,255,255,0.3)' : 
                                            service.backgroundColor === '#5B8AAE' ? 'rgba(255,255,255,0.4)' : 
@@ -958,23 +954,23 @@ export default function ServicesPreview() {
                                            'rgba(255,255,255,0.5)'}`
                   }}
                 >
-                  {/* Soft gradient overlay at the bottom - fixed positioning for scroll */}
+                  {/* Left bar indicator for expanded content */}
                   <div 
-                    className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none z-10"
+                    className="absolute left-0 top-0 bottom-0 w-1"
                     style={{
-                      background: `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.05) 30%, ${service.backgroundColor} 100%)`,
-                      position: 'sticky',
-                      bottom: 0
+                      backgroundColor: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') 
+                        ? 'rgba(0,0,0,0.2)' 
+                        : 'rgba(255,255,255,0.3)'
                     }}
-                  ></div>
+                  />
                   {service.details.map((detail, detailIndex) => (
-                    <div key={detail.number} className="pt-3 first:pt-4 relative">
+                    <div key={detail.number} className="relative mb-2">
                       <div 
-                        className="flex items-start space-x-3 cursor-pointer p-2 -m-2 rounded-lg hover:bg-black hover:bg-opacity-10 transition-colors duration-200 group"
+                        className="flex items-start space-x-3 cursor-pointer p-2 -m-2 rounded-lg transition-colors duration-200 group"
                         onClick={(e) => handleServiceNavigationTap(detail, e)}
                       >
                         <span 
-                          className="font-bold text-sm min-w-[2rem] group-hover:opacity-80 transition-opacity duration-200"
+                          className="font-bold text-sm min-w-[2rem] group-hover:scale-105 transition-all duration-200"
                           style={{
                             color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.8)' : '#ffffff'
                           }}
@@ -983,7 +979,7 @@ export default function ServicesPreview() {
                         </span>
                         <div className="space-y-1 flex-1">
                           <h4 
-                            className="font-medium text-sm group-hover:opacity-90 transition-opacity duration-200"
+                            className="font-medium text-sm group-hover:font-semibold transition-all duration-200"
                             style={{
                               color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.95)' : '#ffffff'
                             }}
@@ -991,7 +987,7 @@ export default function ServicesPreview() {
                             {detail.title}
                           </h4>
                           <p 
-                            className="text-xs leading-relaxed group-hover:opacity-80 transition-opacity duration-200"
+                            className="text-xs leading-relaxed group-hover:text-opacity-90 transition-all duration-200"
                             style={{
                               color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.95)'
                             }}
@@ -1000,7 +996,7 @@ export default function ServicesPreview() {
                           </p>
                         </div>
                         {detail.slug && (
-                          <div className="flex items-center group-hover:opacity-70 transition-opacity duration-200">
+                          <div className="flex items-center group-hover:scale-110 transition-transform duration-200">
                             <svg 
                               className="w-3 h-3 transform group-hover:translate-x-1 transition-transform duration-200" 
                               fill="none" 
