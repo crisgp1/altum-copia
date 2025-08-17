@@ -13,9 +13,9 @@ export default function Footer() {
               <Image
                 src="/images/attorneys/logos/logo-dark.png"
                 alt="Altum Legal"
-                width={120}
-                height={30}
-                className="object-contain brightness-0 invert sm:w-[140px] sm:h-[35px]"
+                width={180}
+                height={45}
+                className="object-contain brightness-0 invert sm:w-[200px] sm:h-[50px] lg:w-[220px] lg:h-[55px]"
               />
             </div>
             <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">

@@ -43,7 +43,7 @@ interface VerticalServiceWithDetails extends VerticalService {
 // Default service colors (can be customized per service later)
 const defaultColors = [
   '#B79F76', // Gold
-  '#152239', // Dark Blue
+  '#2563eb', // Blue (instead of very dark blue)
   '#A89B7A', // Sage
   '#5B8AAE', // Light Blue
   '#C5B299', // Beige
@@ -507,7 +507,7 @@ export default function ServicesPreview() {
           </div>
 
           {/* Left Side - Dynamic ALTUM Content - Responsive */}
-          <div ref={leftContentRef} className={`flex flex-1 flex-col justify-center items-center text-center lg:pr-16 xl:pr-24 lg:max-w-2xl xl:max-w-3xl ${clickedIndex !== null ? 'hidden lg:flex' : ''}`}>
+          <div ref={leftContentRef} className="flex flex-1 flex-col justify-center items-center text-center lg:pr-16 xl:pr-24 lg:max-w-2xl xl:max-w-3xl bg-white">
             {clickedIndex === null ? (
               // Simple default content - Centered and Responsive
               <>
@@ -530,10 +530,10 @@ export default function ServicesPreview() {
               </>
             ) : (
               // Selected service content - Left aligned
-              <div className="w-full text-left self-start px-4 lg:px-0">
+              <div className="w-full text-left self-start px-4 lg:px-0 bg-white min-h-[400px]">
                 <div className="space-y-4 sm:space-y-6">
                   {/* Clickeable Header - Smart for desktop/tablet */}
-                  {!isTouchDevice || window.innerWidth > 768 ? (
+                  {(!isTouchDevice || (typeof window !== 'undefined' && window.innerWidth > 768)) ? (
                     <div
                       className="cursor-pointer group"
                       onTouchStart={handleTouchStart}
@@ -678,26 +678,86 @@ export default function ServicesPreview() {
               <p className="text-slate-600">No hay servicios disponibles</p>
             </div>
           ) : (
-            services.map((service, index) => (
+            [
+              // Add "Ver más servicios" card FIRST if there are more than 5 services
+              ...(services.length > 5 ? [
+                <div
+                  key="more-services"
+                  ref={(el) => {
+                    if (el) columnRefs.current[0] = el;
+                  }}
+                  data-service-card
+                  className="relative flex flex-col items-center justify-center text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden w-[100px] h-[500px] lg:w-[100px] lg:h-[500px] xl:w-[120px] xl:h-[550px]"
+                  style={{ 
+                    backgroundColor: '#2563eb',
+                    marginLeft: '0px',
+                    zIndex: 1,
+                    borderRadius: '0',
+                    alignSelf: 'flex-end',
+                    filter: 'brightness(1.1) saturate(1.05)',
+                    transition: 'filter 0.3s ease-in-out'
+                  }}
+                  onMouseEnter={() => {}}
+                  onMouseLeave={() => {}}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push('/services');
+                  }}
+                >
+                  {/* "Ver más servicios" text - vertical */}
+                  <div className="absolute left-3 lg:left-4 top-6 lg:top-8">
+                    <h3 
+                      className="text-sm lg:text-base xl:text-lg font-bold text-white leading-none whitespace-nowrap"
+                      style={{ 
+                        writingMode: 'vertical-lr',
+                        textOrientation: 'mixed',
+                        transform: 'rotate(0deg)',
+                        letterSpacing: '-0.5px',
+                        fontFamily: 'Minion Pro, serif'
+                      }}
+                    >
+                      Ver más servicios
+                    </h3>
+                  </div>
+                  
+                  {/* Arrow icon */}
+                  <div className="absolute bottom-6 lg:bottom-8 left-3 lg:left-4">
+                    <div className="w-8 lg:w-9 xl:w-10 h-8 lg:h-9 xl:h-10 flex items-center justify-center">
+                      <svg 
+                        className="w-6 h-6 text-white" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity duration-300"></div>
+                </div>
+              ] : []),
+              // Then show the first 4 services (or all if <= 5)
+              ...services.slice(0, services.length > 5 ? 4 : 5).map((service, index) => {
+                const actualIndex = services.length > 5 ? index + 1 : index;
+                return (
             <div
-              key={service.title}
+              key={service.id}
               ref={(el) => {
-                if (el) columnRefs.current[index] = el;
+                if (el) columnRefs.current[actualIndex] = el;
               }}
               data-service-card
-              className="relative flex flex-col items-center justify-between text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden"
+              className="relative flex flex-col items-center justify-between text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden w-[100px] h-[500px] lg:w-[100px] lg:h-[500px] xl:w-[120px] xl:h-[550px]"
               style={{ 
                 backgroundColor: service.backgroundColor,
-                width: '100px', // Responsive width for smaller screens
-                height: '500px', // Responsive height
-                marginLeft: index > 0 ? '-12px' : '0', // Slightly less overlap for smaller screens
-                zIndex: index + 1,
+                marginLeft: actualIndex > 0 ? '-8px' : '0', // Reduced overlap to prevent excessive overlapping
+                zIndex: actualIndex + 1,
                 borderRadius: '0',
                 alignSelf: 'flex-end',
                 filter: clickedIndex === null ? 'brightness(1.1) saturate(1.05)' : (clickedIndex === index ? 'brightness(1.3) saturate(1.4)' : 'brightness(0.8)'),
                 transition: 'filter 0.3s ease-in-out'
               }}
-              className="lg:w-[100px] lg:h-[500px] xl:w-[120px] xl:h-[550px]"
               onMouseEnter={() => handleColumnHover(index)}
               onMouseLeave={() => handleColumnHover(null)}
               onClick={(e) => {
@@ -731,7 +791,9 @@ export default function ServicesPreview() {
               {/* Hover overlay */}
               <div className="column-overlay absolute inset-0 bg-black opacity-0 transition-opacity duration-300 pointer-events-none"></div>
             </div>
-          ))
+              )
+          })
+        ]
           )}
         </div>
 
@@ -761,9 +823,53 @@ export default function ServicesPreview() {
               <p className="text-slate-600">No hay servicios disponibles</p>
             </div>
           ) : (
-            services.map((service, index) => (
+            [
+              // Add "Ver más servicios" card FIRST for mobile if there are more than 5 services
+              ...(services.length > 5 ? [
+                <div
+                  key="more-services-mobile"
+                  data-service-card
+                  className="relative cursor-pointer overflow-hidden transition-all duration-300 w-full"
+                  style={{
+                    backgroundColor: '#2563eb',
+                    filter: 'brightness(1.1) saturate(1.05)',
+                    transition: 'filter 0.3s ease-in-out, height 0.3s ease-in-out',
+                    height: '120px'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push('/services');
+                  }}
+                >
+                  <div className="h-full flex items-center justify-between p-4 sm:p-6">
+                    {/* Left side - Text */}
+                    <div className="flex-1">
+                      <h3 className="text-white text-lg sm:text-xl font-bold mb-2">
+                        Ver más servicios
+                      </h3>
+                      <p className="text-white/80 text-sm">
+                        Explora todos nuestros {services.length} servicios
+                      </p>
+                    </div>
+                    
+                    {/* Right side - Arrow */}
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
+                      <svg 
+                        className="w-6 h-6 text-white" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              ] : []),
+              // Then show the first 4 services (or all if <= 5)
+              ...services.slice(0, services.length > 5 ? 4 : 5).map((service, index) => (
             <div
-              key={service.title}
+              key={service.id}
               data-service-card
               className="relative cursor-pointer overflow-hidden transition-all duration-300 w-full"
               style={{
@@ -772,10 +878,7 @@ export default function ServicesPreview() {
                 transition: 'filter 0.3s ease-in-out, height 0.3s ease-in-out',
                 height: clickedIndex === index 
                   ? 'auto' 
-                  : '70px', // Reduced height for mobile
-                width: '100vw',
-                marginLeft: 'calc(-50vw + 50%)',
-                marginRight: 'calc(-50vw + 50%)'
+                  : '70px' // Reduced height for mobile
               }}
               onClick={(e) => {
                 e.stopPropagation();
@@ -903,6 +1006,7 @@ export default function ServicesPreview() {
               </div>
             </div>
           ))
+        ]
           )}
         </div>
       </div>

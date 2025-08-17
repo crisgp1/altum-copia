@@ -441,3 +441,52 @@ textarea::placeholder {
   opacity: 1 !important;
   font-weight: 400 !important;
 }
+
+/* Touch target improvements for mobile */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .touch-target {
+    min-height: 40px;
+    min-width: 40px;
+  }
+}
+
+/* Better scrolling on mobile */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Improve form inputs on mobile - prevent zoom on iOS */
+@media (max-width: 390px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* iPhone 12 Pro specific optimizations */
+@media (max-width: 390px) {
+  /* Ensure proper spacing for very narrow screens */
+  .iphone-compact {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  
+  /* Better table cell spacing */
+  table td {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+  
+  /* Ensure buttons are touchable */
+  button {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+}

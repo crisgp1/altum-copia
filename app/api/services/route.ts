@@ -10,8 +10,17 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const onlyActive = searchParams.get('active') !== 'false';
+    const parentId = searchParams.get('parentId');
+    const onlyParents = searchParams.get('onlyParents') === 'true';
     
-    const services = await getAllServicesUseCase.execute(onlyActive);
+    let services;
+    if (onlyParents) {
+      services = await serviceRepository.findParentServices();
+    } else if (parentId !== null) {
+      services = await serviceRepository.findByParentId(parentId);
+    } else {
+      services = await getAllServicesUseCase.execute(onlyActive);
+    }
     
     return NextResponse.json({
       success: true,
@@ -21,6 +30,7 @@ export async function GET(request: NextRequest) {
         description: service.description,
         shortDescription: service.shortDescription,
         iconUrl: service.iconUrl,
+        parentId: service.parentId,
         order: service.order,
         isActive: service.isActive
       }))
@@ -38,12 +48,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('=== CREATING SERVICE ===');
+    console.log('Request body:', body);
+    console.log('Processed parentId:', body.parentId || null);
     
     const service = new Service({
       name: body.name,
       description: body.description,
       shortDescription: body.shortDescription,
       iconUrl: body.iconUrl,
+      parentId: body.parentId || null, // Ensure empty strings become null
       order: body.order || 0,
       isActive: body.isActive !== undefined ? body.isActive : true
     });
@@ -58,6 +72,7 @@ export async function POST(request: NextRequest) {
         description: createdService.description,
         shortDescription: createdService.shortDescription,
         iconUrl: createdService.iconUrl,
+        parentId: createdService.parentId,
         order: createdService.order,
         isActive: createdService.isActive
       }
@@ -95,6 +110,7 @@ export async function PUT(request: NextRequest) {
       if (serviceData.description !== undefined) existingService.updateDescription(serviceData.description);
       if (serviceData.shortDescription !== undefined) existingService.updateShortDescription(serviceData.shortDescription);
       if (serviceData.iconUrl !== undefined) existingService.updateIcon(serviceData.iconUrl);
+      if (serviceData.parentId !== undefined) existingService.updateParentId(serviceData.parentId);
       if (serviceData.order !== undefined) existingService.updateOrder(serviceData.order);
       if (serviceData.isActive !== undefined) {
         if (serviceData.isActive) {

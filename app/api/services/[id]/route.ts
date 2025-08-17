@@ -6,10 +6,11 @@ const serviceRepository = new ServiceRepository();
 // GET /api/services/[id] - Get service by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const service = await serviceRepository.findById(params.id);
+    const { id } = await params;
+    const service = await serviceRepository.findById(id);
     
     if (!service) {
       return NextResponse.json(
@@ -26,6 +27,7 @@ export async function GET(
         description: service.description,
         shortDescription: service.shortDescription,
         iconUrl: service.iconUrl,
+        parentId: service.parentId,
         order: service.order,
         isActive: service.isActive,
         createdAt: service.createdAt,
@@ -44,11 +46,12 @@ export async function GET(
 // PUT /api/services/[id] - Update service by ID
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
-    const service = await serviceRepository.findById(params.id);
+    const service = await serviceRepository.findById(id);
     
     if (!service) {
       return NextResponse.json(
@@ -62,6 +65,7 @@ export async function PUT(
     if (body.description !== undefined) service.updateDescription(body.description);
     if (body.shortDescription !== undefined) service.updateShortDescription(body.shortDescription);
     if (body.iconUrl !== undefined) service.updateIcon(body.iconUrl);
+    if (body.parentId !== undefined) service.updateParentId(body.parentId);
     if (body.order !== undefined) service.updateOrder(body.order);
     if (body.isActive !== undefined) {
       if (body.isActive) {
@@ -71,19 +75,20 @@ export async function PUT(
       }
     }
 
-    const updatedService = await serviceRepository.update(service);
+    await serviceRepository.update(service);
 
     return NextResponse.json({
       success: true,
       data: {
-        id: updatedService.id,
-        name: updatedService.name,
-        description: updatedService.description,
-        shortDescription: updatedService.shortDescription,
-        iconUrl: updatedService.iconUrl,
-        order: updatedService.order,
-        isActive: updatedService.isActive,
-        updatedAt: updatedService.updatedAt
+        id: service.id,
+        name: service.name,
+        description: service.description,
+        shortDescription: service.shortDescription,
+        iconUrl: service.iconUrl,
+        parentId: service.parentId,
+        order: service.order,
+        isActive: service.isActive,
+        updatedAt: service.updatedAt
       }
     });
   } catch (error) {
@@ -98,10 +103,11 @@ export async function PUT(
 // DELETE /api/services/[id] - Delete service by ID
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const service = await serviceRepository.findById(params.id);
+    const { id } = await params;
+    const service = await serviceRepository.findById(id);
     
     if (!service) {
       return NextResponse.json(
@@ -110,7 +116,7 @@ export async function DELETE(
       );
     }
 
-    await serviceRepository.delete(params.id);
+    await serviceRepository.delete(id);
 
     return NextResponse.json({
       success: true,

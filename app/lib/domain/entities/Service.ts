@@ -4,6 +4,7 @@ export interface ServiceProps {
   description: string;
   shortDescription: string;
   iconUrl?: string;
+  parentId?: string;
   order: number;
   isActive: boolean;
   createdAt?: Date;
@@ -16,6 +17,7 @@ export class Service {
   private _description: string;
   private _shortDescription: string;
   private _iconUrl?: string;
+  private _parentId?: string;
   private _order: number;
   private _isActive: boolean;
   private readonly _createdAt: Date;
@@ -27,6 +29,7 @@ export class Service {
     this._description = props.description;
     this._shortDescription = props.shortDescription;
     this._iconUrl = props.iconUrl;
+    this._parentId = props.parentId;
     this._order = props.order;
     this._isActive = props.isActive;
     this._createdAt = props.createdAt || new Date();
@@ -73,8 +76,25 @@ export class Service {
     return this._updatedAt;
   }
 
+  get parentId(): string | undefined {
+    return this._parentId;
+  }
+
+  get isParent(): boolean {
+    return !this._parentId;
+  }
+
+  get isChild(): boolean {
+    return !!this._parentId;
+  }
+
   updateName(name: string): void {
     this._name = name;
+    this._updatedAt = new Date();
+  }
+
+  updateParentId(parentId: string | undefined): void {
+    this._parentId = parentId;
     this._updatedAt = new Date();
   }
 

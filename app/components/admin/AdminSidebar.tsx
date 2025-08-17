@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { Menu, X } from 'lucide-react';
 
 interface SidebarItem {
   name: string;
@@ -87,6 +89,48 @@ const sidebarItems: SidebarItem[] = [
 export default function AdminSidebar() {
   const { hasPermission, role } = useUserRole();
   const pathname = usePathname();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Check if we're on desktop
+  useEffect(() => {
+    const checkIsDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    
+    checkIsDesktop();
+    window.addEventListener('resize', checkIsDesktop);
+    
+    return () => window.removeEventListener('resize', checkIsDesktop);
+  }, []);
+
+  // Close sidebar when route changes on mobile
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
+
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const sidebar = document.getElementById('admin-sidebar');
+      const hamburger = document.getElementById('hamburger-button');
+      if (isSidebarOpen && 
+          sidebar && 
+          !sidebar.contains(event.target as Node) && 
+          hamburger && 
+          !hamburger.contains(event.target as Node)) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    if (isSidebarOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSidebarOpen]);
 
   const isActive = (href: string) => {
     if (href === '/admin') {
@@ -106,46 +150,87 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-16 h-full w-64 bg-white border-r border-stone-200 z-30">
-      <div className="p-6">
-        <div className="flex items-center mb-8">
-          <div className="text-xl leading-tight">
-            <span className="altum-brand text-slate-800">ALTUM</span>{' '}
-            <span className="legal-brand" style={{ color: '#B79F76' }}>Admin</span>
+    <>
+      {/* Hamburger Menu Button - Mobile/Tablet */}
+      <button
+        id="hamburger-button"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="lg:hidden fixed top-16 sm:top-18 md:top-20 left-3 sm:left-4 z-50 p-1.5 sm:p-2 bg-white rounded-md sm:rounded-lg shadow-md border border-stone-200 hover:bg-stone-50 transition-all duration-200"
+        aria-label="Toggle sidebar"
+      >
+        {isSidebarOpen ? (
+          <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
+        ) : (
+          <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
+        )}
+      </button>
+
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside 
+        id="admin-sidebar"
+        style={{
+          transform: isDesktop || isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)'
+        }}
+        className="fixed left-0 top-0 h-full bg-white border-r border-stone-200 z-40 transition-transform duration-300 ease-in-out w-64 max-w-[85vw] lg:max-w-none"
+      >
+        <div className="p-3 sm:p-4 md:p-6 h-full overflow-y-auto pb-safe">
+          {/* Brand */}
+          <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8">
+            <div className="text-base sm:text-lg md:text-xl leading-tight">
+              <span className="altum-brand text-slate-800 font-bold">ALTUM</span>{' '}
+              <span className="legal-brand font-medium" style={{ color: '#B79F76' }}>Admin</span>
+            </div>
+            {/* Close button for mobile */}
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden p-1 hover:bg-stone-100 rounded transition-colors duration-200"
+            >
+              <X className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="space-y-0.5 sm:space-y-1 md:space-y-2">
+            {sidebarItems.filter(canAccess).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-md sm:rounded-lg transition-all duration-200 text-sm md:text-base ${
+                  isActive(item.href)
+                    ? 'bg-amber-50 text-amber-700 border-l-4 border-amber-600'
+                    : 'text-slate-600 hover:bg-stone-50 hover:text-slate-900'
+                }`}
+              >
+                <span className={`mr-2 sm:mr-3 flex-shrink-0 ${isActive(item.href) ? 'text-amber-600' : ''}`}>
+                  {item.icon}
+                </span>
+                <span className="font-medium truncate">{item.name}</span>
+              </Link>
+            ))}
+          </nav>
+
+          {/* Back to Site Link */}
+          <div className="mt-6 sm:mt-8 md:mt-12 pt-3 sm:pt-4 md:pt-6 border-t border-stone-200">
+            <Link
+              href="/"
+              className="flex items-center px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 text-slate-600 hover:bg-stone-50 hover:text-slate-900 rounded-md sm:rounded-lg transition-all duration-200 text-sm md:text-base"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="font-medium truncate">Volver al Sitio</span>
+            </Link>
           </div>
         </div>
-
-        <nav className="space-y-2">
-          {sidebarItems.filter(canAccess).map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${
-                isActive(item.href)
-                  ? 'bg-amber-50 text-amber-700 border-l-4 border-amber-600'
-                  : 'text-slate-600 hover:bg-stone-50 hover:text-slate-900'
-              }`}
-            >
-              <span className={`mr-3 ${isActive(item.href) ? 'text-amber-600' : ''}`}>
-                {item.icon}
-              </span>
-              <span className="font-medium">{item.name}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div className="mt-12 pt-6 border-t border-stone-200">
-          <Link
-            href="/"
-            className="flex items-center px-4 py-3 text-slate-600 hover:bg-stone-50 hover:text-slate-900 rounded-lg transition-all duration-200"
-          >
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="font-medium">Volver al Sitio</span>
-          </Link>
-        </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

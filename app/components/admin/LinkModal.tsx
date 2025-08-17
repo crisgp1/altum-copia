@@ -55,19 +55,19 @@ export default function LinkModal({ isOpen, onClose, onInsert, selectedText = ''
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-3 lg:p-4">
+      <div className="bg-white rounded-lg sm:rounded-xl shadow-2xl w-full max-w-xs sm:max-w-md lg:max-w-lg max-h-[95vh] overflow-y-auto mx-2 sm:mx-0">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-stone-200">
+        <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-stone-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-sm sm:text-lg lg:text-xl font-bold text-slate-900 pr-2 truncate">
               Insertar Enlace
             </h2>
             <button
               onClick={handleClose}
-              className="text-slate-400 hover:text-slate-600 transition-colors"
+              className="text-slate-400 hover:text-slate-600 transition-colors p-1 flex-shrink-0 touch-target"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -75,11 +75,11 @@ export default function LinkModal({ isOpen, onClose, onInsert, selectedText = ''
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="p-3 sm:p-4 lg:p-6">
+          <div className="space-y-3 sm:space-y-4">
             {/* URL Input */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1 sm:mb-2">
                 URL *
               </label>
               <input
@@ -87,7 +87,7 @@ export default function LinkModal({ isOpen, onClose, onInsert, selectedText = ''
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://ejemplo.com"
-                className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 placeholder:text-slate-400"
+                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 placeholder:text-slate-400 text-sm"
                 required
                 autoFocus
               />
@@ -98,7 +98,7 @@ export default function LinkModal({ isOpen, onClose, onInsert, selectedText = ''
 
             {/* Link Text */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1 sm:mb-2">
                 Texto del enlace
               </label>
               <input
@@ -106,7 +106,7 @@ export default function LinkModal({ isOpen, onClose, onInsert, selectedText = ''
                 value={linkText}
                 onChange={(e) => setLinkText(e.target.value)}
                 placeholder="Texto que aparecerá como enlace"
-                className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 placeholder:text-slate-400"
+                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 placeholder:text-slate-400 text-sm"
               />
               <p className="text-xs text-slate-500 mt-1">
                 {selectedText ? 'Texto seleccionado usado por defecto' : 'Dejalo vacío para usar la URL como texto'}
@@ -115,10 +115,10 @@ export default function LinkModal({ isOpen, onClose, onInsert, selectedText = ''
 
             {/* Quick Links */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1 sm:mb-2">
                 Enlaces rápidos
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {commonUrls.map((link, index) => (
                   <button
                     key={index}
@@ -127,7 +127,7 @@ export default function LinkModal({ isOpen, onClose, onInsert, selectedText = ''
                       setUrl(link.url);
                       if (!linkText) setLinkText(link.label);
                     }}
-                    className="p-2 text-xs text-slate-600 bg-stone-50 hover:bg-stone-100 rounded border border-stone-200 transition-colors"
+                    className="p-2 text-xs text-slate-600 bg-stone-50 hover:bg-stone-100 rounded border border-stone-200 transition-colors touch-target"
                   >
                     {link.label}
                   </button>
@@ -153,18 +153,18 @@ export default function LinkModal({ isOpen, onClose, onInsert, selectedText = ''
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-stone-200">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-stone-200">
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-sm touch-target order-2 sm:order-1"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={!url.trim() || isLoading}
-              className="px-6 py-2 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              className="w-full sm:w-auto px-6 py-2 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm touch-target order-1 sm:order-2"
               style={{ backgroundColor: '#B79F76' }}
               onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = '#9C8A6B')}
               onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = '#B79F76')}

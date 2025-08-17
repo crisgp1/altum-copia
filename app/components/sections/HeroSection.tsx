@@ -305,61 +305,63 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Navigation - Responsive design */}
-      <div className="absolute bottom-4 xs:bottom-6 sm:bottom-8 lg:bottom-12 left-1/2 transform -translate-x-1/2 z-20 px-4 w-full max-w-md sm:max-w-none">
-        <div className="flex items-center justify-center space-x-3 xs:space-x-4 sm:space-x-6 lg:space-x-12 bg-white/30 backdrop-blur-sm rounded-full px-3 xs:px-4 sm:px-6 py-2 xs:py-3 border border-white/20 shadow-lg">
-          {/* Previous Button - Responsive */}
+      {/* Navigation - Clean minimal dots */}
+      <div className="absolute bottom-8 sm:bottom-10 lg:bottom-12 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="flex items-center justify-center space-x-4">
+          {/* Previous Button */}
           <button
             onClick={prevSlide}
             disabled={isTransitioning}
-            className="flex items-center space-x-1 xs:space-x-2 sm:space-x-3 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group min-w-0"
-            style={{ color: '#152239' }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#B79F76'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#152239'}
+            className="p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+            style={{ color: '#B79F76' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#152239'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#B79F76'}
           >
-            <svg className="w-4 xs:w-5 h-4 xs:h-5 transition-transform duration-200 group-hover:scale-110 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
             </svg>
-            <span className="hidden xs:inline text-xs sm:text-sm font-medium uppercase tracking-wider">ATRÁS</span>
           </button>
 
-          {/* Slide Indicators - Responsive */}
-          <div className="flex space-x-1.5 xs:space-x-2">
+          {/* Slide Indicators - Small dots */}
+          <div className="flex items-center space-x-2">
             {heroSlides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => transitionToSlide(index)}
                 disabled={isTransitioning}
-                className="w-1.5 xs:w-2 h-1.5 xs:h-2 rounded-full transition-all duration-200 disabled:cursor-not-allowed"
+                className="rounded-full transition-all duration-300 disabled:cursor-not-allowed"
                 style={{
+                  width: index === currentSlide ? '8px' : '8px',
+                  height: '8px',
                   backgroundColor: index === currentSlide ? '#152239' : '#B79F76',
-                  opacity: index === currentSlide ? 1 : 0.4
+                  opacity: index === currentSlide ? 1 : 0.3
                 }}
                 onMouseEnter={(e) => {
                   if (index !== currentSlide) {
-                    e.currentTarget.style.opacity = '0.7';
+                    e.currentTarget.style.opacity = '0.6';
+                    e.currentTarget.style.transform = 'scale(1.2)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (index !== currentSlide) {
-                    e.currentTarget.style.opacity = '0.4';
+                    e.currentTarget.style.opacity = '0.3';
+                    e.currentTarget.style.transform = 'scale(1)';
                   }
                 }}
               />
             ))}
           </div>
 
-          {/* Next Button - Responsive */}
+          {/* Next Button */}
           <button
             onClick={nextSlide}
             disabled={isTransitioning}
-            className="flex items-center space-x-1 xs:space-x-2 sm:space-x-3 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group min-w-0"
-            style={{ color: '#152239' }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#B79F76'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#152239'}
+            className="p-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+            style={{ color: '#B79F76' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#152239'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#B79F76'}
           >
-            <span className="hidden xs:inline text-xs sm:text-sm font-medium uppercase tracking-wider">SIGUIENTE</span>
-            <svg className="w-4 xs:w-5 h-4 xs:h-5 transition-transform duration-200 group-hover:scale-110 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
             </svg>
           </button>

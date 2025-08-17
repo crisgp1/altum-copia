@@ -104,59 +104,58 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-2 sm:p-3 lg:p-6 space-y-3 sm:space-y-4 lg:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Users className="h-8 w-8 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex items-center space-x-2">
+          <Users className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-blue-600 flex-shrink-0" />
+          <h1 className="text-base sm:text-lg lg:text-2xl font-bold text-gray-900 leading-tight">Gestión de Usuarios</h1>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-xs sm:text-sm text-gray-500">
           Total: {users.length} usuarios
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white p-2 sm:p-3 lg:p-4 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex flex-col gap-2 sm:gap-3 lg:gap-4">
           {/* Search */}
-          <div className="flex-1">
+          <div className="w-full">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
-                placeholder="Buscar por nombre o email..."
+                placeholder="Buscar usuarios..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder:text-slate-700"
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder:text-slate-400 text-sm"
               />
             </div>
           </div>
 
-          {/* Role Filter */}
-          <div className="min-w-[160px]">
+          {/* Filters Row */}
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
+            {/* Role Filter */}
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900"
+              className="px-2 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 text-xs sm:text-sm"
             >
-              <option value="">Todos los roles</option>
+              <option value="">Todos</option>
               {USER_ROLES.map(role => (
                 <option key={role} value={role}>
                   {role.charAt(0).toUpperCase() + role.slice(1)}
                 </option>
               ))}
             </select>
-          </div>
 
-          {/* Status Filter */}
-          <div className="min-w-[140px]">
+            {/* Status Filter */}
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900"
+              className="px-2 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 text-xs sm:text-sm"
             >
-              <option value="">Todos los estados</option>
+              <option value="">Estados</option>
               <option value="active">Activos</option>
               <option value="inactive">Inactivos</option>
             </select>
@@ -167,22 +166,22 @@ export default function UsersPage() {
       {/* Users Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[360px]">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 lg:px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Usuario
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 lg:px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                   Rol
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 lg:px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   Estado
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 lg:px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Último acceso
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 lg:px-6 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
                   Acciones
                 </th>
               </tr>
@@ -190,43 +189,62 @@ export default function UsersPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-2 sm:px-3 lg:px-6 py-4 sm:py-6 text-center text-gray-500">
                     <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                      <span>Cargando usuarios...</span>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <span className="text-xs sm:text-sm">Cargando...</span>
                     </div>
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-2 sm:px-3 lg:px-6 py-4 sm:py-6 text-center text-gray-500 text-xs sm:text-sm">
                     No se encontraron usuarios
                   </td>
                 </tr>
               ) : (
                 users.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-2 sm:px-3 lg:px-6 py-2 sm:py-3">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
+                        <div className="flex-shrink-0 h-7 w-7 sm:h-8 sm:w-8 lg:h-10 lg:w-10">
                           <img
-                            className="h-10 w-10 rounded-full object-cover"
+                            className="h-7 w-7 sm:h-8 sm:w-8 lg:h-10 lg:w-10 rounded-full object-cover"
                             src={user.imageUrl || '/images/default-avatar.png'}
                             alt={user.fullName}
                           />
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                        <div className="ml-2 min-w-0 flex-1">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                             {user.fullName}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-xs text-gray-500 truncate">
                             {user.email}
+                          </div>
+                          {/* Show role and status on mobile */}
+                          <div className="flex items-center gap-1 mt-1 sm:hidden">
+                            <span className={`inline-flex items-center px-1 py-0.5 rounded text-xs font-medium ${
+                              user.role === 'admin' 
+                                ? 'bg-red-100 text-red-800'
+                                : user.role === 'editor'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {user.role}
+                            </span>
+                            <span className={`inline-flex items-center px-1 py-0.5 rounded text-xs font-medium ${
+                              user.isActive
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {user.isActive ? '✓' : '✗'}
+                            </span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <td className="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 whitespace-nowrap hidden sm:table-cell">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         user.role === 'admin' 
                           ? 'bg-red-100 text-red-800'
                           : user.role === 'editor'
@@ -237,8 +255,8 @@ export default function UsersPage() {
                         {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <td className="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 whitespace-nowrap hidden md:table-cell">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         user.isActive
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-800'
@@ -246,29 +264,29 @@ export default function UsersPage() {
                         {user.isActive ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 whitespace-nowrap text-xs text-gray-500 hidden lg:table-cell">
                       {user.lastSignInAt ? formatDate(user.lastSignInAt) : 'Nunca'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
+                    <td className="px-1 sm:px-2 lg:px-6 py-2 sm:py-3 whitespace-nowrap">
+                      <div className="flex items-center justify-center space-x-0.5 sm:space-x-1">
                         <button
                           onClick={() => handleView(user)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded"
-                          title="Ver detalles"
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded touch-target"
+                          title="Ver"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleEdit(user)}
-                          className="text-indigo-600 hover:text-indigo-900 p-1 rounded"
-                          title="Editar rol"
+                          className="text-indigo-600 hover:text-indigo-900 p-1 rounded touch-target"
+                          title="Editar"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(user)}
-                          className="text-red-600 hover:text-red-900 p-1 rounded"
-                          title="Eliminar usuario"
+                          className="text-red-600 hover:text-red-900 p-1 rounded touch-target"
+                          title="Eliminar"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -284,26 +302,26 @@ export default function UsersPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between bg-white px-6 py-3 border border-gray-200 rounded-lg">
+        <div className="flex items-center justify-between bg-white px-2 sm:px-3 lg:px-6 py-2 sm:py-3 border border-gray-200 rounded-lg">
           <div className="flex items-center">
-            <p className="text-sm text-gray-700">
-              Página {currentPage} de {totalPages}
+            <p className="text-xs text-gray-700">
+              {currentPage}/{totalPages}
             </p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <button
               onClick={() => fetchUsers(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2 py-1 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed touch-target"
             >
-              Anterior
+              ←
             </button>
             <button
               onClick={() => fetchUsers(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2 py-1 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed touch-target"
             >
-              Siguiente
+              →
             </button>
           </div>
         </div>
@@ -377,21 +395,21 @@ function EditUserModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-sm sm:max-w-md max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 pr-4">
           Editar Usuario - {user.fullName}
         </h3>
         
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Rol
             </label>
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 text-sm sm:text-base"
             >
               {USER_ROLES.map(role => (
                 <option key={role} value={role}>
@@ -401,20 +419,20 @@ function EditUserModal({
             </select>
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Permisos
             </label>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
+            <div className="space-y-1 sm:space-y-2 max-h-32 sm:max-h-40 overflow-y-auto border border-gray-200 rounded-md p-2 sm:p-3">
               {availablePermissions.map(permission => (
                 <label key={permission} className="flex items-center">
                   <input
                     type="checkbox"
                     checked={permissions.includes(permission)}
                     onChange={() => togglePermission(permission)}
-                    className="mr-2"
+                    className="mr-2 flex-shrink-0"
                   />
-                  <span className="text-sm text-gray-700">
+                  <span className="text-xs sm:text-sm text-gray-700">
                     {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   </span>
                 </label>
@@ -422,17 +440,17 @@ function EditUserModal({
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+              className="px-3 sm:px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors text-sm sm:text-base order-2 sm:order-1"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm sm:text-base order-1 sm:order-2"
             >
               Actualizar
             </button>
@@ -454,27 +472,27 @@ function DeleteUserModal({
   onConfirm: () => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
           Eliminar Usuario
         </h3>
         
-        <p className="text-gray-600 mb-6">
+        <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
           ¿Estás seguro de que deseas eliminar al usuario <strong>{user.fullName}</strong>?
           Esta acción no se puede deshacer.
         </p>
 
-        <div className="flex justify-end space-x-3">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+            className="px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200"
           >
             Eliminar
           </button>
@@ -503,55 +521,55 @@ function ViewUserModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
           Detalles del Usuario
         </h3>
         
-        <div className="space-y-4">
-          <div className="flex items-center space-x-3">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <img
-              className="h-16 w-16 rounded-full object-cover"
+              className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-full object-cover flex-shrink-0"
               src={user.imageUrl || '/images/default-avatar.png'}
               alt={user.fullName}
             />
-            <div>
-              <h4 className="text-lg font-medium text-gray-900">{user.fullName}</h4>
-              <p className="text-sm text-gray-500">{user.email}</p>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-sm sm:text-base lg:text-lg font-medium text-gray-900 truncate">{user.fullName}</h4>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">{user.email}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-500">Rol</label>
-              <p className="mt-1 text-sm text-gray-900 capitalize">{user.role}</p>
+              <label className="block text-xs sm:text-sm font-medium text-gray-500">Rol</label>
+              <p className="mt-1 text-xs sm:text-sm text-gray-900 capitalize">{user.role}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500">Estado</label>
-              <p className="mt-1 text-sm text-gray-900">
+              <label className="block text-xs sm:text-sm font-medium text-gray-500">Estado</label>
+              <p className="mt-1 text-xs sm:text-sm text-gray-900">
                 {user.isActive ? 'Activo' : 'Inactivo'}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500">Creado</label>
-              <p className="mt-1 text-sm text-gray-900">{formatDate(user.createdAt)}</p>
+              <label className="block text-xs sm:text-sm font-medium text-gray-500">Creado</label>
+              <p className="mt-1 text-xs sm:text-sm text-gray-900">{formatDate(user.createdAt)}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500">Último acceso</label>
-              <p className="mt-1 text-sm text-gray-900">
+              <label className="block text-xs sm:text-sm font-medium text-gray-500">Último acceso</label>
+              <p className="mt-1 text-xs sm:text-sm text-gray-900">
                 {user.lastSignInAt ? formatDate(user.lastSignInAt) : 'Nunca'}
               </p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-500">Permisos</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-500">Permisos</label>
             <div className="mt-1 flex flex-wrap gap-1">
               {user.permissions.map(permission => (
                 <span
                   key={permission}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                 >
                   {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 </span>
@@ -560,10 +578,10 @@ function ViewUserModal({
           </div>
         </div>
 
-        <div className="flex justify-end mt-6">
+        <div className="flex justify-end mt-4 sm:mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors duration-200"
           >
             Cerrar
           </button>

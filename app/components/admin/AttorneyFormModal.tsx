@@ -257,12 +257,12 @@ export default function AttorneyFormModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-sm sm:max-w-2xl lg:max-w-5xl max-h-[95vh] overflow-hidden flex flex-col mx-2 sm:mx-0">
         {/* Header */}
-        <div className="bg-gradient-to-r from-amber-50 to-amber-100 px-6 py-4 border-b border-amber-200">
+        <div className="bg-gradient-to-r from-amber-50 to-amber-100 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-amber-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-slate-900">
+            <h2 className="text-base sm:text-lg lg:text-2xl font-bold text-slate-900 truncate pr-2">
               {attorney ? 'Editar Abogado' : 'Nuevo Abogado'}
             </h2>
             <button
@@ -277,28 +277,28 @@ export default function AttorneyFormModal({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-stone-200 bg-stone-50">
+        <div className="flex border-b border-stone-200 bg-stone-50 overflow-x-auto">
           {['general', 'profesional', 'academico', 'multimedia'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 font-medium capitalize transition-colors ${
+              className={`px-3 sm:px-6 py-2 sm:py-3 font-medium text-xs sm:text-sm capitalize transition-colors flex-shrink-0 ${
                 activeTab === tab
                   ? 'text-amber-700 border-b-2 border-amber-600 bg-white'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {tab === 'general' && 'Información General'}
-              {tab === 'profesional' && 'Información Profesional'}
-              {tab === 'academico' && 'Formación y Logros'}
-              {tab === 'multimedia' && 'Imagen y Enlaces'}
+              {tab === 'general' && (<span><span className="sm:hidden">General</span><span className="hidden sm:inline">Información General</span></span>)}
+              {tab === 'profesional' && (<span><span className="sm:hidden">Profesional</span><span className="hidden sm:inline">Información Profesional</span></span>)}
+              {tab === 'academico' && (<span><span className="sm:hidden">Académico</span><span className="hidden sm:inline">Formación y Logros</span></span>)}
+              {tab === 'multimedia' && (<span><span className="sm:hidden">Multimedia</span><span className="hidden sm:inline">Imagen y Enlaces</span></span>)}
             </button>
           ))}
         </div>
 
         {/* Form Content */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-8">
+          <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6 lg:space-y-8">
             {/* General Tab */}
             {activeTab === 'general' && (
               <>
@@ -306,9 +306,9 @@ export default function AttorneyFormModal({
                   <h3 className="font-medium text-blue-900 mb-1">Información General</h3>
                   <p className="text-sm text-blue-700">Complete la información básica del abogado</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                       Nombre Completo *
                     </label>
                     <input
@@ -316,12 +316,12 @@ export default function AttorneyFormModal({
                       required
                       value={formData.nombre}
                       onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900"
+                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900 text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                       Cargo *
                     </label>
                     <input
@@ -329,12 +329,12 @@ export default function AttorneyFormModal({
                       required
                       value={formData.cargo}
                       onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900"
+                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900 text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                       Correo Electrónico *
                     </label>
                     <input
@@ -342,12 +342,12 @@ export default function AttorneyFormModal({
                       required
                       value={formData.correo}
                       onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
-                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900"
+                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900 text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                       Teléfono *
                     </label>
                     <input
@@ -355,12 +355,12 @@ export default function AttorneyFormModal({
                       required
                       value={formData.telefono}
                       onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900"
+                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900 text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                       Años de Experiencia *
                     </label>
                     <input
@@ -370,7 +370,7 @@ export default function AttorneyFormModal({
                       max="60"
                       value={formData.experienciaAnios}
                       onChange={(e) => setFormData({ ...formData, experienciaAnios: parseInt(e.target.value) })}
-                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900"
+                      className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900 text-sm"
                     />
                   </div>
                 </div>
@@ -383,7 +383,7 @@ export default function AttorneyFormModal({
                       onChange={(e) => setFormData({ ...formData, esSocio: e.target.checked })}
                       className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
                     />
-                    <span className="text-sm font-medium text-slate-700">Es Socio de la Firma</span>
+                    <span className="text-xs sm:text-sm font-medium text-slate-700">Es Socio de la Firma</span>
                   </label>
                 </div>
 
@@ -791,18 +791,18 @@ export default function AttorneyFormModal({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-stone-50 border-t border-stone-200 flex justify-end gap-4">
+          <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 bg-stone-50 border-t border-stone-200 flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-2 border border-stone-300 text-slate-700 rounded-lg hover:bg-stone-100"
+              className="w-full sm:w-auto px-6 py-2 border border-stone-300 text-slate-700 rounded-lg hover:bg-stone-100 text-sm touch-target order-2 sm:order-1"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isUploading}
-              className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 text-sm touch-target order-1 sm:order-2"
             >
               {isUploading ? 'Subiendo imagen...' : (attorney ? 'Actualizar' : 'Crear')}
             </button>

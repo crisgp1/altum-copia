@@ -5,6 +5,7 @@ export interface IServiceDocument extends Document {
   description: string;
   shortDescription: string;
   iconUrl?: string;
+  parentId?: string;
   order: number;
   isActive: boolean;
   createdAt: Date;
@@ -17,6 +18,7 @@ const ServiceSchema = new Schema<IServiceDocument>(
     description: { type: String, required: true },
     shortDescription: { type: String, required: true },
     iconUrl: { type: String },
+    parentId: { type: String, default: null, set: (v: string) => v === '' ? null : v },
     order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true }
   },
@@ -27,5 +29,6 @@ const ServiceSchema = new Schema<IServiceDocument>(
 
 ServiceSchema.index({ order: 1 });
 ServiceSchema.index({ isActive: 1 });
+ServiceSchema.index({ parentId: 1 });
 
 export const ServiceModel = mongoose.models.Service || mongoose.model<IServiceDocument>('Service', ServiceSchema);

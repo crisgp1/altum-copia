@@ -162,17 +162,17 @@ export default function MediaManagementPage() {
     : 'Seleccionar todo';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       <Toaster position="top-right" />
 
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-8">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white rounded-lg lg:rounded-xl shadow-sm border border-stone-200 p-4 sm:p-6 lg:p-8">
+        <div className="mb-4 sm:mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mb-1 sm:mb-2">
               Gestión de Medios
             </h1>
-            <p className="text-slate-600">
+            <p className="text-sm sm:text-base text-slate-600">
               Administra imágenes, videos y documentos del sitio web
             </p>
           </div>
@@ -214,9 +214,9 @@ export default function MediaManagementPage() {
       />
 
       {/* Files Display */}
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-slate-900">
+      <div className="bg-white rounded-lg lg:rounded-xl shadow-sm border border-stone-200 p-3 sm:p-4 lg:p-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900">
             Archivos ({filteredFiles.length})
           </h2>
         </div>

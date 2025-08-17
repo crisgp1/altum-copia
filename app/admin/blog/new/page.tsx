@@ -174,31 +174,31 @@ export default function NewBlogPost() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Nuevo Post</h1>
-          <p className="text-slate-600 mt-1">Crea un nuevo artículo para el blog</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">Nuevo Post</h1>
+          <p className="text-slate-600 mt-1 text-sm sm:text-base">Crea un nuevo artículo para el blog</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            className="px-3 sm:px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-sm sm:text-base order-3 sm:order-1"
           >
             Cancelar
           </button>
           <button
             onClick={() => handleSubmit(PostStatus.DRAFT)}
             disabled={isLoading || !formData.title.trim()}
-            className="px-6 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 sm:px-6 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base order-2"
           >
             {isLoading ? 'Guardando...' : 'Guardar Borrador'}
           </button>
           <button
             onClick={() => handleSubmit(PostStatus.PUBLISHED)}
             disabled={isLoading || !formData.title.trim() || !formData.content.trim() || !formData.categoryId}
-            className="px-6 py-2 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 sm:px-6 py-2 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base order-1 sm:order-3"
             style={{ backgroundColor: '#B79F76' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#9C8A6B'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#B79F76'}
@@ -208,13 +208,13 @@ export default function NewBlogPost() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-3 space-y-4 sm:space-y-6">
           {/* Tabs */}
-          <div className="bg-white rounded-xl shadow-sm border border-stone-200">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-sm border border-stone-200">
             <div className="border-b border-stone-200">
-              <nav className="flex space-x-8 px-6" aria-label="Tabs">
+              <nav className="flex space-x-4 sm:space-x-6 lg:space-x-8 px-3 sm:px-4 lg:px-6 overflow-x-auto" aria-label="Tabs">
                 {[
                   { id: 'content', name: 'Contenido', icon: '📝' },
                   { id: 'seo', name: 'SEO', icon: '🔍' },
@@ -223,23 +223,24 @@ export default function NewBlogPost() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    className={`flex-shrink-0 py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm ${
                       activeTab === tab.id
                         ? 'border-amber-500 text-amber-600'
                         : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                     } transition-colors`}
                   >
-                    <span className="mr-2">{tab.icon}</span>
-                    {tab.name}
+                    <span className="mr-1 sm:mr-2">{tab.icon}</span>
+                    <span className="hidden sm:inline">{tab.name}</span>
+                    <span className="sm:hidden">{tab.name.substring(0, 4)}</span>
                   </button>
                 ))}
               </nav>
             </div>
 
-            <div className="p-6">
+            <div className="p-3 sm:p-4 lg:p-6">
               {/* Content Tab */}
               {activeTab === 'content' && (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {/* Title */}
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -250,7 +251,7 @@ export default function NewBlogPost() {
                       value={formData.title}
                       onChange={(e) => handleInputChange('title', e.target.value)}
                       placeholder="Ingresa el título del post..."
-                      className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-lg text-slate-900 placeholder:text-slate-400"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-base sm:text-lg text-slate-900 placeholder:text-slate-400"
                     />
                   </div>
 
@@ -260,7 +261,7 @@ export default function NewBlogPost() {
                       URL Slug
                     </label>
                     <div className="flex">
-                      <span className="inline-flex items-center px-3 text-sm text-slate-500 bg-slate-50 border border-r-0 border-stone-300 rounded-l-lg">
+                      <span className="inline-flex items-center px-2 sm:px-3 text-xs sm:text-sm text-slate-500 bg-slate-50 border border-r-0 border-stone-300 rounded-l-lg">
                         /blog/
                       </span>
                       <input
@@ -268,7 +269,7 @@ export default function NewBlogPost() {
                         value={formData.slug}
                         onChange={(e) => handleInputChange('slug', generateSlug(e.target.value))}
                         placeholder="url-del-post"
-                        className="flex-1 px-4 py-2 border border-stone-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400"
+                        className="flex-1 px-3 sm:px-4 py-2 border border-stone-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
                       />
                     </div>
                   </div>
@@ -283,7 +284,7 @@ export default function NewBlogPost() {
                       onChange={(e) => handleInputChange('excerpt', e.target.value)}
                       placeholder="Breve descripción del post..."
                       rows={3}
-                      className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
                     />
                     <p className="text-xs text-slate-500 mt-1">
                       {formData.excerpt.length}/200 caracteres recomendados
@@ -298,7 +299,7 @@ export default function NewBlogPost() {
                     <select
                       value={formData.categoryId}
                       onChange={(e) => handleInputChange('categoryId', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 ${
+                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm sm:text-base ${
                         !formData.categoryId 
                           ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
                           : 'border-stone-300 focus:ring-amber-500 focus:border-amber-500'
@@ -335,10 +336,10 @@ export default function NewBlogPost() {
 
               {/* SEO Tab */}
               {activeTab === 'seo' && (
-                <div className="space-y-6">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 className="font-medium text-blue-900 mb-2">Optimización SEO</h3>
-                    <p className="text-sm text-blue-800">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                    <h3 className="font-medium text-blue-900 mb-2 text-sm sm:text-base">Optimización SEO</h3>
+                    <p className="text-xs sm:text-sm text-blue-800">
                       Optimiza tu contenido para motores de búsqueda. Los campos se completan automáticamente si no los especificas.
                     </p>
                   </div>
@@ -352,7 +353,7 @@ export default function NewBlogPost() {
                       value={formData.seoTitle}
                       onChange={(e) => handleInputChange('seoTitle', e.target.value)}
                       placeholder="Título optimizado para SEO..."
-                      className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
                     />
                     <p className="text-xs text-slate-500 mt-1">
                       {formData.seoTitle.length}/60 caracteres recomendados
@@ -368,7 +369,7 @@ export default function NewBlogPost() {
                       onChange={(e) => handleInputChange('seoDescription', e.target.value)}
                       placeholder="Descripción que aparecerá en los resultados de búsqueda..."
                       rows={3}
-                      className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
                     />
                     <p className="text-xs text-slate-500 mt-1">
                       {formData.seoDescription.length}/160 caracteres recomendados
@@ -376,16 +377,16 @@ export default function NewBlogPost() {
                   </div>
 
                   {/* SEO Preview */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-                    <h4 className="font-medium text-slate-900 mb-3">Vista previa en Google</h4>
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 sm:p-4">
+                    <h4 className="font-medium text-slate-900 mb-3 text-sm sm:text-base">Vista previa en Google</h4>
                     <div className="bg-white border rounded p-3">
-                      <div className="text-blue-600 text-lg hover:underline cursor-pointer">
+                      <div className="text-blue-600 text-base sm:text-lg hover:underline cursor-pointer">
                         {formData.seoTitle || formData.title || 'Título del post'}
                       </div>
-                      <div className="text-green-700 text-sm">
+                      <div className="text-green-700 text-xs sm:text-sm break-all">
                         altum-legal.com › blog › {formData.slug || 'url-del-post'}
                       </div>
-                      <div className="text-slate-600 text-sm mt-1">
+                      <div className="text-slate-600 text-xs sm:text-sm mt-1">
                         {formData.seoDescription || formData.excerpt || 'Descripción del post...'}
                       </div>
                     </div>
@@ -395,37 +396,37 @@ export default function NewBlogPost() {
 
               {/* Settings Tab */}
               {activeTab === 'settings' && (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       Imagen Destacada
                     </label>
-                    <div className="border-2 border-dashed border-stone-300 rounded-lg p-6 text-center hover:border-stone-400 transition-colors">
+                    <div className="border-2 border-dashed border-stone-300 rounded-lg p-4 sm:p-6 text-center hover:border-stone-400 transition-colors">
                       {formData.featuredImage ? (
                         <div className="space-y-3">
                           <img 
                             src={formData.featuredImage} 
                             alt="Preview" 
-                            className="max-h-40 mx-auto rounded"
+                            className="max-h-32 sm:max-h-40 mx-auto rounded"
                           />
                           <button
                             onClick={() => handleInputChange('featuredImage', '')}
-                            className="text-red-600 hover:text-red-700 text-sm"
+                            className="text-red-600 hover:text-red-700 text-xs sm:text-sm"
                           >
                             Eliminar imagen
                           </button>
                         </div>
                       ) : (
                         <div>
-                          <svg className="w-12 h-12 text-stone-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-8 h-8 sm:w-12 sm:h-12 text-stone-400 mx-auto mb-2 sm:mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
-                          <p className="text-slate-600 mb-2">Subir imagen destacada</p>
+                          <p className="text-slate-600 mb-2 text-xs sm:text-sm">Subir imagen destacada</p>
                           <input
                             type="url"
                             placeholder="https://ejemplo.com/imagen.jpg"
                             onChange={(e) => handleInputChange('featuredImage', e.target.value)}
-                            className="w-full max-w-sm px-3 py-2 border border-stone-300 rounded text-sm text-slate-900 placeholder:text-slate-400"
+                            className="w-full max-w-xs sm:max-w-sm px-3 py-2 border border-stone-300 rounded text-xs sm:text-sm text-slate-900 placeholder:text-slate-400"
                           />
                         </div>
                       )}
@@ -436,11 +437,11 @@ export default function NewBlogPost() {
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       Etiquetas
                     </label>
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="flex flex-wrap gap-1 sm:gap-2 mb-3">
                       {formData.tags.map(tag => (
                         <span
                           key={tag}
-                          className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-amber-100 text-amber-800"
+                          className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm bg-amber-100 text-amber-800"
                         >
                           {tag}
                           <button
@@ -452,19 +453,19 @@ export default function NewBlogPost() {
                         </span>
                       ))}
                     </div>
-                    <div className="flex">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
                       <input
                         type="text"
                         value={tagInput}
                         onChange={(e) => setTagInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
                         placeholder="Agregar etiqueta..."
-                        className="flex-1 px-4 py-2 border border-stone-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400"
+                        className="flex-1 px-3 sm:px-4 py-2 border border-stone-300 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
                       />
                       <button
                         type="button"
                         onClick={handleAddTag}
-                        className="px-4 py-2 bg-slate-200 text-slate-700 border border-l-0 border-stone-300 rounded-r-lg hover:bg-slate-300 transition-colors"
+                        className="px-3 sm:px-4 py-2 bg-slate-200 text-slate-700 border border-stone-300 rounded-lg sm:rounded-r-lg sm:rounded-l-none sm:border-l-0 hover:bg-slate-300 transition-colors text-sm sm:text-base"
                       >
                         Agregar
                       </button>
@@ -480,13 +481,13 @@ export default function NewBlogPost() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 order-first lg:order-last">
           {/* Post Status */}
-          <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
-            <h3 className="font-semibold text-slate-900 mb-4">Estado del Post</h3>
-            <div className="space-y-3">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-sm border border-stone-200 p-4 sm:p-6">
+            <h3 className="font-semibold text-slate-900 mb-3 sm:mb-4 text-sm sm:text-base">Estado del Post</h3>
+            <div className="space-y-2 sm:space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-600">Estado:</span>
+                <span className="text-xs sm:text-sm text-slate-600">Estado:</span>
                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                   formData.status === PostStatus.PUBLISHED 
                     ? 'bg-green-100 text-green-800'
@@ -496,14 +497,14 @@ export default function NewBlogPost() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-600">Autor:</span>
-                <span className="text-sm font-medium text-slate-900">
+                <span className="text-xs sm:text-sm text-slate-600">Autor:</span>
+                <span className="text-xs sm:text-sm font-medium text-slate-900 truncate ml-2">
                   {user?.firstName} {user?.lastName}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-600">Creado:</span>
-                <span className="text-sm text-slate-600">
+                <span className="text-xs sm:text-sm text-slate-600">Creado:</span>
+                <span className="text-xs sm:text-sm text-slate-600">
                   {new Date().toLocaleDateString('es-ES')}
                 </span>
               </div>
@@ -511,9 +512,9 @@ export default function NewBlogPost() {
           </div>
 
           {/* Quick Tips */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-            <h3 className="font-semibold text-amber-900 mb-4">💡 Consejos</h3>
-            <ul className="text-sm text-amber-800 space-y-2">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg lg:rounded-xl p-4 sm:p-6">
+            <h3 className="font-semibold text-amber-900 mb-3 sm:mb-4 text-sm sm:text-base">💡 Consejos</h3>
+            <ul className="text-xs sm:text-sm text-amber-800 space-y-1 sm:space-y-2">
               <li>• Un buen título atrae más lectores</li>
               <li>• El extracto aparece en las previews</li>
               <li>• Usa etiquetas relevantes para SEO</li>
