@@ -4,7 +4,6 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Navbar from '@/app/components/navigation/Navbar';
 import Footer from '@/app/components/sections/Footer';
-import { attorneys } from '@/app/lib/data/attorneys';
 import { Attorney } from '@/app/lib/types/Attorney';
 
 // Service data structure with ALTUM Legal services
@@ -134,9 +133,9 @@ const servicesData = {
 };
 
 // Smart attorney matching function
-const getMatchingAttorneys = (serviceSlug: string): Attorney[] => {
+const getMatchingAttorneys = (serviceSlug: string, attorneys: Attorney[]): Attorney[] => {
   const service = servicesData[serviceSlug as keyof typeof servicesData];
-  if (!service) return [];
+  if (!service || !attorneys.length) return [];
 
   const keywords = service.keywords;
   
@@ -192,16 +191,65 @@ const getMatchingAttorneys = (serviceSlug: string): Attorney[] => {
 export default function ServiceDetailPage() {
   const params = useParams();
   const [matchedAttorneys, setMatchedAttorneys] = useState<Attorney[]>([]);
+  const [allAttorneys, setAllAttorneys] = useState<Attorney[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const slug = params?.slug as string;
 
   const service = servicesData[slug as keyof typeof servicesData];
 
+  // Fetch attorneys from API
+  const fetchActiveAttorneys = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/attorneys/active');
+      
+      if (!response.ok) {
+        throw new Error('Error al cargar los abogados');
+      }
+      
+      const data = await response.json();
+      
+      // Map the API response to match the expected Attorney interface
+      const mappedAttorneys: Attorney[] = data.map((attorney: any) => ({
+        id: attorney.id,
+        name: attorney.nombre,
+        position: attorney.cargo,
+        specialization: attorney.especializaciones || [],
+        experience: attorney.experienciaAnios,
+        education: attorney.educacion || [],
+        languages: attorney.idiomas || [],
+        email: attorney.correo,
+        phone: attorney.telefono,
+        bio: attorney.biografia,
+        achievements: attorney.logros || [],
+        cases: attorney.casosDestacados || [],
+        imageUrl: attorney.imagenUrl,
+        linkedIn: attorney.linkedIn,
+        isPartner: attorney.esSocio,
+        image: attorney.imagenUrl || '/images/attorneys/default-attorney.jpg',
+        shortDescription: attorney.descripcionCorta || attorney.biografia?.substring(0, 150) + '...'
+      }));
+      
+      setAllAttorneys(mappedAttorneys);
+    } catch (err) {
+      console.error('Error fetching attorneys:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (slug) {
-      const attorneys = getMatchingAttorneys(slug);
+    fetchActiveAttorneys();
+  }, []);
+
+  useEffect(() => {
+    if (slug && allAttorneys.length > 0) {
+      const attorneys = getMatchingAttorneys(slug, allAttorneys);
       setMatchedAttorneys(attorneys);
     }
-  }, [slug]);
+  }, [slug, allAttorneys]);
 
   if (!service) {
     return (
@@ -329,7 +377,29 @@ export default function ServiceDetailPage() {
             </p>
           </div>
 
-          {matchedAttorneys.length > 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+                <p className="text-slate-600">Cargando especialistas...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="text-red-500 mb-4">
+                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-slate-600 mb-4">{error}</p>
+              <button
+                onClick={fetchActiveAttorneys}
+                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+              >
+                Reintentar
+              </button>
+            </div>
+          ) : matchedAttorneys.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {matchedAttorneys.map((attorney, index) => (
                 <div key={attorney.id} 
@@ -394,10 +464,24 @@ export default function ServiceDetailPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-slate-600">
-                Nuestros especialistas en esta área están disponibles para consulta. 
-                Contáctenos para más información.
+              <div className="mb-4">
+                <svg className="w-16 h-16 mx-auto text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-slate-700 mb-2">Especialistas Disponibles</h3>
+              <p className="text-slate-600 max-w-md mx-auto">
+                Nuestros especialistas en {service.title.toLowerCase()} están disponibles para consulta. 
+                Contáctenos para conectarlo con el abogado más adecuado para su caso.
               </p>
+              <div className="mt-6">
+                <button 
+                  className="px-6 py-3 text-white font-medium rounded-lg transition-colors duration-300"
+                  style={{ backgroundColor: service.color }}
+                >
+                  Contactar Especialista
+                </button>
+              </div>
             </div>
           )}
         </div>

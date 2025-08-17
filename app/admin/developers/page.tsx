@@ -38,57 +38,23 @@ export default function DeveloperRoleAssignment() {
 
   const loadUsers = async () => {
     try {
-      // Mock data - replace with real API call
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          email: 'john.developer@altum.com',
-          firstName: 'John',
-          lastName: 'Smith',
-          imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-          role: UserRole.DEVELOPER,
-          createdAt: new Date('2024-01-15'),
-          lastSignInAt: new Date('2024-01-20'),
-          department: 'Development'
-        },
-        {
-          id: '2',
-          email: 'maria.garcia@altum.com',
-          firstName: 'María',
-          lastName: 'García',
-          imageUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b372?w=150&h=150&fit=crop&crop=face',
-          role: UserRole.CONTENT_CREATOR,
-          createdAt: new Date('2024-01-10'),
-          lastSignInAt: new Date('2024-01-19'),
-          department: 'Content'
-        },
-        {
-          id: '3',
-          email: 'carlos.admin@altum.com',
-          firstName: 'Carlos',
-          lastName: 'López',
-          imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-          role: UserRole.ADMIN,
-          createdAt: new Date('2024-01-05'),
-          lastSignInAt: new Date('2024-01-21'),
-          department: 'Administration'
-        },
-        {
-          id: '4',
-          email: 'ana.user@altum.com',
-          firstName: 'Ana',
-          lastName: 'Martínez',
-          imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-          role: UserRole.USER,
-          createdAt: new Date('2024-01-18'),
-          lastSignInAt: new Date('2024-01-20'),
-          department: 'Legal'
-        }
-      ];
+      const response = await fetch('/api/admin/users');
       
-      setUsers(mockUsers);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Error al cargar usuarios');
+      }
+      
+      setUsers(data.data);
     } catch (error) {
       console.error('Error loading users:', error);
+      // Show error to user
+      alert('Error al cargar usuarios. Por favor, intenta de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +80,29 @@ export default function DeveloperRoleAssignment() {
 
   const handleRoleUpdate = async (userId: string, newRole: UserRole) => {
     try {
-      // Update user role via API
+      const response = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          userId, 
+          role: newRole,
+          department: users.find(u => u.id === userId)?.department 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Error al actualizar rol');
+      }
+      
+      // Update local state
       const updatedUsers = users.map(user =>
         user.id === userId ? { ...user, role: newRole } : user
       );

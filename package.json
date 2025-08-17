@@ -13,6 +13,7 @@
     "@clerk/backend": "^2.6.2",
     "@clerk/localizations": "^3.21.2",
     "@clerk/nextjs": "^6.28.1",
+    "@hello-pangea/dnd": "^18.0.1",
     "@types/nodemailer": "^6.4.17",
     "@vercel/blob": "^1.1.1",
     "bcryptjs": "^2.4.3",

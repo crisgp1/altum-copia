@@ -18,53 +18,16 @@ interface ServiceItem {
 }
 
 interface VerticalService {
+  id: string;
   title: string;
   backgroundColor: string;
   icon: React.ReactNode;
+  shortDescription: string;
+  description: string;
+  iconUrl?: string;
+  order: number;
+  isActive: boolean;
 }
-
-const serviceItems: ServiceItem[] = [
-  {
-    number: '01',
-    title: 'Protección de intereses en tribunales estatales',
-    description: 'Defensa integral en todas las instancias de la federación'
-  },
-  {
-    number: '02',
-    title: 'Protección en tribunales de arbitraje',
-    description: 'Marco de arbitraje comercial internacional'
-  },
-  {
-    number: '03',
-    title: 'Cobranza de deudas vencidas',
-    description: 'Deudas por préstamos, transacciones de seguridad y disputas contractuales'
-  },
-  {
-    number: '04',
-    title: 'Representación en disputas inmobiliarias',
-    description: 'Disputas en construcción y bienes raíces'
-  },
-  {
-    number: '05',
-    title: 'Representación en disputas corporativas',
-    description: 'Conflictos empresariales y comerciales'
-  },
-  {
-    number: '06',
-    title: 'Disputas del mercado de valores',
-    description: 'Representación en disputas relacionadas con el mercado de valores'
-  },
-  {
-    number: '07',
-    title: 'Protección en procedimientos de cumplimiento',
-    description: 'Marco de procedimientos de aplicación'
-  },
-  {
-    number: '08',
-    title: 'Búsqueda de propiedad de deudores',
-    description: 'Para ejecutar embargo por el reembolso'
-  }
-];
 
 interface ServiceDetail {
   number: string;
@@ -77,193 +40,26 @@ interface VerticalServiceWithDetails extends VerticalService {
   details: ServiceDetail[];
 }
 
-const verticalServices: VerticalServiceWithDetails[] = [
-  {
-    title: 'Derecho Administrativo',
-    backgroundColor: '#B79F76',
-    icon: <Image src="/assets/svg/derecho_administrativo.svg" alt="Derecho Administrativo" width={40} height={40} className="filter brightness-0 invert" />,
-    details: [
-      {
-        number: '01',
-        title: 'Licencias municipales',
-        description: 'Tramitación ágil de permisos y licencias ante autoridades locales',
-        slug: 'derecho-administrativo'
-      },
-      {
-        number: '02', 
-        title: 'Transparencia gubernamental',
-        description: 'Ejercicio efectivo del derecho de acceso a la información pública',
-        slug: 'derecho-administrativo'
-      },
-      {
-        number: '03',
-        title: 'Defensa contra multas',
-        description: 'Impugnación estratégica de sanciones administrativas',
-        slug: 'derecho-administrativo'
-      },
-      {
-        number: '04',
-        title: 'Juicios de nulidad',
-        description: 'Anulación de actos administrativos ilegales o inconstitucionales',
-        slug: 'derecho-administrativo'
-      },
-      {
-        number: '05',
-        title: 'Créditos fiscales',
-        description: 'Defensa especializada en procedimientos de cobro del fisco',
-        slug: 'derecho-administrativo'
-      }
-    ]
-  },
-  {
-    title: 'Derecho Notarial',
-    backgroundColor: '#9C8A6B', 
-    icon: <Image src="/assets/svg/derecho_notarial.svg" alt="Derecho Notarial" width={40} height={40} className="filter brightness-0 invert" />,
-    details: [
-      {
-        number: '01',
-        title: 'Escrituración inmobiliaria',
-        description: 'Formalización de compraventas, donaciones y permutas de bienes',
-        slug: 'derecho-notarial'
-      },
-      {
-        number: '02',
-        title: 'Cancelación de gravámenes',
-        description: 'Liberación de hipotecas y cargas sobre propiedades',
-        slug: 'derecho-notarial'
-      },
-      {
-        number: '03',
-        title: 'Trámites sucesorios',
-        description: 'Regularización patrimonial por fallecimiento de titulares',
-        slug: 'derecho-notarial'
-      },
-      {
-        number: '04',
-        title: 'Cartas notariales',
-        description: 'Autorizaciones especiales para viaje de menores al extranjero',
-        slug: 'derecho-notarial'
-      },
-      {
-        number: '05',
-        title: 'Ratificación de firmas',
-        description: 'Validación notarial de documentos y contratos privados',
-        slug: 'derecho-notarial'
-      }
-    ]
-  },
-  {
-    title: 'Derecho Corporativo',
-    backgroundColor: '#D4A574',
-    icon: <Image src="/assets/svg/derecho_corporativo.svg" alt="Derecho Corporativo" width={40} height={40} className="filter brightness-0 invert" />,
-    details: [
-      {
-        number: '01',
-        title: 'Constitución societaria',
-        description: 'Creación de sociedades mercantiles y civiles con estructura óptima',
-        slug: 'derecho-corporativo'
-      },
-      {
-        number: '02',
-        title: 'Actas corporativas',
-        description: 'Formalización de decisiones en asambleas y consejos de administración',
-        slug: 'derecho-corporativo'
-      },
-      {
-        number: '03',
-        title: 'Estrategia empresarial',
-        description: 'Planificación corporativa y estructuración de operaciones complejas',
-        slug: 'derecho-corporativo'
-      },
-      {
-        number: '04',
-        title: 'Resolución de conflictos',
-        description: 'Mediación y conciliación en disputas empresariales',
-        slug: 'derecho-corporativo'
-      },
-      {
-        number: '05',
-        title: 'Comercio digital',
-        description: 'Asesoría legal especializada en operaciones de comercio electrónico',
-        slug: 'derecho-corporativo'
-      }
-    ]
-  },
-  {
-    title: 'Derecho Familiar',
-    backgroundColor: '#7FAAB3',
-    icon: <Image src="/assets/svg/derecho_familiar.svg" alt="Derecho Familiar" width={40} height={40} className="filter brightness-0 invert" />,
-    details: [
-      {
-        number: '01',
-        title: 'Procesos de divorcio',
-        description: 'Disolución matrimonial con protección integral de intereses familiares',
-        slug: 'derecho-familiar'
-      },
-      {
-        number: '02',
-        title: 'Pensiones alimenticias',
-        description: 'Establecimiento y modificación de obligaciones de manutención',
-        slug: 'derecho-familiar'
-      },
-      {
-        number: '03',
-        title: 'Juicios sucesorios',
-        description: 'Tramitación de herencias testamentarias e intestamentarias',
-        slug: 'derecho-familiar'
-      },
-      {
-        number: '04',
-        title: 'Custodia de menores',
-        description: 'Determinación de patria potestad y régimen de convivencias',
-        slug: 'derecho-familiar'
-      },
-      {
-        number: '05',
-        title: 'Mediación familiar',
-        description: 'Resolución pacífica de conflictos mediante acuerdos consensuados',
-        slug: 'derecho-familiar'
-      }
-    ]
-  },
-  {
-    title: 'Derecho Civil',
-    backgroundColor: '#3D4A5C',
-    icon: <Image src="/assets/svg/derecho_civil.svg" alt="Derecho Civil" width={40} height={40} className="filter brightness-0 invert" />,
-    details: [
-      {
-        number: '01',
-        title: 'Contratos especializados',
-        description: 'Elaboración y revisión de instrumentos contractuales complejos',
-        slug: 'derecho-civil'
-      },
-      {
-        number: '02',
-        title: 'Litigio hipotecario',
-        description: 'Defensa en procedimientos de ejecución de garantías inmobiliarias',
-        slug: 'derecho-civil'
-      },
-      {
-        number: '03',
-        title: 'Arrendamientos',
-        description: 'Terminación y rescisión de contratos de arrendamiento inmobiliario',
-        slug: 'derecho-civil'
-      },
-      {
-        number: '04',
-        title: 'Copropiedad',
-        description: 'Disolución de regímenes de propiedad compartida entre copropietarios',
-        slug: 'derecho-civil'
-      },
-      {
-        number: '05',
-        title: 'Recuperación posesoria',
-        description: 'Acciones judiciales para recuperar la posesión de bienes inmuebles',
-        slug: 'derecho-civil'
-      }
-    ]
-  }
+// Default service colors (can be customized per service later)
+const defaultColors = [
+  '#B79F76', // Gold
+  '#152239', // Dark Blue
+  '#A89B7A', // Sage
+  '#5B8AAE', // Light Blue
+  '#C5B299', // Beige
+  '#D4A574'  // Light Gold
 ];
+
+// Service items for initial content (can be generated from description)
+const generateServiceItems = (description: string): ServiceItem[] => {
+  // Split description into sentences and create items
+  const sentences = description.split('.').filter(s => s.trim().length > 20);
+  return sentences.slice(0, 8).map((sentence, index) => ({
+    number: String(index + 1).padStart(2, '0'),
+    title: sentence.trim().split(',')[0], // Use first part before comma as title
+    description: sentence.trim()
+  }));
+};
 
 // Function to convert service title to slug
 const getServiceSlug = (title: string): string => {
@@ -295,8 +91,9 @@ export default function ServicesPreview() {
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [services, setServices] = useState<VerticalServiceWithDetails[]>(verticalServices);
-  const [isLoading, setIsLoading] = useState(false);
+  const [services, setServices] = useState<VerticalServiceWithDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Detect touch device
   useEffect(() => {
@@ -307,23 +104,49 @@ export default function ServicesPreview() {
   const fetchServices = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/services');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.services && data.services.length > 0) {
-          // Map API data to component format, fallback to hardcoded if needed
-          const mappedServices = data.services.map((service: any, index: number) => ({
-            title: service.title || verticalServices[index]?.title,
-            backgroundColor: service.backgroundColor || verticalServices[index]?.backgroundColor,
-            icon: verticalServices[index]?.icon, // Keep existing icons
-            details: service.details || verticalServices[index]?.details || []
-          }));
-          setServices(mappedServices);
-        }
+      setError(null);
+      const response = await fetch('/api/services?active=true');
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        // Transform API data to component format
+        const transformedServices: VerticalServiceWithDetails[] = data.data.map((service: any, index: number) => ({
+          id: service.id,
+          title: service.name,
+          backgroundColor: defaultColors[index % defaultColors.length],
+          icon: service.iconUrl ? (
+            <Image 
+              src={service.iconUrl} 
+              alt={service.name} 
+              width={40} 
+              height={40} 
+              className="filter brightness-0 invert" 
+            />
+          ) : (
+            <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold">{service.name.charAt(0)}</span>
+            </div>
+          ),
+          shortDescription: service.shortDescription,
+          description: service.description,
+          iconUrl: service.iconUrl,
+          order: service.order,
+          isActive: service.isActive,
+          details: generateServiceItems(service.description).map((item, idx) => ({
+            ...item,
+            slug: getServiceSlug(service.name)
+          }))
+        }));
+
+        // Sort by order
+        const sortedServices = transformedServices.sort((a, b) => a.order - b.order);
+        setServices(sortedServices);
+      } else {
+        setError('Error al cargar servicios');
       }
-    } catch (error) {
-      console.error('Error fetching services:', error);
-      // Keep using fallback data on error
+    } catch (err) {
+      console.error('Error fetching services:', err);
+      setError('Error al cargar servicios');
     } finally {
       setIsLoading(false);
     }
@@ -834,7 +657,28 @@ export default function ServicesPreview() {
       <div ref={rightContentRef} className="lg:absolute lg:right-0 lg:top-16 xl:top-24 lg:h-[500px] xl:h-[550px] w-full lg:w-auto">
         {/* Desktop Layout - Wallet Cards */}
         <div className="hidden lg:flex h-full items-end justify-end overflow-hidden">
-          {services.map((service, index) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center w-full h-full">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-700"></div>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center w-full h-full text-center">
+              <div>
+                <p className="text-slate-600 mb-4">{error}</p>
+                <button
+                  onClick={fetchServices}
+                  className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                >
+                  Reintentar
+                </button>
+              </div>
+            </div>
+          ) : services.length === 0 ? (
+            <div className="flex items-center justify-center w-full h-full">
+              <p className="text-slate-600">No hay servicios disponibles</p>
+            </div>
+          ) : (
+            services.map((service, index) => (
             <div
               key={service.title}
               ref={(el) => {
@@ -887,12 +731,37 @@ export default function ServicesPreview() {
               {/* Hover overlay */}
               <div className="column-overlay absolute inset-0 bg-black opacity-0 transition-opacity duration-300 pointer-events-none"></div>
             </div>
-          ))}
+          ))
+          )}
         </div>
 
         {/* Mobile Layout - Dropdown Style Cards */}
         <div className="flex lg:hidden flex-col order-first lg:order-last w-full gap-1 sm:gap-2">
-          {services.map((service, index) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-700 mx-auto mb-4"></div>
+                <p className="text-slate-600">Cargando servicios...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="text-center">
+                <p className="text-slate-600 mb-4">{error}</p>
+                <button
+                  onClick={fetchServices}
+                  className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                >
+                  Reintentar
+                </button>
+              </div>
+            </div>
+          ) : services.length === 0 ? (
+            <div className="flex items-center justify-center py-16">
+              <p className="text-slate-600">No hay servicios disponibles</p>
+            </div>
+          ) : (
+            services.map((service, index) => (
             <div
               key={service.title}
               data-service-card
@@ -1033,7 +902,8 @@ export default function ServicesPreview() {
                 </div>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
       </div>
 

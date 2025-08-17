@@ -33,44 +33,19 @@ export class MediaService implements IMediaService {
 
   async getAllMediaFiles(): Promise<MediaFile[]> {
     try {
-      // For now, return mock data - replace with actual API call
-      const mockData: MediaFileProps[] = [
-        {
-          id: '1',
-          name: 'attorney-profile.jpg',
-          url: 'https://2zzwsrtnkjplj0sx.public.blob.vercel-storage.com/uploads/attorneys/attorneys-1754933312079-111938380-attorney-profile.jpg',
-          type: 'image/jpeg',
-          size: 245760,
-          uploadedAt: new Date('2024-01-15T10:30:00Z'),
-          category: 'attorneys',
-          description: 'Foto de perfil de abogado',
-          tags: ['attorney', 'profile']
-        },
-        {
-          id: '2',
-          name: 'logo-altum.png',
-          url: 'https://2zzwsrtnkjplj0sx.public.blob.vercel-storage.com/uploads/media/media-1754933312080-111938381-logo-altum.png',
-          type: 'image/png',
-          size: 89432,
-          uploadedAt: new Date('2024-01-14T14:22:00Z'),
-          category: 'branding',
-          description: 'Logo oficial de Altum Legal',
-          tags: ['logo', 'branding']
-        },
-        {
-          id: '3',
-          name: 'presentation.pdf',
-          url: 'https://2zzwsrtnkjplj0sx.public.blob.vercel-storage.com/uploads/documents/documents-1754933312081-111938382-presentation.pdf',
-          type: 'application/pdf',
-          size: 1234567,
-          uploadedAt: new Date('2024-01-13T09:15:00Z'),
-          category: 'documents',
-          description: 'Presentación corporativa',
-          tags: ['presentation', 'corporate']
-        }
-      ];
-
-      return mockData.map(data => MediaFile.fromJSON(data));
+      const response = await fetch('/api/media');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Error al cargar archivos');
+      }
+      
+      return data.data.map((fileData: any) => MediaFile.fromJSON(fileData));
     } catch (error) {
       console.error('Error fetching media files:', error);
       throw new Error('Error al cargar archivos multimedia');
@@ -112,11 +87,27 @@ export class MediaService implements IMediaService {
 
   async deleteMediaFile(fileId: string): Promise<void> {
     try {
-      // Mock deletion - replace with actual API call
-      console.log(`Deleting media file with ID: ${fileId}`);
+      const response = await fetch('/api/media', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fileIds: [fileId] })
+      });
       
-      // In a real implementation, this would call an API endpoint
-      // await fetch(`/api/media/${fileId}`, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Error al eliminar archivo');
+      }
+      
+      if (data.failed > 0) {
+        throw new Error('Error al eliminar el archivo');
+      }
       
     } catch (error) {
       console.error('Error deleting media file:', error);
@@ -126,8 +117,28 @@ export class MediaService implements IMediaService {
 
   async deleteMultipleMediaFiles(fileIds: string[]): Promise<void> {
     try {
-      const deletePromises = fileIds.map(id => this.deleteMediaFile(id));
-      await Promise.all(deletePromises);
+      const response = await fetch('/api/media', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fileIds })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Error al eliminar archivos');
+      }
+      
+      if (data.failed > 0) {
+        throw new Error(`Error al eliminar ${data.failed} archivo(s)`);
+      }
+      
     } catch (error) {
       console.error('Error deleting multiple media files:', error);
       throw new Error('Error al eliminar los archivos');

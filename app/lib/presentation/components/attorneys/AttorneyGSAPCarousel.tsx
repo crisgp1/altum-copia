@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import { Attorney } from '@/app/lib/types/Attorney';
-import { attorneys } from '@/app/lib/data/attorneys';
 import { AttorneyGSAPCard } from './AttorneyGSAPCard';
 import { createPortal } from 'react-dom';
 
@@ -12,10 +11,55 @@ export const AttorneyGSAPCarousel: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedAttorney, setSelectedAttorney] = useState<Attorney | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [attorneys, setAttorneys] = useState<Attorney[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    fetchActiveAttorneys();
   }, []);
+
+  const fetchActiveAttorneys = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/attorneys/active');
+      
+      if (!response.ok) {
+        throw new Error('Error al cargar los abogados');
+      }
+      
+      const data = await response.json();
+      
+      // Map the API response to match the expected Attorney interface
+      const mappedAttorneys: Attorney[] = data.map((attorney: any) => ({
+        id: attorney.id,
+        name: attorney.nombre,
+        position: attorney.cargo,
+        specialization: attorney.especializaciones || [],
+        experience: attorney.experienciaAnios,
+        education: attorney.educacion || [],
+        languages: attorney.idiomas || [],
+        email: attorney.correo,
+        phone: attorney.telefono,
+        bio: attorney.biografia,
+        achievements: attorney.logros || [],
+        cases: attorney.casosDestacados || [],
+        imageUrl: attorney.imagenUrl,
+        linkedIn: attorney.linkedIn,
+        isPartner: attorney.esSocio,
+        image: attorney.imagenUrl || '/images/attorneys/default-attorney.jpg',
+        shortDescription: attorney.descripcionCorta
+      }));
+      
+      setAttorneys(mappedAttorneys);
+    } catch (err) {
+      console.error('Error fetching attorneys:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Remove old positioning logic since cards are now in horizontal layout
 
@@ -79,27 +123,59 @@ export const AttorneyGSAPCarousel: React.FC = () => {
                 padding: 0
               }}
             >
-              <div
-                className="flex h-full w-full"
-                style={{
-                  gap: 'clamp(2px, 0.5vw, 10px)', // Tighter responsive gap
-                  margin: 0,
-                  padding: 0
-                }}
-              >
-                {attorneys.slice(0, 4).map((attorney, index) => (
-                  <AttorneyGSAPCard
-                    key={attorney.id}
-                    attorney={attorney}
-                    index={index}
-                    isActive={hoveredIndex === index}
-                    onCardHover={setHoveredIndex}
-                    onClick={handleCardClick}
-                    totalCards={4}
-                    hoveredIndex={hoveredIndex}
-                  />
-                ))}
-              </div>
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+                    <p className="text-slate-600">Cargando abogados...</p>
+                  </div>
+                </div>
+              ) : error ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="text-red-500 mb-4">
+                      <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-slate-600 mb-4">{error}</p>
+                    <button
+                      onClick={fetchActiveAttorneys}
+                      className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                    >
+                      Reintentar
+                    </button>
+                  </div>
+                </div>
+              ) : attorneys.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <p className="text-slate-600">No hay abogados disponibles en este momento.</p>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="flex h-full w-full"
+                  style={{
+                    gap: 'clamp(5px, 1vw, 10px)', // Mobile responsive gap
+                    margin: 0,
+                    padding: 0
+                  }}
+                >
+                  {attorneys.slice(0, 4).map((attorney, index) => (
+                    <AttorneyGSAPCard
+                      key={attorney.id}
+                      attorney={attorney}
+                      index={index}
+                      isActive={hoveredIndex === index}
+                      onCardHover={setHoveredIndex}
+                      onClick={handleCardClick}
+                      totalCards={Math.min(attorneys.length, 4)}
+                      hoveredIndex={hoveredIndex}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
