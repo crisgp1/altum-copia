@@ -135,12 +135,11 @@ export class BlobStorageService {
       onProgress?.(0);
 
       // Simulate progress for better UX since fetch doesn't provide real progress
+      let currentProgress = 0;
       const progressInterval = setInterval(() => {
-        onProgress?.(prev => {
-          const current = typeof prev === 'number' ? prev : 0;
-          if (current >= 90) return current;
-          return current + Math.random() * 20;
-        });
+        if (currentProgress >= 90) return;
+        currentProgress += Math.random() * 20;
+        onProgress?.(currentProgress);
       }, 200);
 
       const result = await this.uploadFile(file, category);
@@ -271,10 +270,10 @@ export class BlobStorageService {
    * File type presets for different upload scenarios
    */
   static readonly FILE_TYPE_PRESETS = {
-    IMAGES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'],
-    DOCUMENTS: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-    ALL_MEDIA: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'audio/mpeg', 'audio/wav']
-  } as const;
+    IMAGES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'] as string[],
+    DOCUMENTS: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'] as string[],
+    ALL_MEDIA: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'audio/mpeg', 'audio/wav'] as string[]
+  };
 
   /**
    * Size presets for different scenarios

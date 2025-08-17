@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { clerkClient } from '@clerk/nextjs/server';
 import { UserRole } from '@/app/lib/auth/roles';
+import { User } from '@clerk/nextjs/server';
 
 export async function GET(request: NextRequest) {
   try {
     // Get all users from Clerk
-    const users = await clerkClient.users.getUserList({
+    const clerkInstance = await clerkClient();
+    const users = await clerkInstance.users.getUserList({
       limit: 100, // Adjust as needed
       orderBy: '-created_at'
     });
 
     // Transform Clerk users to our User interface
-    const transformedUsers = users.data.map(user => ({
+    const transformedUsers = users.data.map((user: User) => ({
       id: user.id,
       email: user.emailAddresses[0]?.emailAddress || '',
       firstName: user.firstName || '',
@@ -53,7 +55,8 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update user metadata in Clerk
-    await clerkClient.users.updateUserMetadata(userId, {
+    const clerkInstance = await clerkClient();
+    await clerkInstance.users.updateUserMetadata(userId, {
       publicMetadata: {
         role,
         department: department || undefined

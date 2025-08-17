@@ -39,7 +39,7 @@ class EmailService {
       },
     };
 
-    this.transporter = nodemailer.createTransporter(config);
+    this.transporter = nodemailer.createTransport(config);
   }
 
   async sendContactNotification(data: ContactEmailData): Promise<boolean> {

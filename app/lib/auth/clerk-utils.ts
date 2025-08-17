@@ -12,13 +12,15 @@ export async function updateUserRole(userId: string, role: UserRole, updatedBy: 
     await clerkClient.users.updateUserMetadata(userId, {
       publicMetadata: {
         role,
-        department: 'Legal'
-      } as UserPublicMetadata,
+        department: 'Legal',
+        ...{} as any
+      },
       privateMetadata: {
         permissions,
         createdBy: updatedBy,
-        lastLogin: new Date().toISOString()
-      } as UserPrivateMetadata
+        lastLogin: new Date().toISOString(),
+        ...{} as any
+      }
     });
     
     return { success: true };
@@ -31,7 +33,7 @@ export async function updateUserRole(userId: string, role: UserRole, updatedBy: 
 export async function getUserRole(userId: string): Promise<UserRole> {
   try {
     const user = await clerkClient.users.getUser(userId);
-    const metadata = user.publicMetadata as UserPublicMetadata;
+    const metadata = user.publicMetadata as any;
     return metadata.role || UserRole.USER;
   } catch (error) {
     console.error('Error getting user role:', error);
@@ -42,7 +44,7 @@ export async function getUserRole(userId: string): Promise<UserRole> {
 export async function getUserPermissions(userId: string): Promise<string[]> {
   try {
     const user = await clerkClient.users.getUser(userId);
-    const metadata = user.privateMetadata as UserPrivateMetadata;
+    const metadata = user.privateMetadata as any;
     return metadata.permissions || [];
   } catch (error) {
     console.error('Error getting user permissions:', error);
@@ -63,10 +65,10 @@ export async function getAllUsers() {
       firstName: user.firstName,
       lastName: user.lastName,
       imageUrl: user.imageUrl,
-      role: (user.publicMetadata as UserPublicMetadata)?.role || UserRole.USER,
+      role: (user.publicMetadata as any)?.role || UserRole.USER,
       createdAt: user.createdAt,
       lastSignInAt: user.lastSignInAt,
-      department: (user.publicMetadata as UserPublicMetadata)?.department
+      department: (user.publicMetadata as any)?.department
     }));
   } catch (error) {
     console.error('Error getting all users:', error);

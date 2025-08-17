@@ -13,7 +13,7 @@ export default function PostSignInRedirect() {
     if (!isLoaded || !user) return;
 
     const checkRoleAndRedirect = () => {
-      const publicMetadata = user.publicMetadata as UserPublicMetadata;
+      const publicMetadata = user.publicMetadata as any;
       const userRole = publicMetadata?.role;
 
       // Check if user has admin permissions
