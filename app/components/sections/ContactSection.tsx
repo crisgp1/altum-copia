@@ -5,47 +5,31 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import toast from 'react-hot-toast';
 import { validateContactForm, sanitizeInput } from '@/app/lib/utils/validation';
+import { FaPhone, FaWhatsapp, FaMapMarkerAlt, FaClock, FaEnvelope, FaArrowRight } from 'react-icons/fa';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const contactInfo = [
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-      </svg>
-    ),
+    icon: <FaPhone className="w-6 h-6" />,
     title: 'Oficina',
     info: '+52 33 3629 7531',
     href: 'tel:+523336297531'
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-      </svg>
-    ),
+    icon: <FaWhatsapp className="w-6 h-6" />,
     title: 'WhatsApp',
     info: '+52 33 1568 1688',
     href: 'https://wa.me/523315681688'
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
+    icon: <FaMapMarkerAlt className="w-6 h-6" />,
     title: 'Dirección',
     info: 'Av. Faro #2522, Bosque de la Victoria',
     href: 'https://maps.google.com/?q=Av.+Faro+2522+Bosque+de+la+Victoria+Guadalajara'
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
+    icon: <FaClock className="w-6 h-6" />,
     title: 'Horario',
     info: 'Lun - Vie: 09:00 - 18:00',
     href: '#'
@@ -85,6 +69,62 @@ export default function ContactSection() {
         [name]: ''
       }));
     }
+  };
+
+  const generateWhatsAppMessage = () => {
+    const { name, email, phone, area, message } = formData;
+    
+    let whatsappMessage = `*Nueva Consulta Legal - ALTUM Legal*\n\n`;
+    whatsappMessage += `*Nombre:* ${name}\n`;
+    whatsappMessage += `*Email:* ${email}\n`;
+    
+    if (phone) {
+      whatsappMessage += `*Teléfono:* ${phone}\n`;
+    }
+    
+    if (area) {
+      whatsappMessage += `*Área de interés:* ${area}\n`;
+    }
+    
+    whatsappMessage += `\n*Consulta:*\n${message}\n\n`;
+    whatsappMessage += `_Mensaje enviado desde altum-legal.mx_`;
+    
+    return encodeURIComponent(whatsappMessage);
+  };
+
+  const sendToWhatsApp = () => {
+    // Validate form first
+    const validation = validateContactForm(formData);
+    
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      toast.error('Por favor corrija los errores en el formulario');
+      return;
+    }
+    
+    setErrors({});
+    
+    // WhatsApp number from contact info
+    const whatsappNumber = '523315681688';
+    const encodedMessage = generateWhatsAppMessage();
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+    
+    // Open WhatsApp in new window/tab
+    window.open(whatsappUrl, '_blank');
+    
+    // Show success message
+    toast.success('Redirigiendo a WhatsApp...');
+    
+    // Reset form after successful validation
+    setTimeout(() => {
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        area: '',
+        message: ''
+      });
+    }, 1000);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -266,10 +306,11 @@ export default function ContactSection() {
                     className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 text-sm sm:text-base"
                   >
                     <option value="">Seleccione un área</option>
-                    <option value="corporativo">Derecho Corporativo</option>
-                    <option value="litigios">Litigios</option>
-                    <option value="fiscal">Derecho Fiscal</option>
-                    <option value="propiedad">Propiedad Intelectual</option>
+                    <option value="Derecho Administrativo">Derecho Administrativo</option>
+                    <option value="Derecho Notarial">Derecho Notarial</option>
+                    <option value="Derecho Corporativo">Derecho Corporativo</option>
+                    <option value="Derecho Familiar">Derecho Familiar</option>
+                    <option value="Derecho Civil">Derecho Civil</option>
                   </select>
                 </div>
               </div>
@@ -295,26 +336,31 @@ export default function ContactSection() {
                 )}
               </div>
               
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full bg-slate-800 text-white px-6 sm:px-8 py-3 sm:py-4 font-medium transition-all duration-300 inline-flex items-center justify-center text-sm sm:text-base ${
-                  isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-700'
-                }`}
-                style={{ minHeight: '44px' }}
-              >
-                <span>{isSubmitting ? 'Enviando...' : 'Enviar Consulta'}</span>
-                {!isSubmitting && (
-                  <svg 
-                    className="ml-2 w-3 sm:w-4 h-3 sm:h-4" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                )}
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`bg-slate-800 text-white px-6 sm:px-8 py-3 sm:py-4 font-medium transition-all duration-300 inline-flex items-center justify-center text-sm sm:text-base ${
+                    isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-700'
+                  }`}
+                  style={{ minHeight: '44px' }}
+                >
+                  <span>{isSubmitting ? 'Enviando...' : 'Enviar por Email'}</span>
+                  {!isSubmitting && (
+                    <FaEnvelope className="ml-2 w-3 sm:w-4 h-3 sm:h-4" />
+                  )}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={sendToWhatsApp}
+                  className="bg-green-600 text-white px-6 sm:px-8 py-3 sm:py-4 font-medium transition-all duration-300 inline-flex items-center justify-center text-sm sm:text-base hover:bg-green-700 group"
+                  style={{ minHeight: '44px' }}
+                >
+                  <span>Enviar por WhatsApp</span>
+                  <FaWhatsapp className="ml-2 w-4 h-4 transition-transform group-hover:scale-110" />
+                </button>
+              </div>
             </form>
           </div>
 

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff, GripVertical, Save, X, ChevronRight, Folder, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, GripVertical, Save, X, ChevronRight, Folder, FileText, Check } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import toast from 'react-hot-toast';
+import { serviceIcons, getIconForPreview } from '@/app/lib/constants/serviceIcons';
 
 interface Service {
   id: string;
@@ -42,6 +43,8 @@ export default function ServicesAdmin() {
     parentId: '',
     isActive: true
   });
+  const [showIconSelector, setShowIconSelector] = useState(false);
+  const [selectedIconCategory, setSelectedIconCategory] = useState<string>('all');
 
   useEffect(() => {
     fetchServices();
@@ -253,6 +256,7 @@ export default function ServicesAdmin() {
   const closeModal = () => {
     setShowModal(false);
     setEditingService(null);
+    setShowIconSelector(false);
     setFormData({
       name: '',
       description: '',
@@ -393,11 +397,9 @@ export default function ServicesAdmin() {
                 </span>
                 
                 {service.iconUrl && (
-                  <img
-                    src={service.iconUrl}
-                    alt={service.name}
-                    className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 object-contain flex-shrink-0"
-                  />
+                  <span className="flex-shrink-0 text-blue-600">
+                    {getIconForPreview(service.iconUrl)}
+                  </span>
                 )}
               </div>
             </div>
@@ -643,17 +645,94 @@ export default function ServicesAdmin() {
 
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                  URL del Ícono
+                  Ícono del Servicio
                 </label>
-                <input
-                  type="url"
-                  value={formData.iconUrl}
-                  onChange={(e) => setFormData({...formData, iconUrl: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="/assets/svg/icono.svg"
-                />
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowIconSelector(!showIconSelector)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between bg-white hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-2">
+                      {formData.iconUrl ? (
+                        <>
+                          <span className="text-blue-600">
+                            {getIconForPreview(formData.iconUrl)}
+                          </span>
+                          <span className="text-gray-800 font-medium">{serviceIcons.find(i => i.id === formData.iconUrl)?.name || 'Seleccionar ícono'}</span>
+                        </>
+                      ) : (
+                        <span className="text-gray-500">Seleccionar ícono</span>
+                      )}
+                    </div>
+                    <ChevronRight className={`w-4 h-4 transition-transform ${showIconSelector ? 'rotate-90' : ''}`} />
+                  </button>
+                  
+                  {showIconSelector && (
+                    <div className="absolute z-50 mt-2 w-full bg-white border-2 border-gray-300 rounded-lg shadow-2xl max-h-96 overflow-hidden">
+                      {/* Category Filter */}
+                      <div className="sticky top-0 bg-white border-b border-gray-200 p-3 z-10">
+                        <select
+                          value={selectedIconCategory}
+                          onChange={(e) => setSelectedIconCategory(e.target.value)}
+                          className="w-full text-xs sm:text-sm border border-gray-200 rounded px-2 py-1 bg-white"
+                        >
+                          <option value="all">Todos los íconos</option>
+                          <option value="Legal">Legal</option>
+                          <option value="Documentos">Documentos</option>
+                          <option value="Negocios">Negocios</option>
+                          <option value="Personas">Personas</option>
+                          <option value="Propiedad">Propiedad</option>
+                          <option value="Gobierno">Gobierno</option>
+                        </select>
+                      </div>
+                      
+                      {/* Icons Grid with scroll */}
+                      <div className="overflow-y-auto max-h-80 bg-white">
+                        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 p-3">
+                          {serviceIcons
+                            .filter(icon => selectedIconCategory === 'all' || icon.category === selectedIconCategory)
+                            .map((icon) => (
+                              <button
+                                key={icon.id}
+                                type="button"
+                                onClick={() => {
+                                  setFormData({...formData, iconUrl: icon.id});
+                                  setShowIconSelector(false);
+                                }}
+                                className={`p-3 border-2 rounded-lg transition-all duration-200 flex flex-col items-center gap-1 relative group ${
+                                  formData.iconUrl === icon.id 
+                                    ? 'border-blue-500 bg-blue-100 shadow-md' 
+                                    : 'border-gray-200 bg-white hover:bg-blue-50 hover:border-blue-300'
+                                }`}
+                                title={icon.name}
+                              >
+                                {formData.iconUrl === icon.id && (
+                                  <div className="absolute top-1 right-1 bg-blue-600 text-white rounded-full p-0.5 shadow-sm">
+                                    <Check className="w-3 h-3" />
+                                  </div>
+                                )}
+                                <div className={`transition-colors ${
+                                  formData.iconUrl === icon.id 
+                                    ? 'text-blue-700' 
+                                    : 'text-gray-600 group-hover:text-blue-600'
+                                }`}>
+                                  {icon.icon}
+                                </div>
+                                <span className={`text-xs text-center line-clamp-1 font-medium ${
+                                  formData.iconUrl === icon.id 
+                                    ? 'text-blue-800' 
+                                    : 'text-gray-700'
+                                }`}>{icon.name}</span>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Ej: /assets/svg/derecho_civil.svg
+                  Selecciona un ícono prediseñado para el servicio
                 </p>
               </div>
 
