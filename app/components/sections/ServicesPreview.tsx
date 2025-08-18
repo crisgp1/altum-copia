@@ -12,7 +12,6 @@ import toast from 'react-hot-toast';
 gsap.registerPlugin(ScrollTrigger);
 
 interface ServiceItem {
-  number: string;
   title: string;
   description: string;
 }
@@ -30,7 +29,6 @@ interface VerticalService {
 }
 
 interface ServiceDetail {
-  number: string;
   title: string;
   description: string;
   slug?: string; // Optional slug for navigation
@@ -40,13 +38,13 @@ interface VerticalServiceWithDetails extends VerticalService {
   details: ServiceDetail[];
 }
 
-// Default service colors (can be customized per service later)
+// Old money color palette for service cards
 const defaultColors = [
-  '#B79F76', // Gold
-  '#2563eb', // Blue (instead of very dark blue)
-  '#A89B7A', // Sage
-  '#5B8AAE', // Light Blue
-  '#C5B299', // Beige
+  '#B79F76', // Classic Gold
+  '#8B7D5B', // Dark Sage
+  '#A89B7A', // Light Sage
+  '#6B5B3A', // Deep Bronze
+  '#C5B299', // Warm Beige
   '#D4A574'  // Light Gold
 ];
 
@@ -55,7 +53,6 @@ const generateServiceItems = (description: string): ServiceItem[] => {
   // Split description into sentences and create items
   const sentences = description.split('.').filter(s => s.trim().length > 20);
   return sentences.slice(0, 8).map((sentence, index) => ({
-    number: String(index + 1).padStart(2, '0'),
     title: sentence.trim().split(',')[0], // Use first part before comma as title
     description: sentence.trim()
   }));
@@ -419,7 +416,7 @@ export default function ServicesPreview() {
     
     if (!serviceDetail.slug) return; // No navigation if no slug
     
-    const serviceKey = `${serviceDetail.number}-${serviceDetail.title}`;
+    const serviceKey = serviceDetail.title;
     
     if (selectedForNavigation === serviceKey) {
       // Second tap - navigate with smooth exit animation
@@ -588,14 +585,12 @@ export default function ServicesPreview() {
                   ></div>
                   <div ref={selectedListRef}>
                     {services[clickedIndex].details.map((service) => (
-                    <div key={service.number} className="space-y-2 sm:space-y-3 relative">
+                    <div key={service.title} className="space-y-2 sm:space-y-3 relative">
                       <div 
-                        className="flex items-start space-x-3 sm:space-x-4 cursor-pointer p-2 -m-2 rounded-lg hover:bg-slate-50 transition-colors duration-200 group"
+                        className="flex items-start space-x-2 sm:space-x-3 cursor-pointer p-2 -m-2 rounded-lg hover:bg-slate-50 transition-colors duration-200 group"
                         onClick={(e) => handleServiceNavigationTap(service, e)}
                       >
-                        <span className="text-xl sm:text-2xl font-bold text-slate-400 mt-1 min-w-[2.5rem] sm:min-w-[3rem] group-hover:text-slate-600 transition-colors duration-200 flex-shrink-0">
-                          {service.number}
-                        </span>
+                        <div className="w-3 h-3 bg-slate-400 rounded-full mt-2 min-w-[0.75rem] group-hover:bg-slate-600 transition-colors duration-200 flex-shrink-0"></div>
                         <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
                           <h3 className="text-base sm:text-lg font-bold text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight">
                             {service.title}
@@ -616,11 +611,11 @@ export default function ServicesPreview() {
                       {/* Discrete confirmation indicator */}
                       <div 
                         ref={(el) => {
-                          const serviceKey = `${service.number}-${service.title}`;
+                          const serviceKey = service.title;
                           confirmationRefs.current[serviceKey] = el;
                         }}
                         className={`absolute right-2 top-2 bg-slate-800 text-white text-xs px-2 py-1 rounded-full shadow-lg pointer-events-none z-20 ${
-                          selectedForNavigation === `${service.number}-${service.title}` ? 'block' : 'hidden'
+                          selectedForNavigation === service.title ? 'block' : 'hidden'
                         }`}
                         style={{ opacity: 0 }}
                       >
@@ -689,7 +684,7 @@ export default function ServicesPreview() {
                   data-service-card
                   className="relative flex flex-col items-center justify-center text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden w-[100px] h-[500px] lg:w-[100px] lg:h-[500px] xl:w-[120px] xl:h-[550px]"
                   style={{ 
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#8B7D5B',
                     marginLeft: '0px',
                     zIndex: 1,
                     borderRadius: '0',
@@ -831,7 +826,7 @@ export default function ServicesPreview() {
                   data-service-card
                   className="relative cursor-pointer overflow-hidden transition-all duration-300 w-full"
                   style={{
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#8B7D5B',
                     filter: 'brightness(1.1) saturate(1.05)',
                     transition: 'filter 0.3s ease-in-out, height 0.3s ease-in-out',
                     height: '120px'
@@ -939,19 +934,17 @@ export default function ServicesPreview() {
                     }}
                   />
                   {service.details.map((detail, detailIndex) => (
-                    <div key={detail.number} className="relative mb-1.5 sm:mb-2">
+                    <div key={detail.title} className="relative mb-1.5 sm:mb-2">
                       <div 
-                        className="flex items-start space-x-2 sm:space-x-3 cursor-pointer p-1.5 sm:p-2 -m-1.5 sm:-m-2 rounded-lg transition-colors duration-200 group"
+                        className="flex items-start space-x-2 cursor-pointer p-1.5 sm:p-2 -m-1.5 sm:-m-2 rounded-lg transition-colors duration-200 group"
                         onClick={(e) => handleServiceNavigationTap(detail, e)}
                       >
-                        <span 
-                          className="font-bold text-xs sm:text-sm min-w-[1.5rem] sm:min-w-[2rem] group-hover:scale-105 transition-all duration-200 flex-shrink-0"
+                        <div 
+                          className="w-2 h-2 rounded-full min-w-[0.5rem] sm:min-w-[0.5rem] group-hover:scale-110 transition-all duration-200 flex-shrink-0 mt-1"
                           style={{
-                            color: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.8)' : '#ffffff'
+                            backgroundColor: (service.backgroundColor === '#C5B299' || service.backgroundColor === '#D4A574') ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.6)'
                           }}
-                        >
-                          {detail.number}
-                        </span>
+                        ></div>
                         <div className="space-y-0.5 sm:space-y-1 flex-1 min-w-0">
                           <h4 
                             className="font-medium text-xs sm:text-sm group-hover:font-semibold transition-all duration-200 leading-tight"
@@ -990,11 +983,11 @@ export default function ServicesPreview() {
                       {/* Mobile confirmation indicator */}
                       <div 
                         ref={(el) => {
-                          const serviceKey = `${detail.number}-${detail.title}`;
+                          const serviceKey = detail.title;
                           confirmationRefs.current[serviceKey] = el;
                         }}
                         className={`absolute right-1.5 sm:right-2 top-1.5 sm:top-2 bg-white text-slate-800 text-xs px-2 py-1 rounded-full shadow-lg pointer-events-none z-20 ${
-                          selectedForNavigation === `${detail.number}-${detail.title}` ? 'block' : 'hidden'
+                          selectedForNavigation === detail.title ? 'block' : 'hidden'
                         }`}
                         style={{ opacity: 0 }}
                       >

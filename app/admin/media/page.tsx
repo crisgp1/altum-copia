@@ -154,6 +154,32 @@ export default function MediaManagementPage() {
     }
   };
 
+  const handleApplyToAboutHero = async (imageUrl: string) => {
+    try {
+      const response = await fetch('/api/site-settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          setting: 'about-hero-image',
+          value: imageUrl
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        toast.success('Imagen aplicada como hero de About exitosamente');
+      } else {
+        toast.error(data.error || 'Error al aplicar imagen');
+      }
+    } catch (error: any) {
+      toast.error('Error al aplicar imagen como hero');
+      console.error(error);
+    }
+  };
+
   // Computed values
   const filteredFiles = mediaService.filterMediaFiles(mediaFiles, searchTerm, filterType);
   const stats = mediaService.getFileStatistics(mediaFiles);
@@ -226,6 +252,7 @@ export default function MediaManagementPage() {
           selectedFiles={selectedFiles}
           onSelectFile={handleSelectFile}
           onCopyUrl={handleCopyUrl}
+          onApplyToAboutHero={handleApplyToAboutHero}
         />
       </div>
     </div>
