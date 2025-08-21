@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
         name: service.name,
         description: service.description,
         shortDescription: service.shortDescription,
-        iconUrl: service.iconUrl,
-        imageUrl: service.imageUrl,
+        iconUrl: service.iconUrl || '',
+        imageUrl: service.imageUrl || '',
         parentId: service.parentId,
         order: service.order,
         isActive: service.isActive

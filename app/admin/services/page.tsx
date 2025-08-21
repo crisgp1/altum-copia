@@ -71,6 +71,7 @@ export default function ServicesAdmin() {
       
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('category', 'services');
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -78,12 +79,13 @@ export default function ServicesAdmin() {
       });
 
       if (!response.ok) {
-        throw new Error('Error al subir la imagen');
+        const errorData = await response.json().catch(() => ({ error: 'Error al subir la imagen' }));
+        throw new Error(errorData.error || 'Error al subir la imagen');
       }
 
       const data = await response.json();
       
-      if (data.success) {
+      if (data.url) {
         setFormData(prev => ({
           ...prev,
           imageUrl: data.url

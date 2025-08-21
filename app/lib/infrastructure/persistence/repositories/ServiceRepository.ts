@@ -102,6 +102,7 @@ export class ServiceRepository implements IServiceRepository {
       description: doc.description,
       shortDescription: doc.shortDescription,
       iconUrl: doc.iconUrl,
+      imageUrl: doc.imageUrl,
       parentId: doc.parentId,
       order: doc.order,
       isActive: doc.isActive,
@@ -116,6 +117,7 @@ export class ServiceRepository implements IServiceRepository {
       description: service.description,
       shortDescription: service.shortDescription,
       iconUrl: service.iconUrl,
+      imageUrl: service.imageUrl,
       parentId: service.parentId,
       order: service.order,
       isActive: service.isActive

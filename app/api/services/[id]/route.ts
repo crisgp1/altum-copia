@@ -27,6 +27,7 @@ export async function GET(
         description: service.description,
         shortDescription: service.shortDescription,
         iconUrl: service.iconUrl,
+        imageUrl: service.imageUrl,
         parentId: service.parentId,
         order: service.order,
         isActive: service.isActive,
@@ -65,6 +66,7 @@ export async function PUT(
     if (body.description !== undefined) service.updateDescription(body.description);
     if (body.shortDescription !== undefined) service.updateShortDescription(body.shortDescription);
     if (body.iconUrl !== undefined) service.updateIcon(body.iconUrl);
+    if (body.imageUrl !== undefined) service.updateImage(body.imageUrl);
     if (body.parentId !== undefined) service.updateParentId(body.parentId);
     if (body.order !== undefined) service.updateOrder(body.order);
     if (body.isActive !== undefined) {
@@ -85,6 +87,7 @@ export async function PUT(
         description: service.description,
         shortDescription: service.shortDescription,
         iconUrl: service.iconUrl,
+        imageUrl: service.imageUrl,
         parentId: service.parentId,
         order: service.order,
         isActive: service.isActive,

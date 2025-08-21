@@ -5,6 +5,7 @@ export interface IServiceDocument extends Document {
   description: string;
   shortDescription: string;
   iconUrl?: string;
+  imageUrl?: string;
   parentId?: string;
   order: number;
   isActive: boolean;
@@ -18,6 +19,7 @@ const ServiceSchema = new Schema<IServiceDocument>(
     description: { type: String, required: true },
     shortDescription: { type: String, required: true },
     iconUrl: { type: String },
+    imageUrl: { type: String },
     parentId: { type: String, default: null, set: (v: string) => v === '' ? null : v },
     order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true }
