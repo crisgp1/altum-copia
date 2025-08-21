@@ -8,6 +8,7 @@ import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { getIconById } from '@/app/lib/constants/serviceIcons';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -44,7 +45,7 @@ const defaultColors = [
 ];
 
 // Function to fetch subservices for a parent service
-const fetchSubservicesForParent = async (parentId: string): Promise<ServiceDetail[]> => {
+const fetchSubservicesForParent = async (parentId: string, parentSlug: string): Promise<ServiceDetail[]> => {
   try {
     const response = await fetch(`/api/services?parentId=${parentId}&active=true`);
     const data = await response.json();
@@ -53,7 +54,7 @@ const fetchSubservicesForParent = async (parentId: string): Promise<ServiceDetai
       return data.data.map((subservice: any) => ({
         title: subservice.name,
         description: subservice.shortDescription || subservice.description,
-        slug: subservice.id // Use the subservice ID for navigation
+        slug: parentSlug // Use the parent slug since subservices navigate to parent page
       }));
     }
     return [];
@@ -65,14 +66,12 @@ const fetchSubservicesForParent = async (parentId: string): Promise<ServiceDetai
 
 // Function to convert service title to slug
 const getServiceSlug = (title: string): string => {
-  const slugMap: { [key: string]: string } = {
-    'Derecho Administrativo': 'derecho-administrativo',
-    'Derecho Notarial': 'derecho-notarial',
-    'Derecho Corporativo': 'derecho-corporativo',
-    'Derecho Familiar': 'derecho-familiar',
-    'Derecho Civil': 'derecho-civil'
-  };
-  return slugMap[title] || title.toLowerCase().replace(/\s+/g, '-');
+  // Normalize the title and create a proper slug
+  return title.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove accents
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/[^a-z0-9-]/g, ''); // Remove non-alphanumeric characters except hyphens
 };
 
 export default function ServicesPreview() {
@@ -114,26 +113,44 @@ export default function ServicesPreview() {
         // API already returns only parent services with onlyParents=true, no need to filter again
         const transformedServices: VerticalServiceWithDetails[] = await Promise.all(
           data.data.map(async (service: any, index: number) => {
+            // Generate slug for parent service
+            const parentSlug = getServiceSlug(service.name);
             // Fetch subservices for this parent service
-            const subservices = await fetchSubservicesForParent(service.id);
+            const subservices = await fetchSubservicesForParent(service.id, parentSlug);
             
+            // Determine the icon to display
+            let iconElement;
+            if (service.iconUrl) {
+              // Check if it's a URL or an icon ID
+              if (service.iconUrl.startsWith('http')) {
+                // It's an image URL
+                iconElement = (
+                  <Image
+                    src={service.iconUrl}
+                    alt={service.name}
+                    width={40}
+                    height={40}
+                    className="filter brightness-0 invert"
+                  />
+                );
+              } else {
+                // It's an icon ID from serviceIcons
+                iconElement = getIconById(service.iconUrl);
+              }
+            } else {
+              // Default fallback icon
+              iconElement = (
+                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">{service.name.charAt(0)}</span>
+                </div>
+              );
+            }
+
             return {
               id: service.id,
               title: service.name,
               backgroundColor: defaultColors[index % defaultColors.length],
-              icon: service.iconUrl && service.iconUrl.trim() && service.iconUrl !== 'undefined' && service.iconUrl.startsWith('http') ? (
-                <Image
-                  src={service.iconUrl}
-                  alt={service.name}
-                  width={40}
-                  height={40}
-                  className="filter brightness-0 invert"
-                />
-              ) : (
-                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">{service.name.charAt(0)}</span>
-                </div>
-              ),
+              icon: iconElement,
               shortDescription: service.shortDescription,
               description: service.description,
               iconUrl: service.iconUrl,
@@ -544,7 +561,7 @@ export default function ServicesPreview() {
                       className="cursor-pointer group"
                       onTouchStart={handleTouchStart}
                       onTouchEnd={handleTouchEnd}
-                      onClick={(e) => handleSmartNavigation(services[clickedIndex].id, e)}
+                      onClick={(e) => handleSmartNavigation(getServiceSlug(services[clickedIndex].title), e)}
                     >
                       <h2 
                         ref={selectedTitleRef}
@@ -639,7 +656,7 @@ export default function ServicesPreview() {
                     <button
                       onTouchStart={handleTouchStart}
                       onTouchEnd={handleTouchEnd}
-                      onClick={(e) => handleSmartNavigation(services[clickedIndex].id, e)}
+                      onClick={(e) => handleSmartNavigation(getServiceSlug(services[clickedIndex].title), e)}
                       className="w-full bg-gradient-to-r from-[#B79F76] to-[#D4A574] text-white px-6 sm:px-8 py-3 sm:py-4 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-[#B79F76]/25 transform hover:scale-[1.02] active:scale-[0.98] rounded-lg group flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
                       style={{ minHeight: '44px' }} // Minimum touch target size
                     >

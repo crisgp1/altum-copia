@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put, head } from '@vercel/blob';
+import { put, head, del, list } from '@vercel/blob';
 
 // GET /api/site-settings - Get site settings
 export async function GET(request: NextRequest) {
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (setting === 'about-hero-image') {
       try {
         // Try to get the about hero image URL from blob metadata
-        const { blobs } = await import('@vercel/blob').then(mod => mod.list());
+        const { blobs } = await list();
         const settingsBlob = blobs.find(blob => blob.pathname === 'site-settings/about-hero-image.json');
         
         if (settingsBlob) {
@@ -63,12 +63,27 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date().toISOString()
       };
 
+      try {
+        // First, try to delete the existing blob if it exists
+        const { blobs } = await list();
+        const existingBlob = blobs.find(blob => blob.pathname === 'site-settings/about-hero-image.json');
+        
+        if (existingBlob) {
+          await del(existingBlob.url);
+        }
+      } catch (error) {
+        // Ignore deletion errors, blob might not exist
+        console.log('No existing blob to delete or deletion failed:', error);
+      }
+
+      // Now create the new blob
       const blob = await put(
         'site-settings/about-hero-image.json',
         JSON.stringify(settingsData),
         {
           contentType: 'application/json',
-          access: 'public'
+          access: 'public',
+          addRandomSuffix: false
         }
       );
 

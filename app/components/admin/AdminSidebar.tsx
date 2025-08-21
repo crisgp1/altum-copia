@@ -226,15 +226,19 @@ export default function AdminSidebar() {
 
           {/* Back to Site Link */}
           <div className="mt-6 sm:mt-8 md:mt-12 pt-3 sm:pt-4 md:pt-6 border-t border-stone-200">
-            <Link
+            <a
               href="/"
+              onClick={() => {
+                // Set flag to prevent redirect loop
+                sessionStorage.setItem('navigatedFromAdmin', 'true');
+              }}
               className="flex items-center px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 text-slate-600 hover:bg-stone-50 hover:text-slate-900 rounded-md sm:rounded-lg transition-all duration-200 text-sm md:text-base"
             >
               <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               <span className="font-medium truncate">Volver al Sitio</span>
-            </Link>
+            </a>
           </div>
         </div>
       </aside>

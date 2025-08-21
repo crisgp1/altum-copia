@@ -11,6 +11,8 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
+import { useUserRole } from '@/app/lib/hooks/useUserRole';
+import { LayoutDashboard } from 'lucide-react';
 
 interface NavItem {
   label: string;
@@ -37,6 +39,7 @@ export default function Navbar() {
   const logoRef = useRef<HTMLDivElement>(null);
   const ctaButtonRef = useRef<HTMLButtonElement>(null);
   const navbarRef = useRef<HTMLDivElement>(null); // Reference to main navbar
+  const { isAdmin, isContentCreator } = useUserRole();
 
   // Handle logo click for home redirect
   const handleLogoClick = () => {
@@ -270,6 +273,16 @@ export default function Navbar() {
                   </SignUpButton>
                 </SignedOut>
                 <SignedIn>
+                  {(isAdmin() || isContentCreator()) && (
+                    <button
+                      onClick={() => router.push('/admin')}
+                      className="group flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-white bg-white/80 hover:bg-amber-600 border border-slate-200 hover:border-amber-600 rounded-full transition-all duration-200"
+                      title="Panel de administración"
+                    >
+                      <LayoutDashboard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span className="hidden lg:inline">Dashboard</span>
+                    </button>
+                  )}
                   <UserButton 
                     appearance={{
                       elements: {
@@ -283,6 +296,15 @@ export default function Navbar() {
               {/* Mobile Auth Section */}
               <div className="flex sm:hidden items-center gap-2 mr-2">
                 <SignedIn>
+                  {(isAdmin() || isContentCreator()) && (
+                    <button
+                      onClick={() => router.push('/admin')}
+                      className="p-1.5 text-slate-700 hover:text-amber-600 transition-colors"
+                      title="Dashboard"
+                    >
+                      <LayoutDashboard className="w-5 h-5" />
+                    </button>
+                  )}
                   <UserButton 
                     appearance={{
                       elements: {
@@ -419,6 +441,20 @@ export default function Navbar() {
                   </SignUpButton>
                 </div>
               </SignedOut>
+              <SignedIn>
+                {(isAdmin() || isContentCreator()) && (
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      setTimeout(() => router.push('/admin'), 300);
+                    }}
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    <span>Ir al Dashboard</span>
+                  </button>
+                )}
+              </SignedIn>
             </div>
             
             {/* Sophisticated CTA Button */}

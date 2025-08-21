@@ -33,15 +33,25 @@ export default function AuthRedirectHandler() {
       const isFromSignIn = searchParams.get('redirected') === 'true' || 
                           document.referrer.includes('/sign-in') ||
                           sessionStorage.getItem('postSignInRedirect') === 'pending';
+      
+      // Check if user explicitly navigated away from admin
+      const hasNavigatedAway = sessionStorage.getItem('navigatedFromAdmin') === 'true';
 
       // Don't redirect if already on admin pages
       if (currentPath.startsWith('/admin')) {
         sessionStorage.removeItem('postSignInRedirect');
+        sessionStorage.removeItem('navigatedFromAdmin');
         return;
       }
 
-      // Redirect to admin if user has permissions and this is post-sign-in
-      if (canAccessAdmin && (isFromSignIn || currentPath === '/')) {
+      // Don't redirect if user explicitly navigated away from admin
+      if (hasNavigatedAway) {
+        sessionStorage.removeItem('navigatedFromAdmin');
+        return;
+      }
+
+      // Only redirect to admin if user has permissions and this is ACTUALLY from sign-in
+      if (canAccessAdmin && isFromSignIn && !hasNavigatedAway) {
         setHasRedirected(true);
         sessionStorage.removeItem('postSignInRedirect');
         

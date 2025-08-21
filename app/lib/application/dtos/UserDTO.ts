@@ -11,6 +11,7 @@ export interface UserResponseDTO {
   createdAt: string;
   updatedAt: string;
   lastSignInAt?: string;
+  department?: string;
 }
 
 export interface UpdateUserRoleDTO {

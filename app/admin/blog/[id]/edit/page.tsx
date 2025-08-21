@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 import { PostStatus } from '@/app/lib/domain/entities/BlogPost';
 import SlateEditor from '@/app/components/admin/SlateEditor';
+import { BlogImageUpload } from '@/app/components/admin/BlogImageUpload';
 import toast from 'react-hot-toast';
 
 interface BlogFormData {

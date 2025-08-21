@@ -5,8 +5,11 @@ import { UserService } from '@/app/lib/application/services/UserService';
 import { UserResponseDTO } from '@/app/lib/application/dtos/UserDTO';
 import { Users, Search, Filter, MoreVertical, Edit, Trash2, Eye, UserPlus, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
+import RoleAssignmentModal from '@/app/components/admin/RoleAssignmentModal';
+import { UserRole, ROLE_HIERARCHY, getRoleDisplayName } from '@/app/lib/auth/roles';
+import { useUserRole } from '@/app/lib/hooks/useUserRole';
 
-const USER_ROLES = ['admin', 'editor', 'viewer'];
+const USER_ROLES = Object.values(UserRole);
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserResponseDTO[]>([]);
@@ -20,6 +23,7 @@ export default function UsersPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const { role: currentUserRole } = useUserRole();
 
   const fetchUsers = async (page = 1) => {
     try {
@@ -48,7 +52,7 @@ export default function UsersPage() {
           lastName: user.lastName || '',
           fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
           imageUrl: user.imageUrl,
-          role: user.role || 'viewer',
+          role: (user.role as UserRole) || UserRole.USER,
           permissions: [], // Add default permissions
           isActive: true, // Default to active for Clerk users
           createdAt: user.createdAt,
@@ -101,7 +105,7 @@ export default function UsersPage() {
     }
   };
 
-  const updateUserRole = async (userId: string, role: string, permissions: string[]) => {
+  const updateUserRole = async (userId: string, role: UserRole) => {
     try {
       const response = await fetch('/api/admin/users', {
         method: 'PUT',
@@ -179,7 +183,7 @@ export default function UsersPage() {
               <option value="">Todos</option>
               {USER_ROLES.map(role => (
                 <option key={role} value={role}>
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                  {getRoleDisplayName(role)}
                 </option>
               ))}
             </select>
@@ -259,13 +263,17 @@ export default function UsersPage() {
                           {/* Show role and status on mobile */}
                           <div className="flex items-center gap-1 mt-1 sm:hidden">
                             <span className={`inline-flex items-center px-1 py-0.5 rounded text-xs font-medium ${
-                              user.role === 'admin' 
+                              user.role === UserRole.SUPERADMIN
                                 ? 'bg-red-100 text-red-800'
-                                : user.role === 'editor'
+                                : user.role === UserRole.ADMIN 
+                                ? 'bg-purple-100 text-purple-800'
+                                : user.role === UserRole.DEVELOPER
                                 ? 'bg-blue-100 text-blue-800'
+                                : user.role === UserRole.CONTENT_CREATOR
+                                ? 'bg-green-100 text-green-800'
                                 : 'bg-gray-100 text-gray-800'
                             }`}>
-                              {user.role}
+                              {getRoleDisplayName(user.role as UserRole).substring(0, 5)}
                             </span>
                             <span className={`inline-flex items-center px-1 py-0.5 rounded text-xs font-medium ${
                               user.isActive
@@ -280,14 +288,18 @@ export default function UsersPage() {
                     </td>
                     <td className="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 whitespace-nowrap hidden sm:table-cell">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        user.role === 'admin' 
+                        user.role === UserRole.SUPERADMIN
                           ? 'bg-red-100 text-red-800'
-                          : user.role === 'editor'
+                          : user.role === UserRole.ADMIN 
+                          ? 'bg-purple-100 text-purple-800'
+                          : user.role === UserRole.DEVELOPER
                           ? 'bg-blue-100 text-blue-800'
+                          : user.role === UserRole.CONTENT_CREATOR
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-800'
                       }`}>
                         <Shield className="w-3 h-3 mr-1" />
-                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        {getRoleDisplayName(user.role as UserRole)}
                       </span>
                     </td>
                     <td className="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 whitespace-nowrap hidden md:table-cell">
@@ -313,8 +325,9 @@ export default function UsersPage() {
                         </button>
                         <button
                           onClick={() => handleEdit(user)}
-                          className="text-indigo-600 hover:text-indigo-900 p-1 rounded touch-target"
+                          className="text-indigo-600 hover:text-indigo-900 p-1 rounded touch-target disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Editar"
+                          disabled={!ROLE_HIERARCHY[currentUserRole] || ROLE_HIERARCHY[currentUserRole] <= ROLE_HIERARCHY[user.role as UserRole]}
                         >
                           <Edit className="h-4 w-4" />
                         </button>
@@ -364,10 +377,19 @@ export default function UsersPage() {
 
       {/* Edit Modal */}
       {isEditModalOpen && selectedUser && (
-        <EditUserModal
-          user={selectedUser}
+        <RoleAssignmentModal
+          user={{
+            id: selectedUser.id,
+            email: selectedUser.email,
+            firstName: selectedUser.firstName || '',
+            lastName: selectedUser.lastName || '',
+            imageUrl: selectedUser.imageUrl || '',
+            role: selectedUser.role as UserRole,
+            department: selectedUser.department
+          }}
+          isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
-          onUpdate={updateUserRole}
+          onRoleUpdate={updateUserRole}
         />
       )}
 
@@ -387,126 +409,6 @@ export default function UsersPage() {
           onClose={() => setIsViewModalOpen(false)}
         />
       )}
-    </div>
-  );
-}
-
-// Edit User Modal Component
-function EditUserModal({
-  user,
-  onClose,
-  onUpdate
-}: {
-  user: UserResponseDTO;
-  onClose: () => void;
-  onUpdate: (userId: string, role: string, permissions: string[]) => void;
-}) {
-  const [selectedRole, setSelectedRole] = useState(user.role);
-  const [permissions, setPermissions] = useState<string[]>(user.permissions);
-
-  // Handle Escape key to close modal
-  useEffect(() => {
-    const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscapeKey);
-    
-    return () => {
-      document.removeEventListener('keydown', handleEscapeKey);
-    };
-  }, [onClose]);
-
-  const availablePermissions = [
-    'read_users',
-    'write_users',
-    'delete_users',
-    'read_attorneys',
-    'write_attorneys',
-    'delete_attorneys',
-    'read_media',
-    'write_media',
-    'delete_media'
-  ];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onUpdate(user.id, selectedRole, permissions);
-  };
-
-  const togglePermission = (permission: string) => {
-    setPermissions(prev => 
-      prev.includes(permission)
-        ? prev.filter(p => p !== permission)
-        : [...prev, permission]
-    );
-  };
-
-  return (
-    <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
-      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-sm sm:max-w-md max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 pr-4">
-          Editar Usuario - {user.fullName}
-        </h3>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3 sm:mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Rol
-            </label>
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 text-sm sm:text-base"
-            >
-              {USER_ROLES.map(role => (
-                <option key={role} value={role}>
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="mb-4 sm:mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Permisos
-            </label>
-            <div className="space-y-1 sm:space-y-2 max-h-32 sm:max-h-40 overflow-y-auto border border-gray-200 rounded-md p-2 sm:p-3">
-              {availablePermissions.map(permission => (
-                <label key={permission} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={permissions.includes(permission)}
-                    onChange={() => togglePermission(permission)}
-                    className="mr-2 flex-shrink-0"
-                  />
-                  <span className="text-xs sm:text-sm text-gray-700">
-                    {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 sm:px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors text-sm sm:text-base order-2 sm:order-1"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm sm:text-base order-1 sm:order-2"
-            >
-              Actualizar
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }
@@ -622,7 +524,7 @@ function ViewUserModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-500">Rol</label>
-              <p className="mt-1 text-xs sm:text-sm text-gray-900 capitalize">{user.role}</p>
+              <p className="mt-1 text-xs sm:text-sm text-gray-900">{getRoleDisplayName(user.role as UserRole)}</p>
             </div>
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-500">Estado</label>

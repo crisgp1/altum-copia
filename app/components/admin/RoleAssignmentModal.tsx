@@ -51,8 +51,12 @@ export default function RoleAssignmentModal({
   if (!isOpen) return null;
 
   const availableRoles = Object.values(UserRole).filter(role => {
-    // Current user can only assign roles lower than their own
-    return ROLE_HIERARCHY[currentUserRole] > ROLE_HIERARCHY[role];
+    // Only superadmins can assign superadmin role
+    if (role === UserRole.SUPERADMIN && currentUserRole !== UserRole.SUPERADMIN) {
+      return false;
+    }
+    // Current user can only assign roles lower than or equal to their own (except superadmin)
+    return ROLE_HIERARCHY[currentUserRole] >= ROLE_HIERARCHY[role];
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
