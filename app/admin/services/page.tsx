@@ -12,6 +12,7 @@ interface Service {
   description: string;
   shortDescription: string;
   iconUrl?: string;
+  imageUrl?: string;
   parentId?: string;
   order: number;
   isActive: boolean;
@@ -26,6 +27,7 @@ interface ServiceFormData {
   iconUrl: string;
   parentId: string;
   isActive: boolean;
+  imageUrl: string;
 }
 
 export default function ServicesAdmin() {
@@ -41,10 +43,62 @@ export default function ServicesAdmin() {
     shortDescription: '',
     iconUrl: '',
     parentId: '',
-    isActive: true
+    isActive: true,
+    imageUrl: ''
   });
   const [showIconSelector, setShowIconSelector] = useState(false);
   const [selectedIconCategory, setSelectedIconCategory] = useState<string>('all');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Por favor seleccione un archivo de imagen válido');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('La imagen debe ser menor a 5MB');
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al subir la imagen');
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setFormData(prev => ({
+          ...prev,
+          imageUrl: data.url
+        }));
+        toast.success('Imagen subida exitosamente');
+      } else {
+        toast.error(data.error || 'Error al subir la imagen');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Error al subir la imagen');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   useEffect(() => {
     fetchServices();
@@ -237,7 +291,8 @@ export default function ServicesAdmin() {
         shortDescription: service.shortDescription,
         iconUrl: service.iconUrl || '',
         parentId: service.parentId || '',
-        isActive: service.isActive
+        isActive: service.isActive,
+        imageUrl: (service as any).imageUrl || ''
       });
     } else {
       setEditingService(null);
@@ -247,7 +302,8 @@ export default function ServicesAdmin() {
         shortDescription: '',
         iconUrl: '',
         parentId: parentId || '',
-        isActive: true
+        isActive: true,
+        imageUrl: ''
       });
     }
     setShowModal(true);
@@ -263,7 +319,8 @@ export default function ServicesAdmin() {
       shortDescription: '',
       iconUrl: '',
       parentId: '',
-      isActive: true
+      isActive: true,
+      imageUrl: ''
     });
   };
 
@@ -735,6 +792,67 @@ export default function ServicesAdmin() {
                   Selecciona un ícono prediseñado para el servicio
                 </p>
               </div>
+
+              {/* Image Upload - Only for main services */}
+              {!formData.parentId && (
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Imagen del Servicio Principal
+                  </label>
+                  <div className="mt-2">
+                    {formData.imageUrl ? (
+                      <div className="relative">
+                        <img
+                          src={formData.imageUrl}
+                          alt="Preview"
+                          className="w-full h-40 object-cover rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFormData({...formData, imageUrl: ''})}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="imageUpload"
+                          disabled={uploadingImage}
+                        />
+                        <label
+                          htmlFor="imageUpload"
+                          className={`cursor-pointer flex flex-col items-center justify-center text-center ${
+                            uploadingImage ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                        >
+                          {uploadingImage ? (
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                          ) : (
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-2">
+                              <Plus className="w-6 h-6 text-gray-400" />
+                            </div>
+                          )}
+                          <span className="text-xs sm:text-sm text-gray-600">
+                            {uploadingImage ? 'Subiendo...' : 'Click para subir imagen'}
+                          </span>
+                          <span className="text-xs text-gray-500 mt-1">
+                            PNG, JPG hasta 5MB
+                          </span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Imagen representativa del servicio principal (opcional)
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center">
                 <input

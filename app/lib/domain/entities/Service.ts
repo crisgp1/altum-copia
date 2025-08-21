@@ -4,6 +4,7 @@ export interface ServiceProps {
   description: string;
   shortDescription: string;
   iconUrl?: string;
+  imageUrl?: string;
   parentId?: string;
   order: number;
   isActive: boolean;
@@ -17,6 +18,7 @@ export class Service {
   private _description: string;
   private _shortDescription: string;
   private _iconUrl?: string;
+  private _imageUrl?: string;
   private _parentId?: string;
   private _order: number;
   private _isActive: boolean;
@@ -29,6 +31,7 @@ export class Service {
     this._description = props.description;
     this._shortDescription = props.shortDescription;
     this._iconUrl = props.iconUrl;
+    this._imageUrl = props.imageUrl;
     this._parentId = props.parentId;
     this._order = props.order;
     this._isActive = props.isActive;
@@ -58,6 +61,10 @@ export class Service {
 
   get iconUrl(): string | undefined {
     return this._iconUrl;
+  }
+
+  get imageUrl(): string | undefined {
+    return this._imageUrl;
   }
 
   get order(): number {
@@ -110,6 +117,11 @@ export class Service {
 
   updateIcon(iconUrl: string): void {
     this._iconUrl = iconUrl;
+    this._updatedAt = new Date();
+  }
+
+  updateImage(imageUrl: string): void {
+    this._imageUrl = imageUrl;
     this._updatedAt = new Date();
   }
 

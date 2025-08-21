@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
         description: service.description,
         shortDescription: service.shortDescription,
         iconUrl: service.iconUrl,
+        imageUrl: service.imageUrl,
         parentId: service.parentId,
         order: service.order,
         isActive: service.isActive
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
       description: body.description,
       shortDescription: body.shortDescription,
       iconUrl: body.iconUrl,
+      imageUrl: body.imageUrl,
       parentId: body.parentId || null, // Ensure empty strings become null
       order: body.order || 0,
       isActive: body.isActive !== undefined ? body.isActive : true
@@ -72,6 +74,7 @@ export async function POST(request: NextRequest) {
         description: createdService.description,
         shortDescription: createdService.shortDescription,
         iconUrl: createdService.iconUrl,
+        imageUrl: createdService.imageUrl,
         parentId: createdService.parentId,
         order: createdService.order,
         isActive: createdService.isActive
@@ -110,6 +113,7 @@ export async function PUT(request: NextRequest) {
       if (serviceData.description !== undefined) existingService.updateDescription(serviceData.description);
       if (serviceData.shortDescription !== undefined) existingService.updateShortDescription(serviceData.shortDescription);
       if (serviceData.iconUrl !== undefined) existingService.updateIcon(serviceData.iconUrl);
+      if (serviceData.imageUrl !== undefined) existingService.updateImage(serviceData.imageUrl);
       if (serviceData.parentId !== undefined) existingService.updateParentId(serviceData.parentId);
       if (serviceData.order !== undefined) existingService.updateOrder(serviceData.order);
       if (serviceData.isActive !== undefined) {

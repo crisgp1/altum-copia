@@ -5,181 +5,54 @@ import { useEffect, useState } from 'react';
 import Navbar from '@/app/components/navigation/Navbar';
 import Footer from '@/app/components/sections/Footer';
 import { Attorney } from '@/app/lib/types/Attorney';
+import { getIconById } from '@/app/lib/constants/serviceIcons';
 
-// Service data structure with ALTUM Legal services
-const servicesData = {
-  'derecho-administrativo': {
-    title: 'DERECHO ADMINISTRATIVO',
-    subtitle: 'Licencias, Permisos y Procedimientos Administrativos',
-    description: 'Especialistas en trámites y procedimientos ante autoridades administrativas con soluciones eficaces y oportunas.',
-    detailedDescription: 'En ALTUM Legal contamos con especialistas en derecho administrativo que brindan asesoría integral en todos los procedimientos ante autoridades gubernamentales. Nuestro enfoque se centra en la prevención de conflictos y la resolución eficaz de controversias administrativas.',
-    services: [
-      'Licencias y permisos municipales',
-      'Transparencia y acceso a la información',
-      'Impugnaciones de multas y sanciones',
-      'Juicios de nulidad contra actos administrativos',
-      'Juicios de créditos fiscales',
-      'Procedimientos de responsabilidad administrativa',
-      'Consulta y asesoría en normativa administrativa'
-    ],
-    icon: (
-      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-      </svg>
-    ),
-    color: '#152239',
-    bgGradient: 'from-slate-50 to-stone-50',
-    keywords: ['administrativo', 'licencias', 'permisos', 'gobierno', 'municipales', 'transparencia']
-  },
-  'derecho-corporativo': {
-    title: 'DERECHO CORPORATIVO',
-    subtitle: 'Estrategias Corporativas y Comercio Empresarial',
-    description: 'Asesoría integral para empresas, desde constitución hasta estrategias corporativas complejas y comercio electrónico.',
-    detailedDescription: 'Nuestro equipo de especialistas en derecho corporativo ofrece soluciones integrales para empresas de todos los tamaños. Desde la constitución de sociedades hasta complejas restructuraciones corporativas, brindamos asesoría estratégica para el crecimiento y consolidación empresarial.',
-    services: [
-      'Constitución de sociedades mercantiles y civiles',
-      'Actas de asambleas y consejos de administración',
-      'Estrategias corporativas y reestructuraciones',
-      'Mediación y conciliación empresarial',
-      'Comercio electrónico y regulación digital',
-      'Fusiones y adquisiciones',
-      'Compliance corporativo',
-      'Contratos comerciales especializados'
-    ],
-    icon: (
-      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-    color: '#B79F76',
-    bgGradient: 'from-amber-50 to-stone-50',
-    keywords: ['corporativo', 'empresarial', 'sociedades', 'comercio', 'fusiones', 'mercantil']
-  },
-  'derecho-familiar': {
-    title: 'DERECHO FAMILIAR',
-    subtitle: 'Protección Integral de la Familia',
-    description: 'Defensa sensible y profesional de los intereses familiares con enfoque humano y soluciones integrales.',
-    detailedDescription: 'En ALTUM Legal entendemos la importancia de los asuntos familiares. Nuestros especialistas brindan asesoría con sensibilidad y profesionalismo, priorizando el bienestar familiar y la protección de menores, siempre buscando soluciones que preserven las relaciones familiares.',
-    services: [
-      'Divorcios necesarios y voluntarios',
-      'Pensiones alimenticias y modificaciones',
-      'Juicios sucesorios intestamentarios',
-      'Juicios testamentarios',
-      'Procedimientos de intestado',
-      'Patria potestad y custodia de menores',
-      'Mediación y conciliación familiar',
-      'Adopciones y tutela',
-      'Violencia familiar y medidas de protección'
-    ],
-    icon: (
-      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-    ),
-    color: '#152239',
-    bgGradient: 'from-slate-50 to-stone-50',
-    keywords: ['familiar', 'familia', 'divorcios', 'custodia', 'alimentos', 'sucesiones', 'menores']
-  },
-  'derecho-civil': {
-    title: 'DERECHO CIVIL',
-    subtitle: 'Protección de Derechos Patrimoniales y Personales',
-    description: 'Soluciones jurídicas especializadas para la protección de sus derechos patrimoniales, contratos y bienes inmuebles.',
-    detailedDescription: 'Nuestros especialistas en derecho civil ofrecen protección integral de sus derechos patrimoniales y personales. Con amplia experiencia en contratos, propiedad inmobiliaria y resolución de conflictos civiles, garantizamos la defensa efectiva de sus intereses.',
-    services: [
-      'Elaboración y revisión de contratos',
-      'Juicios hipotecarios y prendarios',
-      'Juicios de terminación o rescisión de arrendamiento',
-      'Disoluciones de copropiedad',
-      'Constitución de asociaciones y sociedades civiles',
-      'Mediación y conciliación civil',
-      'Escrituración de contratos privados de compraventa',
-      'Juicios para recuperar la posesión de bienes inmuebles',
-      'Responsabilidad civil y daños'
-    ],
-    icon: (
-      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16l-3-9m3 9l3-9" />
-      </svg>
-    ),
-    color: '#B79F76',
-    bgGradient: 'from-amber-50 to-stone-50',
-    keywords: ['civil', 'contratos', 'inmobiliario', 'propiedad', 'hipotecarios', 'arrendamiento']
-  },
-  'derecho-notarial': {
-    title: 'DERECHO NOTARIAL',
-    subtitle: 'Servicios Notariales Especializados',
-    description: 'Servicios notariales profesionales para la seguridad jurídica de sus actos más importantes con validez legal completa.',
-    detailedDescription: 'En ALTUM Legal ofrecemos servicios notariales especializados que garantizan la seguridad jurídica de sus actos más importantes. Nuestros especialistas brindan asesoría integral en todos los procedimientos notariales con la más alta calidad y profesionalismo.',
-    services: [
-      'Escrituración de compraventas inmobiliarias',
-      'Escrituración de donaciones entre vivos',
-      'Contratos de permuta de bienes',
-      'Cancelaciones de gravámenes hipotecarios',
-      'Procedimientos sucesorios notariales',
-      'Cartas notariales para viaje con menores',
-      'Ratificaciones de firmas',
-      'Protocolización de documentos',
-      'Constitución de sociedades ante notario'
-    ],
-    icon: (
-      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    color: '#152239',
-    bgGradient: 'from-slate-50 to-stone-50',
-    keywords: ['notarial', 'escrituras', 'notario', 'compraventa', 'donaciones', 'sucesiones']
-  }
+// Service interface to match database structure
+interface ServiceData {
+  id: string;
+  name: string;
+  description: string;
+  shortDescription: string;
+  iconUrl?: string;
+  imageUrl?: string;
+  parentId?: string;
+  order: number;
+  isActive: boolean;
+  children?: ServiceData[];
+}
+
+interface FormattedService {
+  title: string;
+  subtitle: string;
+  description: string;
+  detailedDescription: string;
+  services: string[];
+  icon: React.ReactNode;
+  imageUrl?: string;
+  color: string;
+  bgGradient: string;
+  keywords: string[];
+}
+
+// Convert slug to service name for matching
+const slugToServiceName = (slug: string): string => {
+  return slug.replace(/-/g, ' ').toLowerCase();
 };
 
 // Smart attorney matching function
-const getMatchingAttorneys = (serviceSlug: string, attorneys: Attorney[]): Attorney[] => {
-  const service = servicesData[serviceSlug as keyof typeof servicesData];
-  if (!service || !attorneys.length) return [];
+const getMatchingAttorneys = (serviceName: string, attorneys: Attorney[]): Attorney[] => {
+  if (!serviceName || !attorneys.length) return [];
 
-  const keywords = service.keywords;
+  const searchTerms = serviceName.toLowerCase().split(' ');
   
   return attorneys.filter(attorney => {
-    // Check if attorney's specialization contains any of the service keywords
-    const hasKeywordMatch = attorney.specialization.some(spec => 
-      keywords.some(keyword => 
-        spec.toLowerCase().includes(keyword) || 
-        keyword.includes(spec.toLowerCase())
+    // Check if attorney's specialization contains any of the service terms
+    return attorney.specialization.some(spec => 
+      searchTerms.some(term => 
+        spec.toLowerCase().includes(term) || 
+        term.includes(spec.toLowerCase())
       )
     );
-
-    // Special matching rules for better accuracy
-    if (serviceSlug === 'derecho-corporativo') {
-      return attorney.specialization.some(spec => 
-        spec.toLowerCase().includes('corporativo') || 
-        spec.toLowerCase().includes('mercantil') ||
-        spec.toLowerCase().includes('empresarial') ||
-        spec.toLowerCase().includes('fusiones')
-      );
-    }
-    
-    if (serviceSlug === 'derecho-familiar') {
-      return attorney.specialization.some(spec => 
-        spec.toLowerCase().includes('familia') || 
-        spec.toLowerCase().includes('sucesiones') ||
-        spec.toLowerCase().includes('patrimonial')
-      );
-    }
-    
-    if (serviceSlug === 'derecho-civil') {
-      return attorney.specialization.some(spec => 
-        spec.toLowerCase().includes('civil') || 
-        spec.toLowerCase().includes('inmobiliario') ||
-        spec.toLowerCase().includes('contratos')
-      );
-    }
-
-    // For administrative and notarial law, return attorneys with general experience
-    if (serviceSlug === 'derecho-administrativo' || serviceSlug === 'derecho-notarial') {
-      return attorney.isPartner || attorney.experience >= 10;
-    }
-
-    return hasKeywordMatch;
   }).sort((a, b) => {
     // Sort by partnership status first, then by experience
     if (a.isPartner && !b.isPartner) return -1;
@@ -188,20 +61,78 @@ const getMatchingAttorneys = (serviceSlug: string, attorneys: Attorney[]): Attor
   });
 };
 
+// Format service data for display
+const formatServiceForDisplay = (service: ServiceData, children: ServiceData[]): FormattedService => {
+  return {
+    title: service.name.toUpperCase(),
+    subtitle: service.shortDescription,
+    description: service.description,
+    detailedDescription: service.description,
+    services: children.map(child => child.name),
+    icon: service.iconUrl ? getIconById(service.iconUrl) : getIconById('balance-scale'),
+    imageUrl: service.imageUrl,
+    color: '#152239',
+    bgGradient: 'from-slate-50 to-stone-50',
+    keywords: service.name.toLowerCase().split(' ')
+  };
+};
+
 export default function ServiceDetailPage() {
   const params = useParams();
   const [matchedAttorneys, setMatchedAttorneys] = useState<Attorney[]>([]);
   const [allAttorneys, setAllAttorneys] = useState<Attorney[]>([]);
+  const [service, setService] = useState<FormattedService | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attorneysLoading, setAttorneysLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attorneysError, setAttorneysError] = useState<string | null>(null);
   const slug = params?.slug as string;
 
-  const service = servicesData[slug as keyof typeof servicesData];
+  // Fetch service data from API
+  const fetchService = async () => {
+    try {
+      const response = await fetch('/api/services');
+      const data = await response.json();
+      
+      if (data.success) {
+        const services = data.data as ServiceData[];
+        
+        // Find the parent service that matches the slug
+        const parentService = services.find(s => {
+          if (!s.parentId && s.isActive) {
+            const serviceSlug = s.name.toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/\s+/g, '-')
+              .replace(/[^a-z0-9-]/g, '');
+            return serviceSlug === slug;
+          }
+          return false;
+        });
+        
+        if (parentService) {
+          // Get children services
+          const children = services.filter(s => s.parentId === parentService.id && s.isActive)
+            .sort((a, b) => a.order - b.order);
+          
+          const formattedService = formatServiceForDisplay(parentService, children);
+          setService(formattedService);
+        } else {
+          setError('Servicio no encontrado');
+        }
+      } else {
+        setError('Error al cargar el servicio');
+      }
+    } catch (err) {
+      console.error('Error fetching service:', err);
+      setError('Error al cargar el servicio');
+    }
+  };
 
   // Fetch attorneys from API
   const fetchActiveAttorneys = async () => {
     try {
-      setLoading(true);
+      setAttorneysLoading(true);
       const response = await fetch('/api/attorneys/active');
       
       if (!response.ok) {
@@ -234,31 +165,56 @@ export default function ServiceDetailPage() {
       setAllAttorneys(mappedAttorneys);
     } catch (err) {
       console.error('Error fetching attorneys:', err);
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      setAttorneysError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
-      setLoading(false);
+      setAttorneysLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchActiveAttorneys();
-  }, []);
+    const loadData = async () => {
+      setLoading(true);
+      await fetchService();
+      setLoading(false);
+      // Load attorneys separately
+      fetchActiveAttorneys();
+    };
+    
+    if (slug) {
+      loadData();
+    }
+  }, [slug]);
 
   useEffect(() => {
-    if (slug && allAttorneys.length > 0) {
-      const attorneys = getMatchingAttorneys(slug, allAttorneys);
+    if (service && allAttorneys.length > 0) {
+      const attorneys = getMatchingAttorneys(service.title, allAttorneys);
       setMatchedAttorneys(attorneys);
     }
-  }, [slug, allAttorneys]);
+  }, [service, allAttorneys]);
 
-  if (!service) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <main className="pt-32 pb-16">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#B79F76] mx-auto mb-4"></div>
+            <p className="text-slate-600">Cargando servicio...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !service) {
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
         <main className="pt-32 pb-16">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
             <h1 className="text-4xl font-bold text-slate-800 mb-4">Servicio no encontrado</h1>
-            <p className="text-slate-600">El servicio solicitado no existe.</p>
+            <p className="text-slate-600">{error || 'El servicio solicitado no existe.'}</p>
           </div>
         </main>
         <Footer />
@@ -306,14 +262,35 @@ export default function ServiceDetailPage() {
             
             <div className="relative">
               <div className="aspect-square bg-white rounded-2xl shadow-2xl flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br opacity-10"
-                  style={{ background: `linear-gradient(135deg, ${service.color}20 0%, ${service.color}40 100%)` }}>
-                </div>
-                <div className="text-center relative z-10" style={{ color: service.color }}>
-                  {service.icon}
-                  <h3 className="text-xl font-serif font-bold mt-4">Especialización</h3>
-                  <p className="text-sm opacity-70 mt-2">Experiencia Comprobada</p>
-                </div>
+                {service.imageUrl ? (
+                  <>
+                    <img 
+                      src={service.imageUrl} 
+                      alt={service.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br bg-black bg-opacity-40 flex items-center justify-center">
+                      <div className="text-center relative z-10 text-white">
+                        <div className="text-white mb-4">
+                          {service.icon}
+                        </div>
+                        <h3 className="text-xl font-serif font-bold">Especialización</h3>
+                        <p className="text-sm opacity-90 mt-2">Experiencia Comprobada</p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="absolute inset-0 bg-gradient-to-br opacity-10"
+                      style={{ background: `linear-gradient(135deg, ${service.color}20 0%, ${service.color}40 100%)` }}>
+                    </div>
+                    <div className="text-center relative z-10" style={{ color: service.color }}>
+                      {service.icon}
+                      <h3 className="text-xl font-serif font-bold mt-4">Especialización</h3>
+                      <p className="text-sm opacity-70 mt-2">Experiencia Comprobada</p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -377,21 +354,21 @@ export default function ServiceDetailPage() {
             </p>
           </div>
 
-          {loading ? (
+          {attorneysLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
                 <p className="text-slate-600">Cargando especialistas...</p>
               </div>
             </div>
-          ) : error ? (
+          ) : attorneysError ? (
             <div className="text-center py-12">
               <div className="text-red-500 mb-4">
                 <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-slate-600 mb-4">{error}</p>
+              <p className="text-slate-600 mb-4">{attorneysError}</p>
               <button
                 onClick={fetchActiveAttorneys}
                 className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
