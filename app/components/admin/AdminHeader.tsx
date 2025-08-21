@@ -8,7 +8,7 @@ export default function AdminHeader() {
   const { user, role } = useUserRole();
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white border-b border-stone-200 z-40">
+    <header className="fixed top-0 left-0 right-0 bg-white border-b border-stone-200 z-50">
       <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 py-3 sm:py-4">
         <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 truncate">

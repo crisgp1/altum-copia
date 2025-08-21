@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UserRole, getRoleDisplayName, ROLE_PERMISSIONS, ROLE_HIERARCHY } from '@/app/lib/auth/roles';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 
@@ -21,14 +21,31 @@ interface RoleAssignmentModalProps {
   onRoleUpdate: (userId: string, newRole: UserRole) => void;
 }
 
-export default function RoleAssignmentModal({ 
-  user, 
-  isOpen, 
-  onClose, 
-  onRoleUpdate 
+export default function RoleAssignmentModal({
+  user,
+  isOpen,
+  onClose,
+  onRoleUpdate
 }: RoleAssignmentModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isOpen, onClose]);
   const { role: currentUserRole } = useUserRole();
 
   if (!isOpen) return null;
@@ -75,7 +92,7 @@ export default function RoleAssignmentModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-3 lg:p-4">
+    <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-3 lg:p-4">
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-xs sm:max-w-md lg:max-w-2xl max-h-[95vh] overflow-y-auto mx-2 sm:mx-0">
         {/* Header */}
         <div className="px-3 sm:px-4 lg:px-6 py-3 border-b border-stone-200">

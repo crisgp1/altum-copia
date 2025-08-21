@@ -21,23 +21,45 @@ export default function UsersPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
-  const userService = new UserService();
-
   const fetchUsers = async (page = 1) => {
     try {
       setLoading(true);
-      const filters = {
-        searchTerm: searchTerm || undefined,
-        role: selectedRole || undefined,
-        isActive: selectedStatus === 'active' ? true : selectedStatus === 'inactive' ? false : undefined
-      };
       
-      const pagination = { page, limit: 10 };
-      const result = await userService.getAllUsers(filters, pagination);
+      // Use admin API directly instead of UserService
+      const params = new URLSearchParams();
+      if (selectedRole) params.set('role', selectedRole);
+      if (selectedStatus === 'active') params.set('isActive', 'true');
+      if (selectedStatus === 'inactive') params.set('isActive', 'false');
+      if (searchTerm) params.set('searchTerm', searchTerm);
+      params.set('page', page.toString());
+      params.set('limit', '10');
+
+      const response = await fetch(`/api/admin/users?${params}`);
+      if (!response.ok) throw new Error('Error al obtener usuarios');
       
-      setUsers(result.users);
-      setCurrentPage(result.pagination.page);
-      setTotalPages(result.pagination.totalPages);
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        // Transform data to match expected structure
+        const usersData = result.data.map((user: any) => ({
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+          imageUrl: user.imageUrl,
+          role: user.role || 'viewer',
+          permissions: [], // Add default permissions
+          isActive: true, // Default to active for Clerk users
+          createdAt: user.createdAt,
+          lastSignInAt: user.lastSignInAt,
+          department: user.department
+        }));
+        
+        setUsers(usersData);
+        setCurrentPage(1);
+        setTotalPages(Math.ceil(usersData.length / 10));
+      }
     } catch (error) {
       toast.error('Error al cargar usuarios');
       console.error('Error fetching users:', error);
@@ -69,11 +91,10 @@ export default function UsersPage() {
     if (!selectedUser) return;
 
     try {
-      await userService.deleteUser(selectedUser.id);
-      toast.success('Usuario eliminado exitosamente');
+      // Note: Deleting Clerk users should be done through Clerk's API
+      toast('La eliminación de usuarios debe realizarse desde el panel de Clerk');
       setIsDeleteModalOpen(false);
       setSelectedUser(null);
-      fetchUsers(currentPage);
     } catch (error) {
       toast.error('Error al eliminar usuario');
       console.error('Error deleting user:', error);
@@ -82,7 +103,21 @@ export default function UsersPage() {
 
   const updateUserRole = async (userId: string, role: string, permissions: string[]) => {
     try {
-      await userService.updateUserRole(userId, { role, permissions });
+      const response = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          role,
+          department: undefined
+        }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Error al actualizar rol');
+      }
+      
       toast.success('Rol actualizado exitosamente');
       setIsEditModalOpen(false);
       setSelectedUser(null);
@@ -369,6 +404,21 @@ function EditUserModal({
   const [selectedRole, setSelectedRole] = useState(user.role);
   const [permissions, setPermissions] = useState<string[]>(user.permissions);
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose]);
+
   const availablePermissions = [
     'read_users',
     'write_users',
@@ -395,7 +445,7 @@ function EditUserModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+    <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
       <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-sm sm:max-w-md max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 pr-4">
           Editar Usuario - {user.fullName}
@@ -471,8 +521,22 @@ function DeleteUserModal({
   onClose: () => void;
   onConfirm: () => void;
 }) {
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose]);
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
           Eliminar Usuario
@@ -510,6 +574,21 @@ function ViewUserModal({
   user: UserResponseDTO;
   onClose: () => void;
 }) {
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose]);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
@@ -521,7 +600,7 @@ function ViewUserModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
           Detalles del Usuario

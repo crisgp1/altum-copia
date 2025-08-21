@@ -107,6 +107,21 @@ export default function AttorneyFormModal({
     setActiveTab('general');
   }, [attorney]);
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onCancel]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -257,7 +272,7 @@ export default function AttorneyFormModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto">
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-sm sm:max-w-2xl lg:max-w-5xl max-h-[95vh] overflow-hidden flex flex-col mx-2 sm:mx-0">
         {/* Header */}
         <div className="bg-gradient-to-r from-amber-50 to-amber-100 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-amber-200">
@@ -277,21 +292,23 @@ export default function AttorneyFormModal({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-stone-200 bg-stone-50 overflow-x-auto">
-          {['general', 'profesional', 'academico', 'multimedia'].map((tab) => (
+        <div className="flex border-b border-stone-200 bg-stone-50">
+          {[
+            { key: 'general', label: 'General', fullLabel: 'General' },
+            { key: 'profesional', label: 'Profesional', fullLabel: 'Profesional' },
+            { key: 'academico', label: 'Académico', fullLabel: 'Formación' },
+            { key: 'multimedia', label: 'Multimedia', fullLabel: 'Multimedia' }
+          ].map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-3 sm:px-6 py-2 sm:py-3 font-medium text-xs sm:text-sm capitalize transition-colors flex-shrink-0 ${
-                activeTab === tab
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex-1 px-3 sm:px-4 py-3 sm:py-4 font-medium text-sm sm:text-base transition-colors ${
+                activeTab === tab.key
                   ? 'text-amber-700 border-b-2 border-amber-600 bg-white'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
-              {tab === 'general' && (<span><span className="sm:hidden">General</span><span className="hidden sm:inline">Información General</span></span>)}
-              {tab === 'profesional' && (<span><span className="sm:hidden">Profesional</span><span className="hidden sm:inline">Información Profesional</span></span>)}
-              {tab === 'academico' && (<span><span className="sm:hidden">Académico</span><span className="hidden sm:inline">Formación y Logros</span></span>)}
-              {tab === 'multimedia' && (<span><span className="sm:hidden">Multimedia</span><span className="hidden sm:inline">Imagen y Enlaces</span></span>)}
+              {tab.fullLabel}
             </button>
           ))}
         </div>

@@ -106,6 +106,23 @@ export default function ServicesAdmin() {
     fetchServices();
   }, []);
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    if (!showModal) return;
+    
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [showModal]);
+
   const fetchServices = async () => {
     try {
       setLoading(true);
@@ -615,54 +632,60 @@ export default function ServicesAdmin() {
 
       {/* Modal - Responsive */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md sm:max-w-lg lg:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-3 sm:mb-4">
-              <h2 className="text-lg sm:text-xl font-bold pr-4">
-                {editingService ? 'Editar Servicio' : formData.parentId ? 'Nuevo Sub-servicio' : 'Nuevo Servicio Principal'}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 p-1 flex-shrink-0"
-              >
-                <X className="w-5 h-5 sm:w-6 sm:h-6" />
-              </button>
+        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md sm:max-w-lg lg:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-amber-50 to-amber-100 px-4 sm:px-6 py-3 sm:py-4 border-b border-amber-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 truncate pr-2">
+                  {editingService ? 'Editar Servicio' : formData.parentId ? 'Nuevo Sub-servicio' : 'Nuevo Servicio Principal'}
+                </h2>
+                <button
+                  onClick={closeModal}
+                  className="text-slate-500 hover:text-slate-700"
+                >
+                  <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            {/* Form Content */}
+            <div className="flex-1 overflow-y-auto">
+
+            <form id="service-form" onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Service Type Indicator */}
-              <div className="bg-gray-50 p-2 sm:p-3 rounded-lg border">
-                <p className="text-xs sm:text-sm text-gray-700">
-                  <strong>Tipo:</strong> {
-                    formData.parentId 
-                      ? `Sub-servicio de "${parentServices.find(p => p.id === formData.parentId)?.name || 'Servicio seleccionado'}"`
-                      : 'Servicio Principal'
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <h3 className="font-medium text-amber-900 mb-1">Tipo de Servicio</h3>
+                <p className="text-sm text-amber-700">
+                  {formData.parentId
+                    ? `Sub-servicio de "${parentServices.find(p => p.id === formData.parentId)?.name || 'Servicio seleccionado'}"`
+                    : 'Servicio Principal'
                   }
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                   Nombre del Servicio
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                   placeholder={formData.parentId ? "Ej: Divorcio consensual" : "Ej: Derecho Familiar"}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                   Servicio Principal
                 </label>
                 <select
                   value={formData.parentId}
                   onChange={(e) => setFormData({...formData, parentId: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                 >
                   <option value="">Ninguno (Servicio Principal)</option>
                   {parentServices.filter(parent => parent.id !== editingService?.id).map(parent => (
@@ -869,23 +892,27 @@ export default function ServicesAdmin() {
                 </label>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-3 sm:pt-4">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="w-full sm:w-auto px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto px-3 sm:px-4 py-2 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
-                >
-                  <Save className="w-4 h-4 flex-shrink-0" />
-                  {editingService ? 'Actualizar' : 'Crear'}
-                </button>
-              </div>
             </form>
+            </div>
+
+            {/* Footer */}
+            <div className="px-4 sm:px-6 py-3 sm:py-4 bg-stone-50 border-t border-stone-200 flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="w-full sm:w-auto px-6 py-2 border border-stone-300 text-slate-700 rounded-lg hover:bg-stone-100 text-sm touch-target order-2 sm:order-1"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                form="service-form"
+                className="w-full sm:w-auto px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm touch-target order-1 sm:order-2 flex items-center justify-center gap-2"
+              >
+                <Save className="w-4 h-4 flex-shrink-0" />
+                {editingService ? 'Actualizar' : 'Crear'}
+              </button>
+            </div>
           </div>
         </div>
       )}
