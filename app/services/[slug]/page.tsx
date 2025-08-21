@@ -195,7 +195,7 @@ export default function ServiceDetailPage() {
           education: attorney.educacion || [],
           languages: attorney.idiomas || [],
           email: attorney.correo,
-          phone: attorney.telefono, // This should map telefono to phone
+          phone: attorney.telefono, // Map telefono from public DTO to phone field
           bio: attorney.biografia,
           achievements: attorney.logros || [],
           cases: attorney.casosDestacados || [],
@@ -309,14 +309,21 @@ export default function ServiceDetailPage() {
               <div className="aspect-square bg-white rounded-2xl shadow-2xl flex items-center justify-center relative overflow-hidden">
                 {service.imageUrl ? (
                   <>
-                    <img 
-                      src={service.imageUrl} 
+                    <img
+                      src={service.imageUrl}
                       alt={service.title}
                       className="absolute inset-0 w-full h-full object-cover"
+                      onLoad={() => console.log('Service image loaded:', service.imageUrl)}
+                      onError={(e) => {
+                        console.error('Service image failed to load:', service.imageUrl);
+                        // Hide broken image and show fallback
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-br bg-black bg-opacity-40 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-black/40 flex items-center justify-center">
                       <div className="text-center relative z-10 text-white">
-                        <div className="text-white mb-4">
+                        <div className="text-white mb-4 text-6xl">
                           {service.icon}
                         </div>
                         <h3 className="text-xl font-serif font-bold">Especialización</h3>
@@ -330,7 +337,9 @@ export default function ServiceDetailPage() {
                       style={{ background: `linear-gradient(135deg, ${service.color}20 0%, ${service.color}40 100%)` }}>
                     </div>
                     <div className="text-center relative z-10" style={{ color: service.color }}>
-                      {service.icon}
+                      <div className="text-6xl mb-4">
+                        {service.icon}
+                      </div>
                       <h3 className="text-xl font-serif font-bold mt-4">Especialización</h3>
                       <p className="text-sm opacity-70 mt-2">Experiencia Comprobada</p>
                     </div>
