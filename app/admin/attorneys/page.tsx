@@ -45,13 +45,22 @@ export default function AdminAttorneysPage() {
     setIsFormOpen(true);
   };
 
-  const handleEdit = (attorney: AttorneyResponseDTO) => {
+  const handleEdit = async (attorney: AttorneyResponseDTO) => {
     if (!hasPermission('manage_content')) {
       toast.error('No tienes permisos para editar abogados');
       return;
     }
-    setSelectedAttorney(attorney);
-    setIsFormOpen(true);
+    
+    try {
+      // Fetch complete attorney data including serviciosQueAtiende
+      const completeAttorney = await attorneyService.getAttorneyById(attorney.id);
+      console.log('🔍 Complete attorney data loaded for editing:', completeAttorney);
+      setSelectedAttorney(completeAttorney);
+      setIsFormOpen(true);
+    } catch (error) {
+      toast.error('Error al cargar los datos del abogado');
+      console.error(error);
+    }
   };
 
   const handleDelete = async (id: string) => {

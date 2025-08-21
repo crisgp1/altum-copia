@@ -17,6 +17,7 @@ export class AttorneyMapper {
       nombre: attorney.nombre,
       cargo: attorney.cargo,
       especializaciones: attorney.especializaciones,
+      serviciosQueAtiende: attorney.serviciosQueAtiende,
       experienciaAnios: attorney.experienciaAnios,
       educacion: attorney.educacion,
       idiomas: attorney.idiomas,
@@ -39,6 +40,7 @@ export class AttorneyMapper {
       nombre: publicInfo.nombre,
       cargo: publicInfo.cargo,
       especializaciones: publicInfo.especializaciones,
+      serviciosQueAtiende: publicInfo.serviciosQueAtiende,
       experienciaAnios: publicInfo.experienciaAnios,
       educacion: publicInfo.educacion,
       idiomas: publicInfo.idiomas,
@@ -58,6 +60,7 @@ export class AttorneyMapper {
       nombre: attorney.nombre,
       cargo: attorney.cargo,
       especializaciones: attorney.especializaciones,
+      serviciosQueAtiende: attorney.serviciosQueAtiende,
       experienciaAnios: attorney.experienciaAnios,
       imagenUrl: attorney.imagenUrl,
       esSocio: attorney.esSocio,
@@ -83,6 +86,7 @@ export class AttorneyMapper {
       nombre: dto.nombre,
       cargo: dto.cargo,
       especializaciones: dto.especializaciones,
+      serviciosQueAtiende: dto.serviciosQueAtiende,
       experienciaAnios: dto.experienciaAnios,
       educacion: dto.educacion,
       idiomas: dto.idiomas,
@@ -105,6 +109,7 @@ export class AttorneyMapper {
     if (dto.nombre !== undefined) update.nombre = dto.nombre;
     if (dto.cargo !== undefined) update.cargo = dto.cargo;
     if (dto.especializaciones !== undefined) update.especializaciones = dto.especializaciones;
+    if (dto.serviciosQueAtiende !== undefined) update.serviciosQueAtiende = dto.serviciosQueAtiende;
     if (dto.experienciaAnios !== undefined) update.experienciaAnios = dto.experienciaAnios;
     if (dto.educacion !== undefined) update.educacion = dto.educacion;
     if (dto.idiomas !== undefined) update.idiomas = dto.idiomas;

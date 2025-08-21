@@ -3,6 +3,7 @@ export interface AttorneyProps {
   nombre: string;
   cargo: string;
   especializaciones: string[];
+  serviciosQueAtiende: string[];
   experienciaAnios: number;
   educacion: string[];
   idiomas: string[];
@@ -30,7 +31,13 @@ export class Attorney {
       fechaCreacion: props.fechaCreacion || new Date(),
       fechaActualizacion: props.fechaActualizacion || new Date(),
       activo: props.activo ?? true,
-      esSocio: props.esSocio ?? false
+      esSocio: props.esSocio ?? false,
+      serviciosQueAtiende: props.serviciosQueAtiende || [],
+      especializaciones: props.especializaciones || [],
+      educacion: props.educacion || [],
+      idiomas: props.idiomas || [],
+      logros: props.logros || [],
+      casosDestacados: props.casosDestacados || []
     };
   }
 
@@ -95,7 +102,11 @@ export class Attorney {
   }
 
   get especializaciones(): string[] {
-    return [...this.props.especializaciones];
+    return [...(this.props.especializaciones || [])];
+  }
+
+  get serviciosQueAtiende(): string[] {
+    return [...(this.props.serviciosQueAtiende || [])];
   }
 
   get experienciaAnios(): number {
@@ -103,11 +114,11 @@ export class Attorney {
   }
 
   get educacion(): string[] {
-    return [...this.props.educacion];
+    return [...(this.props.educacion || [])];
   }
 
   get idiomas(): string[] {
-    return [...this.props.idiomas];
+    return [...(this.props.idiomas || [])];
   }
 
   get correo(): string {
@@ -123,11 +134,11 @@ export class Attorney {
   }
 
   get logros(): string[] {
-    return [...this.props.logros];
+    return [...(this.props.logros || [])];
   }
 
   get casosDestacados(): string[] {
-    return [...this.props.casosDestacados];
+    return [...(this.props.casosDestacados || [])];
   }
 
   get imagenUrl(): string | undefined {

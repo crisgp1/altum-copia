@@ -11,11 +11,6 @@ import toast from 'react-hot-toast';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface ServiceItem {
-  title: string;
-  description: string;
-}
-
 interface VerticalService {
   id: string;
   title: string;
@@ -48,14 +43,24 @@ const defaultColors = [
   '#D4A574'  // Light Gold
 ];
 
-// Service items for initial content (can be generated from description)
-const generateServiceItems = (description: string): ServiceItem[] => {
-  // Split description into sentences and create items
-  const sentences = description.split('.').filter(s => s.trim().length > 20);
-  return sentences.slice(0, 8).map((sentence, index) => ({
-    title: sentence.trim().split(',')[0], // Use first part before comma as title
-    description: sentence.trim()
-  }));
+// Function to fetch subservices for a parent service
+const fetchSubservicesForParent = async (parentId: string): Promise<ServiceDetail[]> => {
+  try {
+    const response = await fetch(`/api/services?parentId=${parentId}&active=true`);
+    const data = await response.json();
+    
+    if (data.success && data.data) {
+      return data.data.map((subservice: any) => ({
+        title: subservice.name,
+        description: subservice.shortDescription || subservice.description,
+        slug: subservice.id // Use the subservice ID for navigation
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching subservices:', error);
+    return [];
+  }
 };
 
 // Function to convert service title to slug
@@ -102,38 +107,42 @@ export default function ServicesPreview() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch('/api/services?active=true');
+      const response = await fetch('/api/services?onlyParents=true&active=true');
       const data = await response.json();
       
       if (data.success && data.data) {
-        // Transform API data to component format
-        const transformedServices: VerticalServiceWithDetails[] = data.data.map((service: any, index: number) => ({
-          id: service.id,
-          title: service.name,
-          backgroundColor: defaultColors[index % defaultColors.length],
-          icon: service.iconUrl ? (
-            <Image 
-              src={service.iconUrl} 
-              alt={service.name} 
-              width={40} 
-              height={40} 
-              className="filter brightness-0 invert" 
-            />
-          ) : (
-            <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">{service.name.charAt(0)}</span>
-            </div>
-          ),
-          shortDescription: service.shortDescription,
-          description: service.description,
-          iconUrl: service.iconUrl,
-          order: service.order,
-          isActive: service.isActive,
-          details: generateServiceItems(service.description).map((item, idx) => ({
-            ...item,
-            slug: getServiceSlug(service.name)
-          }))
-        }));
+        // API already returns only parent services with onlyParents=true, no need to filter again
+        const transformedServices: VerticalServiceWithDetails[] = await Promise.all(
+          data.data.map(async (service: any, index: number) => {
+            // Fetch subservices for this parent service
+            const subservices = await fetchSubservicesForParent(service.id);
+            
+            return {
+              id: service.id,
+              title: service.name,
+              backgroundColor: defaultColors[index % defaultColors.length],
+              icon: service.iconUrl && service.iconUrl.trim() && service.iconUrl !== 'undefined' && service.iconUrl.startsWith('http') ? (
+                <Image
+                  src={service.iconUrl}
+                  alt={service.name}
+                  width={40}
+                  height={40}
+                  className="filter brightness-0 invert"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">{service.name.charAt(0)}</span>
+                </div>
+              ),
+              shortDescription: service.shortDescription,
+              description: service.description,
+              iconUrl: service.iconUrl,
+              order: service.order,
+              isActive: service.isActive,
+              details: subservices // Use real subservices instead of generated items
+            };
+          })
+        );
 
         // Sort by order
         const sortedServices = transformedServices.sort((a, b) => a.order - b.order);
@@ -503,8 +512,8 @@ export default function ServicesPreview() {
             </div>
           </div>
 
-          {/* Left Side - Dynamic ALTUM Content - Responsive */}
-          <div ref={leftContentRef} className="flex flex-1 flex-col justify-center items-center text-center lg:pr-16 xl:pr-24 lg:max-w-2xl xl:max-w-3xl bg-white">
+          {/* Left Side - Dynamic ALTUM Content - Only Desktop */}
+          <div ref={leftContentRef} className="hidden lg:flex flex-1 flex-col justify-center items-center text-center lg:pr-16 xl:pr-24 lg:max-w-2xl xl:max-w-3xl bg-white">
             {clickedIndex === null ? (
               // Simple default content - Centered and Responsive
               <>
@@ -535,7 +544,7 @@ export default function ServicesPreview() {
                       className="cursor-pointer group"
                       onTouchStart={handleTouchStart}
                       onTouchEnd={handleTouchEnd}
-                      onClick={(e) => handleSmartNavigation(getServiceSlug(services[clickedIndex].title), e)}
+                      onClick={(e) => handleSmartNavigation(services[clickedIndex].id, e)}
                     >
                       <h2 
                         ref={selectedTitleRef}
@@ -630,7 +639,7 @@ export default function ServicesPreview() {
                     <button
                       onTouchStart={handleTouchStart}
                       onTouchEnd={handleTouchEnd}
-                      onClick={(e) => handleSmartNavigation(getServiceSlug(services[clickedIndex].title), e)}
+                      onClick={(e) => handleSmartNavigation(services[clickedIndex].id, e)}
                       className="w-full bg-gradient-to-r from-[#B79F76] to-[#D4A574] text-white px-6 sm:px-8 py-3 sm:py-4 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-[#B79F76]/25 transform hover:scale-[1.02] active:scale-[0.98] rounded-lg group flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
                       style={{ minHeight: '44px' }} // Minimum touch target size
                     >

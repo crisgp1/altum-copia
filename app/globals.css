@@ -470,6 +470,184 @@ textarea::placeholder {
   }
 }
 
+/* Service Selector Dropdown Styles */
+.service-dropdown {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 9999 !important;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.service-dropdown-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: #ffffff;
+  color: #1e293b !important;
+  font-weight: 500;
+}
+
+.service-dropdown-item:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.service-dropdown-item.selected {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-left: 4px solid #3b82f6;
+}
+
+.service-dropdown-item.parent-service {
+  font-weight: 600;
+  background: #fefefe;
+}
+
+.service-dropdown-item.child-service {
+  padding-left: 32px;
+  font-size: 14px;
+  color: #475569 !important;
+  background: #fdfdfd;
+}
+
+.service-dropdown-item.child-service:hover {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+.service-dropdown-item.child-service.selected {
+  background: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-left: 4px solid #0ea5e9;
+}
+
+.service-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: all 0.2s ease;
+}
+
+.service-tag.parent {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.service-tag.child {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.service-tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.service-tag button {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  background: rgba(0, 0, 0, 0.1);
+  color: currentColor;
+  border: none;
+  cursor: pointer;
+}
+
+.service-tag button:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
+}
+
+/* Search input improvements */
+.service-search-input {
+  padding: 12px 16px 12px 44px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #1e293b !important;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.service-search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.service-search-input::placeholder {
+  color: #64748b !important;
+  opacity: 1;
+}
+
+/* Status indicators */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.selected {
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.status-dot.unselected {
+  background: #d1d5db;
+}
+
+/* Badge styles */
+.service-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.service-badge.parent {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.service-badge.child {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Ensure proper z-index for dropdown */
+.service-dropdown-container {
+  position: relative;
+  z-index: 50;
+}
+
+.service-dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: transparent;
+}
+
 /* iPhone 12 Pro specific optimizations */
 @media (max-width: 390px) {
   /* Ensure proper spacing for very narrow screens */

@@ -3,6 +3,7 @@ export interface AttorneyResponseDTO {
   nombre: string;
   cargo: string;
   especializaciones: string[];
+  serviciosQueAtiende: string[];
   experienciaAnios: number;
   educacion: string[];
   idiomas: string[];
@@ -22,6 +23,7 @@ export interface AttorneyPublicDTO {
   nombre: string;
   cargo: string;
   especializaciones: string[];
+  serviciosQueAtiende: string[];
   experienciaAnios: number;
   educacion: string[];
   idiomas: string[];
@@ -39,6 +41,7 @@ export interface AttorneyListItemDTO {
   nombre: string;
   cargo: string;
   especializaciones: string[];
+  serviciosQueAtiende: string[];
   experienciaAnios: number;
   imagenUrl?: string;
   esSocio: boolean;
@@ -49,6 +52,7 @@ export interface CreateAttorneyDTO {
   nombre: string;
   cargo: string;
   especializaciones: string[];
+  serviciosQueAtiende: string[];
   experienciaAnios: number;
   educacion: string[];
   idiomas: string[];
@@ -68,6 +72,7 @@ export interface UpdateAttorneyDTO {
   nombre?: string;
   cargo?: string;
   especializaciones?: string[];
+  serviciosQueAtiende?: string[];
   experienciaAnios?: number;
   educacion?: string[];
   idiomas?: string[];

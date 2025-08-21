@@ -8,7 +8,21 @@ import Navbar from '@/app/components/navigation/Navbar';
 import Footer from '@/app/components/sections/Footer';
 import toast from 'react-hot-toast';
 
+interface ServiceData {
+  id: string;
+  name: string;
+  description: string;
+  shortDescription: string;
+  iconUrl?: string;
+  imageUrl?: string;
+  parentId?: string;
+  order: number;
+  isActive: boolean;
+  children?: ServiceData[];
+}
+
 interface LegalArea {
+  id: string;
   name: string;
   description: string;
   color: string;
@@ -21,11 +35,15 @@ export default function EquipoPage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [attorneys, setAttorneys] = useState<AttorneyResponseDTO[]>([]);
   const [legalAreas, setLegalAreas] = useState<LegalArea[]>([]);
+  const [services, setServices] = useState<ServiceData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch attorneys from API
+  // Fetch attorneys and services from API
   useEffect(() => {
-    fetchAttorneys();
+    const loadData = async () => {
+      await Promise.all([fetchAttorneys(), fetchServices()]);
+    };
+    loadData();
   }, []);
 
   // Initialize selected attorney when data is loaded
@@ -39,67 +57,55 @@ export default function EquipoPage() {
 
   const fetchAttorneys = async () => {
     try {
-      setIsLoading(true);
       const response = await fetch('/api/attorneys');
       if (response.ok) {
         const data = await response.json();
         setAttorneys(data.attorneys || []);
-        
-        // Create legal areas based on fetched attorneys
-        const areas: LegalArea[] = [
-          {
-            name: 'Derecho Corporativo',
-            description: 'Especialistas en constitución de empresas, fusiones y adquisiciones',
-            color: 'amber',
-            attorneys: (data.attorneys || []).filter((attorney: AttorneyResponseDTO) => 
-              attorney.especializaciones.some(spec => 
-                spec.includes('Corporativo') || spec.includes('Empresarial') || spec.includes('Mercantil')
-              )
-            )
-          },
-          {
-            name: 'Litigio Estratégico',
-            description: 'Expertos en resolución de disputas civiles y comerciales',
-            color: 'blue',
-            attorneys: (data.attorneys || []).filter((attorney: AttorneyResponseDTO) => 
-              attorney.especializaciones.some(spec => 
-                spec.includes('Litigio') || spec.includes('Penal') || spec.includes('Civil') || spec.includes('Arbitraje')
-              )
-            )
-          },
-          {
-            name: 'Derecho Fiscal',
-            description: 'Asesores en planeación fiscal y defensa tributaria',
-            color: 'green',
-            attorneys: (data.attorneys || []).filter((attorney: AttorneyResponseDTO) => 
-              attorney.especializaciones.some(spec => 
-                spec.includes('Fiscal') || spec.includes('Tributario') || spec.includes('Planeación')
-              )
-            )
-          },
-          {
-            name: 'Derecho Laboral',
-            description: 'Especialistas en relaciones laborales y seguridad social',
-            color: 'purple',
-            attorneys: (data.attorneys || []).filter((attorney: AttorneyResponseDTO) => 
-              attorney.especializaciones.some(spec => 
-                spec.includes('Laboral') || spec.includes('Seguridad Social') || spec.includes('Relaciones')
-              )
-            )
-          }
-        ];
-        
-        setLegalAreas(areas);
       } else {
         toast.error('Error al cargar el equipo de abogados');
       }
     } catch (error) {
       console.error('Error fetching attorneys:', error);
       toast.error('Error al cargar el equipo de abogados');
-    } finally {
-      setIsLoading(false);
     }
   };
+
+  const fetchServices = async () => {
+    try {
+      const response = await fetch('/api/services');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setServices(data.data || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
+
+  // Create legal areas based on services and attorneys
+  useEffect(() => {
+    if (services.length > 0 && attorneys.length > 0) {
+      const colors = ['amber', 'blue', 'green', 'purple', 'indigo', 'pink', 'red', 'teal'];
+      
+      // Filter parent services only
+      const parentServices = services.filter(service => !service.parentId && service.isActive);
+      
+      const areas: LegalArea[] = parentServices.map((service, index) => ({
+        id: service.id,
+        name: service.name,
+        description: service.shortDescription || service.description,
+        color: colors[index % colors.length],
+        attorneys: attorneys.filter((attorney: AttorneyResponseDTO) =>
+          attorney.serviciosQueAtiende && attorney.serviciosQueAtiende.includes(service.id)
+        )
+      }));
+      
+      setLegalAreas(areas);
+      setIsLoading(false);
+    }
+  }, [services, attorneys]);
 
   const handleAttorneySelect = (attorney: AttorneyResponseDTO) => {
     if (selectedAttorney?.id === attorney.id) return;
@@ -192,7 +198,7 @@ export default function EquipoPage() {
                   <div className="space-y-3">
                     <div className="flex items-center text-slate-600">
                       <Mail className="w-5 h-5 mr-3 text-amber-600" />
-                      <span>{selectedAttorney.email}</span>
+                      <span>{selectedAttorney.correo}</span>
                     </div>
                     <div className="flex items-center text-slate-600">
                       <Phone className="w-5 h-5 mr-3 text-amber-600" />
@@ -234,7 +240,7 @@ export default function EquipoPage() {
                           ))}
                         </div>
                         <p className="text-slate-500 text-xs">
-                          {selectedAttorney.anosExperiencia} años de experiencia • {selectedAttorney.idiomas.join(' • ')}
+                          {selectedAttorney.experienciaAnios || 0} años de experiencia • {(selectedAttorney.idiomas || []).join(' • ')}
                         </p>
                       </div>
                     </div>
@@ -242,13 +248,24 @@ export default function EquipoPage() {
                   
                   {/* Attorney Image */}
                   <div className="relative bg-gradient-to-br from-slate-300 to-slate-400 rounded-2xl overflow-hidden aspect-[4/5] shadow-2xl ml-8 mt-8">
-                    <Image
-                      src={selectedAttorney.imagenUrl || '/images/attorneys/attorney1.png'}
-                      alt={selectedAttorney.nombre}
-                      fill
-                      className="object-cover object-center"
-                      priority
-                    />
+                    {selectedAttorney.imagenUrl ? (
+                      <Image
+                        src={selectedAttorney.imagenUrl}
+                        alt={selectedAttorney.nombre}
+                        fill
+                        className="object-cover object-center"
+                        priority
+                        onError={(e) => {
+                          console.log('Error loading image:', selectedAttorney.imagenUrl);
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300">
+                        <div className="text-6xl font-bold text-slate-600">
+                          {selectedAttorney.nombre.split(' ')[0]?.[0]}{selectedAttorney.nombre.split(' ')[1]?.[0]}
+                        </div>
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   </div>
                 </div>
@@ -310,24 +327,35 @@ export default function EquipoPage() {
               <p className="text-slate-500">Selecciona otra área de práctica para ver nuestro equipo.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8 justify-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-6 lg:gap-8">
               {currentAreaAttorneys.map((attorney, index) => (
               <div
                 key={attorney.id}
-                className={`group cursor-pointer transition-all duration-300 ${
-                  selectedAttorney?.id === attorney.id 
-                    ? 'ring-4 ring-amber-200' 
+                className={`relative group cursor-pointer transition-all duration-300 w-full max-w-sm mx-auto ${
+                  selectedAttorney?.id === attorney.id
+                    ? 'ring-4 ring-amber-200'
                     : 'hover:ring-2 hover:ring-amber-100'
                 }`}
                 onClick={() => handleAttorneySelect(attorney)}
               >
-                <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden aspect-[4/5] shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                  <Image
-                    src={attorney.imagenUrl || '/images/attorneys/attorney1.png'}
-                    alt={attorney.nombre}
-                    fill
-                    className="object-cover object-center"
-                  />
+                <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden aspect-[3/4] sm:aspect-[4/5] shadow-lg group-hover:shadow-xl transition-shadow duration-300 min-h-[300px] sm:min-h-[280px] lg:min-h-[320px]">
+                  {attorney.imagenUrl ? (
+                    <Image
+                      src={attorney.imagenUrl}
+                      alt={attorney.nombre}
+                      fill
+                      className="object-cover object-center"
+                      onError={(e) => {
+                        console.log('Error loading attorney image:', attorney.imagenUrl);
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300">
+                      <div className="text-4xl font-bold text-slate-600">
+                        {attorney.nombre.split(' ')[0]?.[0]}{attorney.nombre.split(' ')[1]?.[0]}
+                      </div>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   {/* Overlay Info */}
@@ -351,23 +379,29 @@ export default function EquipoPage() {
                   </div>
                 </div>
                 
-                {/* Name below image for mobile */}
-                <div className="mt-4 text-center lg:hidden">
-                  <h3 className="font-medium text-slate-800">
+                {/* Name below image for all screen sizes */}
+                <div className="mt-4 text-center">
+                  <h3 className="font-medium text-slate-800 text-lg">
                     {attorney.nombre}
                   </h3>
                   <p className="text-amber-600 text-sm">
                     {attorney.cargo}
                   </p>
-                </div>
-                
-                {/* Description Review beside photo - Desktop only */}
-                <div className="hidden lg:block absolute left-full top-0 ml-4 w-64 bg-white p-4 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 border border-slate-200">
-                  <h4 className="font-medium text-slate-800 mb-2">{attorney.nombre}</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-3">{attorney.biografia}</p>
-                  <div className="text-xs text-slate-500">
-                    <p className="mb-1">{attorney.anosExperiencia} años de experiencia</p>
-                    <p>{attorney.idiomas.join(', ')}</p>
+                  <div className="mt-2 flex flex-wrap gap-1 justify-center">
+                    {attorney.especializaciones.slice(0, 2).map((spec, specIndex) => (
+                      <span
+                        key={specIndex}
+                        className="bg-slate-100 text-slate-600 px-2 py-1 text-xs rounded-full"
+                      >
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-2 text-xs text-slate-500">
+                    <p>{attorney.experienciaAnios || 0} años de experiencia</p>
+                    {attorney.idiomas && attorney.idiomas.length > 0 && (
+                      <p>{attorney.idiomas.join(', ')}</p>
+                    )}
                   </div>
                 </div>
               </div>

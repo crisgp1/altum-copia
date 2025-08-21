@@ -5,6 +5,7 @@ export interface IAttorneyDocument extends Document {
   nombre: string;
   cargo: string;
   especializaciones: string[];
+  serviciosQueAtiende: string[];
   experienciaAnios: number;
   educacion: string[];
   idiomas: string[];
@@ -40,6 +41,10 @@ const AttorneySchema = new Schema<IAttorneyDocument>(
     especializaciones: [{
       type: String,
       required: true
+    }],
+    serviciosQueAtiende: [{
+      type: String,
+      ref: 'Service'
     }],
     experienciaAnios: {
       type: Number,
@@ -124,6 +129,7 @@ const AttorneySchema = new Schema<IAttorneyDocument>(
 AttorneySchema.index({ nombre: 'text', especializaciones: 'text' });
 AttorneySchema.index({ activo: 1, esSocio: -1 });
 AttorneySchema.index({ especializaciones: 1 });
+AttorneySchema.index({ serviciosQueAtiende: 1 });
 AttorneySchema.index({ correo: 1 });
 
 // Método para obtener información pública (oculta datos sensibles)

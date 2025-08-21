@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AttorneyResponseDTO } from '@/app/lib/application/dtos/AttorneyDTO';
 import { AttorneyService } from '@/app/lib/application/services/AttorneyService';
+import { useServicesStore } from '@/app/lib/stores/servicesStore';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { UploadIndicator, AnimatedUploadZone, UploadState } from './UploadAnimations';
@@ -54,6 +55,7 @@ export default function AttorneyFormModal({
     nombre: '',
     cargo: '',
     especializaciones: [] as string[],
+    serviciosQueAtiende: [] as string[], // New field for services the attorney can handle
     experienciaAnios: 0,
     educacion: [''],
     idiomas: [] as string[],
@@ -78,13 +80,42 @@ export default function AttorneyFormModal({
   const [activeTab, setActiveTab] = useState('general');
   const [customEspecializacion, setCustomEspecializacion] = useState('');
   const [customIdioma, setCustomIdioma] = useState('');
+  const [serviceSearchQuery, setServiceSearchQuery] = useState('');
+  const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
+  
+  // Use Zustand store directly to avoid infinite loops
+  const availableServices = useServicesStore((state) => state.services);
+  const servicesLoading = useServicesStore((state) => state.isLoading);
+  const servicesError = useServicesStore((state) => state.error);
+  const fetchServices = useServicesStore((state) => state.fetchServices);
+  const getServiceById = useServicesStore((state) => state.getServiceById);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 AttorneyFormModal - Services state:', {
+      servicesCount: availableServices.length,
+      isLoading: servicesLoading,
+      error: servicesError,
+      services: availableServices
+    });
+  }, [availableServices.length, servicesLoading, servicesError]);
+
+  // Fetch services on mount
+  useEffect(() => {
+    if (availableServices.length === 0 && !servicesLoading) {
+      fetchServices();
+    }
+  }, [availableServices.length, servicesLoading, fetchServices]);
 
   useEffect(() => {
     if (attorney) {
+      console.log('🔍 Loading attorney data:', attorney);
+      
       setFormData({
         nombre: attorney.nombre,
         cargo: attorney.cargo,
         especializaciones: attorney.especializaciones,
+        serviciosQueAtiende: attorney.serviciosQueAtiende || [], // Use attorney field directly
         experienciaAnios: attorney.experienciaAnios,
         educacion: attorney.educacion.length > 0 ? attorney.educacion : [''],
         idiomas: attorney.idiomas,
@@ -102,10 +133,46 @@ export default function AttorneyFormModal({
       if (attorney.imagenUrl) {
         setImagePreview(attorney.imagenUrl);
       }
+      
+      // Debug log to see what services are loaded
+      console.log('✅ Attorney services loaded:', attorney.serviciosQueAtiende);
     }
+    
     // Always start with General tab
     setActiveTab('general');
   }, [attorney]);
+
+  // Additional useEffect to validate services after available services are loaded
+  useEffect(() => {
+    if (attorney && availableServices.length > 0 && attorney.serviciosQueAtiende) {
+      console.log('🔧 Validating attorney services against available services...');
+      console.log('Attorney services:', attorney.serviciosQueAtiende);
+      console.log('Available services:', availableServices.map(s => s.id));
+      
+      // Verify that all attorney's services exist in available services
+      const validServices = attorney.serviciosQueAtiende.filter((serviceId: string) =>
+        getServiceById(serviceId)
+      );
+      
+      console.log('✅ Valid services found:', validServices);
+      
+      // Only update if different from current formData
+      if (JSON.stringify(validServices.sort()) !== JSON.stringify(formData.serviciosQueAtiende.sort())) {
+        console.log('🔄 Updating form data with validated services');
+        setFormData(prev => ({
+          ...prev,
+          serviciosQueAtiende: validServices
+        }));
+      }
+    }
+  }, [attorney, availableServices, getServiceById]);
+
+  // Handle services error
+  useEffect(() => {
+    if (servicesError) {
+      toast.error(servicesError);
+    }
+  }, [servicesError]);
 
   // Handle Escape key to close modal
   useEffect(() => {
@@ -197,6 +264,11 @@ export default function AttorneyFormModal({
       return;
     }
 
+    if (formData.serviciosQueAtiende.length === 0) {
+      toast.error('Por favor seleccione al menos un servicio que el abogado pueda atender');
+      return;
+    }
+
     let imagenUrl = formData.imagenUrl;
     if (imageFile) {
       const uploadedUrl = await uploadImage();
@@ -211,6 +283,7 @@ export default function AttorneyFormModal({
       educacion: formData.educacion.filter(e => e.trim() !== ''),
       logros: formData.logros.filter(l => l.trim() !== ''),
       casosDestacados: formData.casosDestacados.filter(c => c.trim() !== ''),
+      serviciosQueAtiende: formData.serviciosQueAtiende // Include services field
     };
 
     onSubmit(cleanedData);
@@ -265,11 +338,37 @@ export default function AttorneyFormModal({
   };
 
   const removeIdioma = (idioma: string) => {
-    setFormData({ 
-      ...formData, 
-      idiomas: formData.idiomas.filter(i => i !== idioma) 
+    setFormData({
+      ...formData,
+      idiomas: formData.idiomas.filter(i => i !== idioma)
     });
   };
+
+  const toggleService = (serviceId: string) => {
+    setFormData(prevData => ({
+      ...prevData,
+      serviciosQueAtiende: prevData.serviciosQueAtiende.includes(serviceId)
+        ? prevData.serviciosQueAtiende.filter(id => id !== serviceId)
+        : [...prevData.serviciosQueAtiende, serviceId]
+    }));
+  };
+
+  const removeService = (serviceId: string) => {
+    setFormData(prevData => ({
+      ...prevData,
+      serviciosQueAtiende: prevData.serviciosQueAtiende.filter(id => id !== serviceId)
+    }));
+  };
+
+  // Filter services based on search query using store methods
+  const filteredServices = availableServices.filter(service =>
+    service.name.toLowerCase().includes(serviceSearchQuery.toLowerCase())
+  );
+
+  // Group filtered services by parent using store methods
+  const parentServices = filteredServices.filter(service => service.isParent);
+  const getChildServices = (parentId: string) =>
+    filteredServices.filter(service => service.parentId === parentId);
 
   return (
     <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto">
@@ -390,6 +489,209 @@ export default function AttorneyFormModal({
                       className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 placeholder:text-slate-900 placeholder:opacity-90 text-slate-900 text-sm"
                     />
                   </div>
+                </div>
+
+                {/* Services Assignment Section - Improved UX with CSS Classes */}
+                <div className="service-dropdown-container">
+                  <label className="block text-sm font-medium text-slate-700 mb-3">
+                    Servicios que puede atender *
+                  </label>
+                  <p className="text-xs text-slate-600 mb-4">
+                    Busque y seleccione los servicios que este abogado puede atender.
+                  </p>
+                  
+                  {servicesLoading ? (
+                    <div className="flex items-center justify-center py-8 bg-slate-50 rounded-lg border border-slate-200">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-700 mr-3"></div>
+                      <span className="text-slate-600">Cargando servicios...</span>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Selected Services Tags - Similar to Specializations Style */}
+                      {formData.serviciosQueAtiende.length > 0 && (
+                        <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                          <h4 className="text-sm font-medium text-orange-900 mb-2">
+                            Servicios seleccionados:
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {formData.serviciosQueAtiende.map((serviceId) => {
+                              const service = availableServices.find(s => s.id === serviceId);
+                              if (!service) return null;
+                              
+                              return (
+                                <span
+                                  key={serviceId}
+                                  className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full"
+                                >
+                                  {service.name}
+                                  <button
+                                    type="button"
+                                    onClick={() => removeService(serviceId)}
+                                    className="text-orange-600 hover:text-orange-900 ml-1"
+                                  >
+                                    ×
+                                  </button>
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Search and Select Interface */}
+                      <div className="relative">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="Haga clic para buscar y seleccionar servicios..."
+                            value={serviceSearchQuery}
+                            onChange={(e) => {
+                              setServiceSearchQuery(e.target.value);
+                              if (!isServiceDropdownOpen) {
+                                setIsServiceDropdownOpen(true);
+                              }
+                            }}
+                            onFocus={() => setIsServiceDropdownOpen(true)}
+                            className="service-search-input w-full"
+                          />
+                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                            <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                          </div>
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <button
+                              type="button"
+                              onClick={() => setIsServiceDropdownOpen(!isServiceDropdownOpen)}
+                              className="text-slate-400 hover:text-slate-600"
+                            >
+                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isServiceDropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Dropdown Results - Always show when open */}
+                        {isServiceDropdownOpen && (
+                          <>
+                            <div className="service-dropdown absolute w-full mt-2">
+                              {availableServices.length === 0 ? (
+                                <div className="service-dropdown-item text-center">
+                                  <div className="py-4">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-700 mx-auto mb-2"></div>
+                                    <p>Cargando servicios...</p>
+                                  </div>
+                                </div>
+                              ) : filteredServices.length === 0 ? (
+                                <div className="service-dropdown-item text-center">
+                                  <p className="py-4">No se encontraron servicios que coincidan con "{serviceSearchQuery}"</p>
+                                  <button
+                                    type="button"
+                                    onClick={() => setServiceSearchQuery('')}
+                                    className="text-sm text-blue-600 hover:text-blue-700"
+                                  >
+                                    Ver todos los servicios
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  {parentServices.map(parentService => {
+                                    const childServices = getChildServices(parentService.id);
+                                    const isSelected = formData.serviciosQueAtiende.includes(parentService.id);
+                                    
+                                    return (
+                                      <div key={parentService.id}>
+                                        {/* Parent Service Option */}
+                                        <div
+                                          onClick={() => {
+                                            toggleService(parentService.id);
+                                            setServiceSearchQuery('');
+                                          }}
+                                          className={`service-dropdown-item parent-service ${isSelected ? 'selected' : ''}`}
+                                        >
+                                          <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                              <div className={`status-dot ${isSelected ? 'selected' : 'unselected'}`}></div>
+                                              <span>{parentService.name}</span>
+                                              <span className="service-badge parent">Principal</span>
+                                            </div>
+                                            {isSelected && (
+                                              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                              </svg>
+                                            )}
+                                          </div>
+                                        </div>
+
+                                        {/* Child Services Options */}
+                                        {childServices.map(childService => {
+                                          const isChildSelected = formData.serviciosQueAtiende.includes(childService.id);
+                                          return (
+                                            <div
+                                              key={childService.id}
+                                              onClick={() => {
+                                                toggleService(childService.id);
+                                                setServiceSearchQuery('');
+                                              }}
+                                              className={`service-dropdown-item child-service ${isChildSelected ? 'selected' : ''}`}
+                                            >
+                                              <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                  <div className={`status-dot ${isChildSelected ? 'selected' : 'unselected'}`}></div>
+                                                  <span>{childService.name}</span>
+                                                  <span className="service-badge child">Especialidad</span>
+                                                </div>
+                                                {isChildSelected && (
+                                                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                  </svg>
+                                                )}
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    );
+                                  })}
+                                  
+                                  {/* Close dropdown button */}
+                                  <div className="border-t border-slate-200 p-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setIsServiceDropdownOpen(false);
+                                        setServiceSearchQuery('');
+                                      }}
+                                      className="w-full text-center py-2 text-sm text-slate-500 hover:text-slate-700 font-medium"
+                                    >
+                                      Cerrar lista
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                            
+                            {/* Click outside to close dropdown */}
+                            <div
+                              className="service-dropdown-overlay"
+                              onClick={() => {
+                                setIsServiceDropdownOpen(false);
+                                setServiceSearchQuery('');
+                              }}
+                            ></div>
+                          </>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-slate-500 mt-2">
+                        {formData.serviciosQueAtiende.length === 0
+                          ? 'Debe seleccionar al menos un servicio'
+                          : `${formData.serviciosQueAtiende.length} servicio${formData.serviciosQueAtiende.length === 1 ? '' : 's'} seleccionado${formData.serviciosQueAtiende.length === 1 ? '' : 's'}`
+                        }
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4">

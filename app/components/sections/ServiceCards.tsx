@@ -146,12 +146,16 @@ export default function ServiceCards() {
                   borderStyle: 'solid'
                 }}
               >
-                {service.iconUrl && (
-                  <img 
-                    src={service.iconUrl} 
-                    alt={service.name} 
+                {service.iconUrl && service.iconUrl.trim() && service.iconUrl !== 'undefined' && service.iconUrl.startsWith('http') ? (
+                  <img
+                    src={service.iconUrl}
+                    alt={service.name}
                     className="w-6 h-6 inline-block mr-2"
                   />
+                ) : (
+                  <div className="w-6 h-6 bg-slate-300 rounded flex items-center justify-center mr-2">
+                    <span className="text-slate-700 font-bold text-xs">{service.name.charAt(0)}</span>
+                  </div>
                 )}
                 {service.name}
               </button>
@@ -207,12 +211,16 @@ export default function ServiceCards() {
                 className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 border border-gray-200"
               >
                 <div className="flex items-start mb-4">
-                  {subService.iconUrl && (
-                    <img 
-                      src={subService.iconUrl} 
+                  {subService.iconUrl && subService.iconUrl.trim() && subService.iconUrl !== 'undefined' && subService.iconUrl.startsWith('http') ? (
+                    <img
+                      src={subService.iconUrl}
                       alt={subService.name}
                       className="w-12 h-12 mr-4"
                     />
+                  ) : (
+                    <div className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center mr-4">
+                      <span className="text-slate-700 font-bold text-lg">{subService.name.charAt(0)}</span>
+                    </div>
                   )}
                   <div>
                     <h4 className="text-lg font-semibold mb-2" style={{ color: '#152239' }}>

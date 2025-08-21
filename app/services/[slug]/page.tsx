@@ -6,6 +6,7 @@ import Navbar from '@/app/components/navigation/Navbar';
 import Footer from '@/app/components/sections/Footer';
 import { Attorney } from '@/app/lib/types/Attorney';
 import { getIconById } from '@/app/lib/constants/serviceIcons';
+import { FaWhatsapp } from 'react-icons/fa';
 
 // Service interface to match database structure
 interface ServiceData {
@@ -59,6 +60,47 @@ const getMatchingAttorneys = (serviceName: string, attorneys: Attorney[]): Attor
     if (!a.isPartner && b.isPartner) return 1;
     return b.experience - a.experience;
   });
+};
+
+// Generate WhatsApp message for attorney contact in specific service
+const generateServiceWhatsAppMessage = (attorney: Attorney, serviceName: string): string => {
+  let whatsappMessage = `*Consulta Legal - ALTUM Legal*\n\n`;
+  whatsappMessage += `Hola ${attorney.name},\n\n`;
+  whatsappMessage += `Me interesa obtener asesoría legal en *${serviceName}*.\n\n`;
+  whatsappMessage += `He visto su perfil como especialista en esta área y me gustaría agendar una consulta.\n\n`;
+  whatsappMessage += `¿Podríamos programar una cita para discutir mi caso?\n\n`;
+  whatsappMessage += `_Mensaje enviado desde altum-legal.mx_`;
+  
+  return encodeURIComponent(whatsappMessage);
+};
+
+// Send WhatsApp message to specific attorney
+const sendToAttorneyWhatsApp = (attorney: Attorney, serviceName: string) => {
+  // Validate phone number exists
+  if (!attorney.phone) {
+    console.error('No phone number available for attorney:', attorney.name);
+    return;
+  }
+  
+  // Clean and format phone number for WhatsApp
+  let phoneNumber = attorney.phone.replace(/\D/g, '');
+  
+  // Validate cleaned phone number
+  if (!phoneNumber || phoneNumber.length < 10) {
+    console.error('Invalid phone number for attorney:', attorney.name, attorney.phone);
+    return;
+  }
+  
+  // Ensure phone number has country code
+  if (!phoneNumber.startsWith('52') && phoneNumber.length === 10) {
+    phoneNumber = '52' + phoneNumber;
+  }
+  
+  const encodedMessage = generateServiceWhatsAppMessage(attorney, serviceName);
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+  
+  // Open WhatsApp in new window/tab
+  window.open(whatsappUrl, '_blank');
 };
 
 // Format service data for display
@@ -142,25 +184,28 @@ export default function ServiceDetailPage() {
       const data = await response.json();
       
       // Map the API response to match the expected Attorney interface
-      const mappedAttorneys: Attorney[] = data.map((attorney: any) => ({
-        id: attorney.id,
-        name: attorney.nombre,
-        position: attorney.cargo,
-        specialization: attorney.especializaciones || [],
-        experience: attorney.experienciaAnios,
-        education: attorney.educacion || [],
-        languages: attorney.idiomas || [],
-        email: attorney.correo,
-        phone: attorney.telefono,
-        bio: attorney.biografia,
-        achievements: attorney.logros || [],
-        cases: attorney.casosDestacados || [],
-        imageUrl: attorney.imagenUrl,
-        linkedIn: attorney.linkedIn,
-        isPartner: attorney.esSocio,
-        image: attorney.imagenUrl || '/images/attorneys/default-attorney.jpg',
-        shortDescription: attorney.descripcionCorta || attorney.biografia?.substring(0, 150) + '...'
-      }));
+      const mappedAttorneys: Attorney[] = data.map((attorney: any) => {
+        console.log('Mapping attorney:', attorney.nombre, 'Phone from API:', attorney.telefono);
+        return {
+          id: attorney.id,
+          name: attorney.nombre,
+          position: attorney.cargo,
+          specialization: attorney.especializaciones || [],
+          experience: attorney.experienciaAnios,
+          education: attorney.educacion || [],
+          languages: attorney.idiomas || [],
+          email: attorney.correo,
+          phone: attorney.telefono, // This should map telefono to phone
+          bio: attorney.biografia,
+          achievements: attorney.logros || [],
+          cases: attorney.casosDestacados || [],
+          imageUrl: attorney.imagenUrl,
+          linkedIn: attorney.linkedIn,
+          isPartner: attorney.esSocio,
+          image: attorney.imagenUrl || '/images/attorneys/default-attorney.jpg',
+          shortDescription: attorney.descripcionCorta || attorney.biografia?.substring(0, 150) + '...'
+        };
+      });
       
       setAllAttorneys(mappedAttorneys);
     } catch (err) {
@@ -383,10 +428,28 @@ export default function ServiceDetailPage() {
                   className="bg-white border border-stone-200 hover:border-amber-200 transition-all duration-300 group overflow-hidden shadow-lg hover:shadow-xl">
                   <div className="p-8">
                     <div className="flex items-center mb-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-stone-200 rounded-full flex items-center justify-center mr-4">
-                        <span className="text-2xl font-bold text-slate-600">
-                          {attorney.name.split(' ')[1]?.[0] || attorney.name[0]}
-                        </span>
+                      <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-stone-200 rounded-full flex items-center justify-center mr-4 overflow-hidden">
+                        {attorney.imageUrl || attorney.image ? (
+                          <img
+                            src={attorney.imageUrl || attorney.image}
+                            alt={attorney.name}
+                            className="w-full h-full object-cover rounded-full"
+                            onError={(e) => {
+                              // Fallback to initials if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.parentElement!.innerHTML = `
+                                <span class="text-2xl font-bold text-slate-600">
+                                  ${attorney.name.split(' ')[1]?.[0] || attorney.name[0]}
+                                </span>
+                              `;
+                            }}
+                          />
+                        ) : (
+                          <span className="text-2xl font-bold text-slate-600">
+                            {attorney.name.split(' ')[1]?.[0] || attorney.name[0]}
+                          </span>
+                        )}
                       </div>
                       <div>
                         <h3 className="text-lg font-serif font-bold text-slate-800 group-hover:text-amber-700 transition-colors duration-300">
@@ -414,25 +477,37 @@ export default function ServiceDetailPage() {
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between pt-4 border-t border-stone-200">
+                    <div className="pt-4 border-t border-stone-200 space-y-3">
                       <div className="flex items-center space-x-2">
                         <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                         <span className="text-xs text-slate-500">Disponible</span>
                       </div>
-                      <button 
-                        className="text-xs font-medium px-3 py-1 border border-amber-700 text-amber-700 hover:bg-amber-700 hover:text-white transition-colors duration-200"
-                        style={{ borderColor: service.color, color: service.color }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = service.color;
-                          e.currentTarget.style.color = 'white';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                          e.currentTarget.style.color = service.color;
-                        }}>
-                        Contactar
+                      
+                      {/* WhatsApp Button - Always show, fallback for debugging */}
+                      <button
+                        onClick={() => attorney.phone ? sendToAttorneyWhatsApp(attorney, service.title) : console.log('No phone available for:', attorney.name)}
+                        className={`w-full py-2 px-4 rounded-lg transition-colors duration-200 inline-flex items-center justify-center space-x-2 text-sm font-medium ${
+                          attorney.phone
+                            ? 'bg-green-600 text-white hover:bg-green-700'
+                            : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                        }`}
+                        title={attorney.phone ? `WhatsApp: ${attorney.phone}` : 'Teléfono no disponible'}
+                        disabled={!attorney.phone}
+                      >
+                        <FaWhatsapp className="w-4 h-4" />
+                        <span>{attorney.phone ? 'Contactar por WhatsApp' : 'Sin WhatsApp disponible'}</span>
+                      </button>
+                      
+                      {/* Email Button - Secondary */}
+                      <button
+                        className="w-full text-sm font-medium py-2 px-4 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors duration-200 inline-flex items-center justify-center space-x-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span>Enviar Email</span>
                       </button>
                     </div>
                   </div>
