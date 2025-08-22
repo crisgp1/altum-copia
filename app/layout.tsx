@@ -20,6 +20,42 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ALTUM Legal - Excelencia Jurídica desde 1998",
   description: "Bufete de abogados especializado con más de 25 años de experiencia en derecho corporativo, litigio y asesoría legal integral en México.",
+  keywords: ["abogados", "derecho corporativo", "litigio", "asesoría legal", "México", "Guadalajara", "ALTUM Legal"],
+  authors: [{ name: "ALTUM Legal" }],
+  creator: "ALTUM Legal",
+  publisher: "ALTUM Legal",
+  robots: "index, follow",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: '/assets/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/assets/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/assets/icons/favicon.ico' },
+    ],
+    apple: { url: '/assets/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    other: [
+      { rel: 'android-chrome', url: '/assets/icons/android-chrome-192x192.png', sizes: '192x192' },
+      { rel: 'android-chrome', url: '/assets/icons/android-chrome-512x512.png', sizes: '512x512' },
+    ],
+  },
+  openGraph: {
+    type: "website",
+    title: "ALTUM Legal - Excelencia Jurídica desde 1998",
+    description: "Bufete de abogados especializado con más de 25 años de experiencia en derecho corporativo, litigio y asesoría legal integral en México.",
+    siteName: "ALTUM Legal",
+    locale: "es_MX",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ALTUM Legal - Excelencia Jurídica desde 1998",
+    description: "Bufete de abogados especializado con más de 25 años de experiencia en derecho corporativo, litigio y asesoría legal integral en México.",
+  },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#152239',
 };
 
 export default function RootLayout({
