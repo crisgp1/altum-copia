@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { esES } from "@clerk/localizations";
 import { Suspense } from "react";
+import Script from "next/script";
 import "./globals.css";
 import AuthRedirectHandler from "@/app/components/auth/AuthRedirectHandler";
 import ClientLayout from "@/app/components/ClientLayout";
@@ -66,6 +67,20 @@ export default function RootLayout({
   return (
     <ClerkProvider localization={esES}>
       <html lang="es">
+        <head>
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-6XHJHHQGQ0"
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-6XHJHHQGQ0');
+            `}
+          </Script>
+        </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >

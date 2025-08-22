@@ -26,11 +26,13 @@ export default function AdminAttorneysPage() {
   const fetchAttorneys = async () => {
     setIsLoading(true);
     try {
-      const data = await attorneyService.getActiveAttorneys();
-      setAttorneys(data);
+      // Fetch all attorneys (not just active ones) to show all in admin
+      const response = await attorneyService.getAllAttorneys();
+      console.log('📊 Fetched attorneys:', response);
+      setAttorneys(response.attorneys || []);
     } catch (error) {
       toast.error('Error al cargar los abogados');
-      console.error(error);
+      console.error('❌ Error fetching attorneys:', error);
     } finally {
       setIsLoading(false);
     }

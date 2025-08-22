@@ -97,10 +97,38 @@ export default function EquipoPage() {
         name: service.name,
         description: service.shortDescription || service.description,
         color: colors[index % colors.length],
-        attorneys: attorneys.filter((attorney: AttorneyResponseDTO) =>
-          attorney.serviciosQueAtiende && attorney.serviciosQueAtiende.includes(service.id)
-        )
+        attorneys: attorneys.filter((attorney: AttorneyResponseDTO) => {
+          // Check if attorney handles this service by ID
+          if (attorney.serviciosQueAtiende && attorney.serviciosQueAtiende.includes(service.id)) {
+            return true;
+          }
+          
+          // Fallback: Check if attorney's specializations match the service name
+          if (attorney.especializaciones && attorney.especializaciones.length > 0) {
+            return attorney.especializaciones.some(spec => 
+              service.name.toLowerCase().includes(spec.toLowerCase()) ||
+              spec.toLowerCase().includes(service.name.toLowerCase())
+            );
+          }
+          
+          return false;
+        })
       }));
+      
+      // Add a "Todos los Abogados" area for attorneys not assigned to any specific service
+      const unassignedAttorneys = attorneys.filter((attorney: AttorneyResponseDTO) => {
+        return !areas.some(area => area.attorneys.find(a => a.id === attorney.id));
+      });
+      
+      if (unassignedAttorneys.length > 0) {
+        areas.push({
+          id: 'todos',
+          name: 'Todos los Abogados',
+          description: 'Nuestro equipo completo de profesionales legales',
+          color: 'slate',
+          attorneys: unassignedAttorneys
+        });
+      }
       
       setLegalAreas(areas);
       setIsLoading(false);

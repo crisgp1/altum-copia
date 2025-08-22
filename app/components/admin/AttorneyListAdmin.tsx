@@ -109,18 +109,33 @@ export default function AttorneyListAdmin({ attorneys, onEdit, onDelete }: Attor
                 <td className="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 hidden lg:table-cell">
                   <div className="text-xs sm:text-sm text-slate-900">{attorney.experienciaAnios} años</div>
                 </td>
-                <td className="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 text-center hidden sm:table-cell">
-                  {attorney.esSocio ? (
-                    <span className="inline-flex text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-amber-100 text-amber-800 font-medium">
-                      <span className="hidden sm:inline">Socio</span>
-                      <span className="sm:hidden">S</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-green-100 text-green-800">
-                      <span className="hidden sm:inline">Asociado</span>
-                      <span className="sm:hidden">A</span>
-                    </span>
-                  )}
+                <td className="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 text-center">
+                  <div className="flex flex-col items-center gap-1">
+                    {/* Active/Inactive Status */}
+                    {attorney.activo !== false ? (
+                      <span className="inline-flex text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">
+                        <span className="hidden sm:inline">Activo</span>
+                        <span className="sm:hidden">✓</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex text-xs px-1.5 py-0.5 rounded-full bg-red-100 text-red-800 font-medium">
+                        <span className="hidden sm:inline">Inactivo</span>
+                        <span className="sm:hidden">✗</span>
+                      </span>
+                    )}
+                    {/* Partner Status */}
+                    <div className="hidden sm:block">
+                      {attorney.esSocio ? (
+                        <span className="inline-flex text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium">
+                          Socio
+                        </span>
+                      ) : (
+                        <span className="inline-flex text-xs px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                          Asociado
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </td>
                 <td className="px-1 sm:px-2 lg:px-6 py-2 sm:py-3">
                   <div className="flex items-center justify-center space-x-0.5 sm:space-x-1">

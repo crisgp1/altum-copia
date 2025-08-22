@@ -16,6 +16,7 @@ export interface AttorneyResponseDTO {
   linkedIn?: string;
   esSocio: boolean;
   descripcionCorta: string;
+  activo?: boolean;
 }
 
 export interface AttorneyPublicDTO {

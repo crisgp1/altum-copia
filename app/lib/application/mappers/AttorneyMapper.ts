@@ -29,7 +29,8 @@ export class AttorneyMapper {
       imagenUrl: attorney.imagenUrl,
       linkedIn: attorney.linkedIn,
       esSocio: attorney.esSocio,
-      descripcionCorta: attorney.descripcionCorta
+      descripcionCorta: attorney.descripcionCorta,
+      activo: attorney.activo
     };
   }
 
@@ -71,7 +72,7 @@ export class AttorneyMapper {
 
   static toPaginatedDTO(result: PaginatedResult<Attorney>): PaginatedAttorneysDTO {
     return {
-      attorneys: result.data.map(attorney => this.toListItemDTO(attorney)),
+      attorneys: result.data.map(attorney => this.toResponseDTO(attorney) as any),
       pagination: {
         total: result.total,
         page: result.page,
