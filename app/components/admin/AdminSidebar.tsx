@@ -160,7 +160,7 @@ export default function AdminSidebar() {
       <button
         id="hamburger-button"
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="lg:hidden fixed top-20 sm:top-22 md:top-24 left-3 sm:left-4 z-50 p-1.5 sm:p-2 bg-white rounded-md sm:rounded-lg shadow-md border border-stone-200 hover:bg-stone-50 transition-all duration-200"
+        className="lg:hidden fixed top-24 sm:top-26 md:top-28 left-3 sm:left-4 z-[55] p-1.5 sm:p-2 bg-white rounded-md sm:rounded-lg shadow-md border border-stone-200 hover:bg-stone-50 transition-all duration-200"
         aria-label="Toggle sidebar"
       >
         {isSidebarOpen ? (
@@ -183,10 +183,10 @@ export default function AdminSidebar() {
         id="admin-sidebar"
         style={{
           transform: isDesktop || isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-          top: '64px',
-          height: 'calc(100vh - 64px)'
+          top: '80px',
+          height: 'calc(100vh - 80px)'
         }}
-        className="fixed left-0 bg-white border-r border-stone-200 z-40 transition-transform duration-300 ease-in-out w-64 max-w-[85vw] lg:max-w-none"
+        className="fixed left-0 bg-white border-r border-stone-200 z-30 transition-transform duration-300 ease-in-out w-64 max-w-[85vw] lg:max-w-none"
       >
         <div className="p-3 sm:p-4 md:p-6 h-full overflow-y-auto pb-safe">
           {/* Brand */}

@@ -1,8 +1,55 @@
 'use client';
 
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
+
+interface ServiceItem {
+  id: string;
+  name: string;
+  description: string;
+  shortDescription: string;
+  iconUrl?: string;
+  parentId?: string;
+  order: number;
+  isActive: boolean;
+}
 
 export default function Footer() {
+  const [services, setServices] = useState<string[]>([]);
+
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch('/api/services');
+        const data = await response.json();
+        
+        if (data.success) {
+          // Get only parent services that are active
+          const servicesData = data.data as ServiceItem[];
+          const parentServices = servicesData
+            .filter(s => !s.parentId && s.isActive)
+            .sort((a, b) => a.order - b.order)
+            .slice(0, 5) // Get only first 5 services
+            .map(s => s.name);
+          
+          setServices(parentServices);
+        }
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        // Fallback to default services
+        setServices([
+          'Derecho Administrativo',
+          'Derecho Corporativo',
+          'Derecho Familiar',
+          'Derecho Civil',
+          'Derecho Notarial'
+        ]);
+      }
+    };
+
+    fetchServices();
+  }, []);
   return (
     <footer className="bg-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
@@ -48,11 +95,24 @@ export default function Footer() {
               Servicios
             </h3>
             <ul className="space-y-1.5 sm:space-y-2">
-              <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Administrativo</a></li>
-              <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Corporativo</a></li>
-              <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Familiar</a></li>
-              <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Civil</a></li>
-              <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Notarial</a></li>
+              {services.length > 0 ? (
+                services.map((service, index) => (
+                  <li key={index}>
+                    <a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">
+                      {service}
+                    </a>
+                  </li>
+                ))
+              ) : (
+                // Loading state or fallback
+                <>
+                  <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Administrativo</a></li>
+                  <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Corporativo</a></li>
+                  <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Familiar</a></li>
+                  <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Civil</a></li>
+                  <li><a href="/services" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Derecho Notarial</a></li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -65,8 +125,8 @@ export default function Footer() {
               <li><a href="/blog" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Blog Legal</a></li>
               <li><a href="/about" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Nosotros</a></li>
               <li><a href="/contact" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Contacto</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Política de Privacidad</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Términos de Servicio</a></li>
+              <li><a href="/privacy" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Política de Privacidad</a></li>
+              <li><a href="/terms" className="text-slate-400 hover:text-white transition-colors text-xs sm:text-sm">Términos de Servicio</a></li>
             </ul>
           </div>
 

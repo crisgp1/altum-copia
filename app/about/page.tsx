@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from '../components/navigation/Navbar';
@@ -8,68 +8,22 @@ import Footer from '../components/sections/Footer';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const specialties = [
-  {
-    title: 'DERECHO ADMINISTRATIVO',
-    services: [
-      'Licencias y permisos municipales',
-      'Transparencia',
-      'Impugnaciones de multas',
-      'Juicios de nulidad',
-      'Juicios de créditos fiscales'
-    ],
-    color: '#152239'
-  },
-  {
-    title: 'DERECHO NOTARIAL',
-    services: [
-      'Escrituración de compraventas, donaciones, permuta',
-      'Cancelaciones de gravámenes',
-      'Sucesiones',
-      'Cartas notariales para viaje con menores',
-      'Ratificaciones de firmas'
-    ],
-    color: '#B79F76'
-  },
-  {
-    title: 'DERECHO CORPORATIVO',
-    services: [
-      'Constitución de sociedades mercantiles y civiles',
-      'Actas de asambleas',
-      'Estrategias corporativas',
-      'Mediación y conciliación',
-      'Comercio electrónico'
-    ],
-    color: '#152239'
-  },
-  {
-    title: 'DERECHO FAMILIAR',
-    services: [
-      'Divorcios',
-      'Pensiones alimenticias',
-      'Juicios sucesorios',
-      'Testamentarios',
-      'Intestamentarios',
-      'Patria potestad y custodia de menores',
-      'Mediación y/o conciliación'
-    ],
-    color: '#B79F76'
-  },
-  {
-    title: 'DERECHO CIVIL',
-    services: [
-      'Contratos',
-      'Juicios hipotecarios',
-      'Juicios de terminación o rescisión de arrendamiento',
-      'Disoluciones de copropiedad',
-      'Asociaciones y sociedades civiles',
-      'Mediación y/o conciliación',
-      'Escrituración de contratos privados de compraventa',
-      'Juicios para recuperar la posesión de bienes inmuebles'
-    ],
-    color: '#152239'
-  }
-];
+interface ServiceItem {
+  id: string;
+  name: string;
+  description: string;
+  shortDescription: string;
+  iconUrl?: string;
+  parentId?: string;
+  order: number;
+  isActive: boolean;
+}
+
+interface Specialty {
+  title: string;
+  services: string[];
+  color: string;
+}
 
 export default function AboutPage() {
   const heroRef = useRef<HTMLElement>(null);
@@ -79,8 +33,115 @@ export default function AboutPage() {
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const paragraphRefs = useRef<HTMLDivElement[]>([]);
   const specialtyRefs = useRef<HTMLDivElement[]>([]);
+  const [specialties, setSpecialties] = useState<Specialty[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch('/api/services');
+        const data = await response.json();
+        
+        if (data.success) {
+          // Group services by parent
+          const servicesData = data.data as ServiceItem[];
+          const parentServices = servicesData.filter(s => !s.parentId && s.isActive);
+          
+          // Convert to specialties format with alternating colors
+          const formattedSpecialties = parentServices
+            .sort((a, b) => a.order - b.order)
+            .map((parent, index) => {
+              const childServices = servicesData
+                .filter(s => s.parentId === parent.id && s.isActive)
+                .sort((a, b) => a.order - b.order)
+                .map(s => s.name);
+              
+              return {
+                title: parent.name.toUpperCase(),
+                services: childServices,
+                color: index % 2 === 0 ? '#152239' : '#B79F76'
+              };
+            });
+          
+          setSpecialties(formattedSpecialties);
+        }
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        // Fallback to default data
+        setSpecialties([
+          {
+            title: 'DERECHO ADMINISTRATIVO',
+            services: [
+              'Licencias y permisos municipales',
+              'Transparencia',
+              'Impugnaciones de multas',
+              'Juicios de nulidad',
+              'Juicios de créditos fiscales'
+            ],
+            color: '#152239'
+          },
+          {
+            title: 'DERECHO NOTARIAL',
+            services: [
+              'Escrituración de compraventas, donaciones, permuta',
+              'Cancelaciones de gravámenes',
+              'Sucesiones',
+              'Cartas notariales para viaje con menores',
+              'Ratificaciones de firmas'
+            ],
+            color: '#B79F76'
+          },
+          {
+            title: 'DERECHO CORPORATIVO',
+            services: [
+              'Constitución de sociedades mercantiles y civiles',
+              'Actas de asambleas',
+              'Estrategias corporativas',
+              'Mediación y conciliación',
+              'Comercio electrónico'
+            ],
+            color: '#152239'
+          },
+          {
+            title: 'DERECHO FAMILIAR',
+            services: [
+              'Divorcios',
+              'Pensiones alimenticias',
+              'Juicios sucesorios',
+              'Testamentarios',
+              'Intestamentarios',
+              'Patria potestad y custodia de menores',
+              'Mediación y/o conciliación'
+            ],
+            color: '#B79F76'
+          },
+          {
+            title: 'DERECHO CIVIL',
+            services: [
+              'Contratos',
+              'Juicios hipotecarios',
+              'Juicios de terminación o rescisión de arrendamiento',
+              'Disoluciones de copropiedad',
+              'Asociaciones y sociedades civiles',
+              'Mediación y/o conciliación',
+              'Escrituración de contratos privados de compraventa',
+              'Juicios para recuperar la posesión de bienes inmuebles'
+            ],
+            color: '#152239'
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   useEffect(() => {
+    if (loading) return;
+
     const ctx = gsap.context(() => {
       // Hero section animations - with null checks
       if (titleRef.current && subtitleRef.current) {
@@ -138,7 +199,7 @@ export default function AboutPage() {
     }, [heroRef, contentRef, specialtiesRef]);
 
     return () => ctx.revert();
-  }, []);
+  }, [loading]);
 
   return (
     <div className="min-h-screen">
