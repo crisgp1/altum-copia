@@ -30,6 +30,14 @@ export default function RoleAssignmentModal({
   const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Update selectedRole when user prop changes or modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedRole(user.role);
+      setIsLoading(false);
+    }
+  }, [user.role, isOpen]);
+
   // Handle Escape key to close modal
   useEffect(() => {
     if (!isOpen) return;
@@ -51,24 +59,36 @@ export default function RoleAssignmentModal({
   if (!isOpen) return null;
 
   const availableRoles = Object.values(UserRole).filter(role => {
+    // Superadmins can assign any role
+    if (currentUserRole === UserRole.SUPERADMIN) {
+      return true;
+    }
     // Only superadmins can assign superadmin role
-    if (role === UserRole.SUPERADMIN && currentUserRole !== UserRole.SUPERADMIN) {
+    if (role === UserRole.SUPERADMIN) {
       return false;
     }
-    // Current user can only assign roles lower than or equal to their own (except superadmin)
+    // Other users can only assign roles lower than or equal to their own
     return ROLE_HIERARCHY[currentUserRole] >= ROLE_HIERARCHY[role];
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Don't submit if role hasn't changed
+    if (selectedRole === user.role) {
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
       await onRoleUpdate(user.id, selectedRole);
-      onClose();
+      // Small delay to ensure the update is processed
+      setTimeout(() => {
+        onClose();
+      }, 100);
     } catch (error) {
       console.error('Error updating role:', error);
-    } finally {
       setIsLoading(false);
     }
   };

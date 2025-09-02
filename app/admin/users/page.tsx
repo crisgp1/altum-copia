@@ -465,7 +465,10 @@ export default function UsersPage() {
                           onClick={() => handleEdit(user)}
                           className="text-indigo-600 hover:text-indigo-900 p-1 rounded touch-target disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Editar"
-                          disabled={!ROLE_HIERARCHY[currentUserRole] || ROLE_HIERARCHY[currentUserRole] <= ROLE_HIERARCHY[user.role as UserRole]}
+                          disabled={
+                            !ROLE_HIERARCHY[currentUserRole] || 
+                            (currentUserRole !== UserRole.SUPERADMIN && ROLE_HIERARCHY[currentUserRole] <= ROLE_HIERARCHY[user.role as UserRole])
+                          }
                         >
                           <Edit className="h-4 w-4" />
                         </button>

@@ -398,41 +398,11 @@ export default function NewBlogPost() {
               {/* Settings Tab */}
               {activeTab === 'settings' && (
                 <div className="space-y-4 sm:space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Imagen Destacada
-                    </label>
-                    <div className="border-2 border-dashed border-stone-300 rounded-lg p-4 sm:p-6 text-center hover:border-stone-400 transition-colors">
-                      {formData.featuredImage ? (
-                        <div className="space-y-3">
-                          <img 
-                            src={formData.featuredImage} 
-                            alt="Preview" 
-                            className="max-h-32 sm:max-h-40 mx-auto rounded"
-                          />
-                          <button
-                            onClick={() => handleInputChange('featuredImage', '')}
-                            className="text-red-600 hover:text-red-700 text-xs sm:text-sm"
-                          >
-                            Eliminar imagen
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <svg className="w-8 h-8 sm:w-12 sm:h-12 text-stone-400 mx-auto mb-2 sm:mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <p className="text-slate-600 mb-2 text-xs sm:text-sm">Subir imagen destacada</p>
-                          <input
-                            type="url"
-                            placeholder="https://ejemplo.com/imagen.jpg"
-                            onChange={(e) => handleInputChange('featuredImage', e.target.value)}
-                            className="w-full max-w-xs sm:max-w-sm px-3 py-2 border border-stone-300 rounded text-xs sm:text-sm text-slate-900 placeholder:text-slate-400"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  {/* Featured Image Upload */}
+                  <BlogImageUpload 
+                    currentImage={formData.featuredImage}
+                    onImageChange={(url) => handleInputChange('featuredImage', url)}
+                  />
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">

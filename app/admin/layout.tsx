@@ -1,7 +1,6 @@
 import RoleGuard from '@/app/components/auth/RoleGuard';
 import AdminSidebar from '@/app/components/admin/AdminSidebar';
 import AdminHeader from '@/app/components/admin/AdminHeader';
-import { AlertTriangle } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -17,18 +16,8 @@ export default function AdminLayout({
         >
           Skip to main content
         </a>
-        
-        {/* Payment Pending Notification Bar - Fixed at top */}
-        <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-2 px-4 shadow-md z-[60]">
-          <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
-            <AlertTriangle className="w-5 h-5" />
-            <span className="text-sm sm:text-base font-medium">
-              Saldo pendiente por pagar - Comuníquese con el proveedor para regularizar el servicio
-            </span>
-          </div>
-        </div>
 
-        <div className="pt-10">
+        <div>
           <AdminHeader />
           <div className="flex">
             <AdminSidebar />
