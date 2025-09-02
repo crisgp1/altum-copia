@@ -22,7 +22,7 @@ export default function AdminLayout({
           <div className="flex">
             <AdminSidebar />
             <main id="main-content" className="flex-1 lg:ml-64 min-h-screen">
-              <div className="p-3 sm:p-4 md:p-6 lg:p-8 pt-20 sm:pt-24 md:pt-26 lg:pt-28">
+              <div className="p-3 sm:p-4 md:p-6 lg:p-8 pt-16 lg:pt-20">
                 {children}
               </div>
             </main>
