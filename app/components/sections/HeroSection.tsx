@@ -23,7 +23,7 @@ const heroSlides: HeroSlide[] = [
     title: "Ética, Transparencia",
     subtitle: "y Compromiso Real",
     description: "En ALTUM Legal sabemos que detrás de cada asunto legal hay personas, familias y empresas que confían en un equipo para defender lo que más les importa.",
-    primaryCta: "Consulta Gratuita",
+    primaryCta: "Conoce Más",
     secondaryCta: "Nuestros Servicios",
     iconType: "law",
     backgroundImage: "/images/brand/background.png"
@@ -34,7 +34,7 @@ const heroSlides: HeroSlide[] = [
     title: "Soluciones Claras,",
     subtitle: "Honestas y Eficaces",
     description: "Somos un despacho conformado por especialistas en diversas ramas del derecho, enfocados en ofrecer soluciones jurídicas bajo un código de ética estricto.",
-    primaryCta: "Agendar Cita",
+    primaryCta: "Conoce Más",
     secondaryCta: "Nuestro Equipo",
     iconType: "shield",
     backgroundImage: "/images/brand/background2.png"
@@ -250,6 +250,16 @@ export default function HeroSection() {
 
           <div ref={ctaRef} className="flex flex-col xs:flex-row gap-3 xs:gap-2 sm:gap-4 max-w-md xs:max-w-none">
             <button 
+              onClick={() => {
+                if (currentSlideData.primaryCta === "Contactar Ahora") {
+                  const contactSection = document.getElementById('contact');
+                  if (contactSection) {
+                    contactSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                } else {
+                  router.push('/about');
+                }
+              }}
               className="group px-4 xs:px-5 sm:px-6 lg:px-8 py-3 xs:py-3 sm:py-4 font-medium transition-all duration-300 text-xs xs:text-sm sm:text-base flex-shrink-0"
               style={{ 
                 backgroundColor: '#152239',
