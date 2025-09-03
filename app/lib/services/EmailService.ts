@@ -139,7 +139,7 @@ class EmailService {
               <li>WhatsApp: +52 33 1568 1688</li>
               <li>Email: contacto@altumlegal.mx</li>
               <li>Horario: Lunes a Viernes, 09:00 - 18:00</li>
-              <li>Dirección: Av. Faro #2522, Bosque de la Victoria, CP. 44538, Guadalajara, Jalisco</li>
+              <li>Dirección: Av. Faro #2522, Bosques de la Victoria, CP. 44538, Guadalajara, Jalisco</li>
             </ul>
             
             <p style="color: #475569; line-height: 1.6; margin-top: 30px;">

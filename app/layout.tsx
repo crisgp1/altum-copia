@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ALTUM Legal - Excelencia Jurídica desde 1998",
+  title: "ALTUM Legal - Excelencia Jurídica con más de 10 años de experiencia",
   description: "Bufete de abogados especializado con más de 25 años de experiencia en derecho corporativo, litigio y asesoría legal integral en México.",
   keywords: ["abogados", "derecho corporativo", "litigio", "asesoría legal", "México", "Guadalajara", "ALTUM Legal"],
   authors: [{ name: "ALTUM Legal" }],
@@ -41,14 +41,14 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "ALTUM Legal - Excelencia Jurídica desde 1998",
+    title: "ALTUM Legal - Excelencia Jurídica con más de 10 años de experiencia",
     description: "Bufete de abogados especializado con más de 25 años de experiencia en derecho corporativo, litigio y asesoría legal integral en México.",
     siteName: "ALTUM Legal",
     locale: "es_MX",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ALTUM Legal - Excelencia Jurídica desde 1998",
+    title: "ALTUM Legal - Excelencia Jurídica con más de 10 años de experiencia",
     description: "Bufete de abogados especializado con más de 25 años de experiencia en derecho corporativo, litigio y asesoría legal integral en México.",
   },
 };
