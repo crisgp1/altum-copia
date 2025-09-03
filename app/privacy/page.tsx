@@ -262,7 +262,7 @@ export default function PrivacyPage() {
               <div className="bg-stone-50 p-6 rounded-lg">
                 <p className="font-semibold text-slate-800 mb-2">ALTUM Legal</p>
                 <p className="text-slate-700">
-                  Av. Faro #2522, Bosque de la Victoria<br />
+                  Av. Faro #2522, Bosques de la Victoria<br />
                   CP. 44538. Guadalajara, Jalisco<br />
                   Teléfono: +52 33 3629 7531<br />
                   WhatsApp: +52 33 1568 1688<br />

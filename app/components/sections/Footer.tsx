@@ -143,7 +143,7 @@ export default function Footer() {
                 </svg>
                 <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
                   Av. Faro #2522<br />
-                  Bosque de la Victoria<br />
+                  Bosques de la Victoria<br />
                   CP. 44538. Guadalajara, Jalisco
                 </p>
               </div>

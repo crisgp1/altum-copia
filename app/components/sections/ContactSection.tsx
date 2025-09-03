@@ -25,8 +25,8 @@ const contactInfo = [
   {
     icon: <FaMapMarkerAlt className="w-6 h-6" />,
     title: 'Dirección',
-    info: 'Av. Faro #2522, Bosque de la Victoria',
-    href: 'https://maps.google.com/?q=Av.+Faro+2522+Bosque+de+la+Victoria+Guadalajara'
+    info: 'Av. Faro #2522, Bosques de la Victoria',
+    href: 'https://maps.google.com/?q=Av.+Faro+2522+Bosques+de+la+Victoria+Guadalajara'
   },
   {
     icon: <FaClock className="w-6 h-6" />,
