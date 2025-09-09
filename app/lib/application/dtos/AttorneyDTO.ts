@@ -28,6 +28,7 @@ export interface AttorneyPublicDTO {
   experienciaAnios: number;
   educacion: string[];
   idiomas: string[];
+  correo?: string; // Incluido para contacto por email
   telefono?: string; // Incluido para contacto por WhatsApp
   biografia: string;
   logros: string[];

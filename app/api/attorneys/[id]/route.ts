@@ -4,32 +4,41 @@ import { connectToDatabase } from '@/app/lib/infrastructure/database/connection'
 // GET /api/attorneys/[id]
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const params = await context.params;
   try {
     await connectToDatabase();
     
+    const { id } = params;
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID de abogado requerido' },
+        { status: 400 }
+      );
+    }
+
+    // Import server-side only modules here
     const { DIContainer } = await import('@/app/lib/infrastructure/container/DIContainer');
     const { AttorneyMapper } = await import('@/app/lib/application/mappers/AttorneyMapper');
     
     const container = DIContainer.getInstance();
     const useCase = container.getGetAttorneyByIdUseCase();
 
-    const attorney = await useCase.execute(params.id);
-    const response = AttorneyMapper.toResponseDTO(attorney);
-
-    return NextResponse.json(response, { status: 200 });
-  } catch (error: any) {
-    console.error('Error fetching attorney:', error);
+    const attorney = await useCase.execute(id);
     
-    if (error.name === 'AttorneyNotFoundError') {
+    if (!attorney) {
       return NextResponse.json(
-        { error: error.message },
+        { error: 'Abogado no encontrado' },
         { status: 404 }
       );
     }
 
+    const response = AttorneyMapper.toResponseDTO(attorney);
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching attorney by ID:', error);
     return NextResponse.json(
       { error: 'Error al obtener el abogado' },
       { status: 500 }
@@ -40,14 +49,22 @@ export async function GET(
 // PUT /api/attorneys/[id]
 export async function PUT(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const params = await context.params;
   try {
     await connectToDatabase();
     
+    const { id } = params;
     const body = await request.json();
     
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID de abogado requerido' },
+        { status: 400 }
+      );
+    }
+
+    // Import server-side only modules here
     const { DIContainer } = await import('@/app/lib/infrastructure/container/DIContainer');
     const { AttorneyMapper } = await import('@/app/lib/application/mappers/AttorneyMapper');
     
@@ -55,21 +72,29 @@ export async function PUT(
     const useCase = container.getUpdateAttorneyUseCase();
 
     const updateData = AttorneyMapper.fromUpdateDTO(body);
-    const attorney = await useCase.execute(params.id, updateData);
+    const attorney = await useCase.execute(id, updateData);
+    
+    if (!attorney) {
+      return NextResponse.json(
+        { error: 'Abogado no encontrado' },
+        { status: 404 }
+      );
+    }
+
     const response = AttorneyMapper.toResponseDTO(attorney);
 
     return NextResponse.json(response, { status: 200 });
   } catch (error: any) {
     console.error('Error updating attorney:', error);
     
-    if (error.name === 'AttorneyNotFoundError') {
+    if (error.name === 'EmailAlreadyExistsError') {
       return NextResponse.json(
         { error: error.message },
-        { status: 404 }
+        { status: 400 }
       );
     }
 
-    if (error.message.includes('requerido') || error.message.includes('válido') || error.message.includes('ya está en uso')) {
+    if (error.message.includes('requerido') || error.message.includes('válido')) {
       return NextResponse.json(
         { error: error.message },
         { status: 400 }
@@ -78,43 +103,6 @@ export async function PUT(
 
     return NextResponse.json(
       { error: 'Error al actualizar el abogado' },
-      { status: 500 }
-    );
-  }
-}
-
-// DELETE /api/attorneys/[id]
-export async function DELETE(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
-  const params = await context.params;
-  try {
-    await connectToDatabase();
-    
-    const { DIContainer } = await import('@/app/lib/infrastructure/container/DIContainer');
-    
-    const container = DIContainer.getInstance();
-    const useCase = container.getDeleteAttorneyUseCase();
-
-    await useCase.execute(params.id);
-
-    return NextResponse.json(
-      { message: 'Abogado eliminado exitosamente' },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    console.error('Error deleting attorney:', error);
-    
-    if (error.name === 'AttorneyNotFoundError') {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'Error al eliminar el abogado' },
       { status: 500 }
     );
   }

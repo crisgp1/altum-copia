@@ -177,12 +177,15 @@ export default function ServicesPreview() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Initial setup - set all columns to same width
+      // Initial setup - set all columns to same width with stable sizing
       columnRefs.current.forEach((column, index) => {
         if (column) {
           gsap.set(column, {
-            width: '120px', // Same width for all cards
-            transition: 'width 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)'
+            width: '120px', // Fixed width for all cards
+            flexShrink: 0, // Prevent shrinking
+            flexGrow: 0, // Prevent growing
+            minWidth: '120px', // Minimum width
+            maxWidth: '120px' // Maximum width
           });
         }
       });
@@ -335,7 +338,7 @@ export default function ServicesPreview() {
     }, navigationDelay);
   };
 
-  // Handle column hover with attorney carousel-style expansion
+  // Handle column hover with stable sizing
   const handleColumnHover = (index: number | null) => {
     // Prevent animation conflicts by killing any existing animations
     gsap.killTweensOf(columnRefs.current);
@@ -345,21 +348,17 @@ export default function ServicesPreview() {
     columnRefs.current.forEach((column, i) => {
       if (!column) return;
       
-      const baseWidth = 120; // Same width for all cards
-      
       if (index === null) {
-        // Return to original position and width
+        // Return to original position - NO width changes
         gsap.to(column, {
           x: 0,
-          width: `${baseWidth}px`,
           duration: 0.3,
           ease: 'power2.out'
         });
       } else if (i === index) {
-        // Slide card to the left like pulling it out of wallet - KEEP THIS STATE
+        // Slide card to the left - NO width changes
         gsap.to(column, {
           x: -10, // Move only 10px to the left
-          width: `${baseWidth}px`, // Keep original width
           duration: 0.25,
           ease: 'power2.out'
         });
@@ -385,10 +384,9 @@ export default function ServicesPreview() {
         }
         
       } else {
-        // Keep other columns in place
+        // Keep other columns in place - NO width changes
         gsap.to(column, {
           x: 0,
-          width: `${baseWidth}px`,
           duration: 0.25,
           ease: 'power2.out'
         });
@@ -708,7 +706,7 @@ export default function ServicesPreview() {
                     if (el) columnRefs.current[0] = el;
                   }}
                   data-service-card
-                  className="relative flex flex-col items-center justify-center text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden w-[100px] h-[500px] lg:w-[100px] lg:h-[500px] xl:w-[120px] xl:h-[550px]"
+                  className="relative flex flex-col items-center justify-center text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden"
                   style={{ 
                     backgroundColor: '#8B7D5B',
                     marginLeft: '0px',
@@ -716,7 +714,13 @@ export default function ServicesPreview() {
                     borderRadius: '0',
                     alignSelf: 'flex-end',
                     filter: 'brightness(1.1) saturate(1.05)',
-                    transition: 'filter 0.3s ease-in-out'
+                    transition: 'filter 0.3s ease-in-out',
+                    width: '120px',
+                    height: '550px',
+                    minWidth: '120px',
+                    maxWidth: '120px',
+                    flexShrink: 0,
+                    flexGrow: 0
                   }}
                   onMouseEnter={() => {}}
                   onMouseLeave={() => {}}
@@ -769,7 +773,7 @@ export default function ServicesPreview() {
                 if (el) columnRefs.current[actualIndex] = el;
               }}
               data-service-card
-              className="relative flex flex-col items-center justify-between text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden w-[100px] h-[500px] lg:w-[100px] lg:h-[500px] xl:w-[120px] xl:h-[550px]"
+              className="relative flex flex-col items-center justify-between text-white p-4 lg:p-5 xl:p-6 cursor-pointer overflow-hidden"
               style={{ 
                 backgroundColor: service.backgroundColor,
                 marginLeft: actualIndex > 0 ? '-8px' : '0', // Reduced overlap to prevent excessive overlapping
@@ -777,7 +781,13 @@ export default function ServicesPreview() {
                 borderRadius: '0',
                 alignSelf: 'flex-end',
                 filter: clickedIndex === null ? 'brightness(1.1) saturate(1.05)' : (clickedIndex === index ? 'brightness(1.3) saturate(1.4)' : 'brightness(0.8)'),
-                transition: 'filter 0.3s ease-in-out'
+                transition: 'filter 0.3s ease-in-out',
+                width: '120px',
+                height: '550px',
+                minWidth: '120px',
+                maxWidth: '120px',
+                flexShrink: 0,
+                flexGrow: 0
               }}
               onMouseEnter={() => handleColumnHover(index)}
               onMouseLeave={() => handleColumnHover(null)}
@@ -907,8 +917,13 @@ export default function ServicesPreview() {
               }}
             >
               {/* Card Header */}
-              <div className="flex items-start justify-between px-4 sm:px-6 py-3 sm:py-4">
-                <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+                <div className="flex items-center flex-1 min-w-0">
+                  <div className="flex-shrink-0 mr-3">
+                    <div className="w-5 sm:w-6 h-5 sm:h-6 relative filter brightness-0 invert">
+                      {service.icon}
+                    </div>
+                  </div>
                   <h3 
                     className="text-base sm:text-lg font-bold leading-tight truncate"
                     style={{
@@ -918,20 +933,18 @@ export default function ServicesPreview() {
                     {service.title}
                   </h3>
                 </div>
-                <div className="flex items-center space-x-2 sm:space-x-3 ml-3 sm:ml-4 flex-shrink-0">
-                  <div className="flex-shrink-0">
-                    <div className="w-5 sm:w-6 h-5 sm:h-6 relative filter brightness-0 invert">
-                      {service.icon}
-                    </div>
-                  </div>
-                  <div>
-                    <ArrowRight 
-                      className={`w-3 sm:w-4 h-3 sm:h-4 transition-transform duration-300 ${
-                        clickedIndex === index ? 'rotate-90' : 'rotate-0'
-                      }`}
-                      style={{ color: service.backgroundColor === '#8B7D5B' ? 'rgba(0,0,0,0.8)' : '#ffffff' }}
-                    />
-                  </div>
+                <div className="flex-shrink-0 ml-4">
+                  <ArrowRight 
+                    className={`w-3 sm:w-4 h-3 sm:h-4 transition-transform duration-300 ${
+                      clickedIndex === index ? 'rotate-90' : 'rotate-0'
+                    }`}
+                    style={{ 
+                      color: (service.backgroundColor === '#C5B299' || 
+                              service.backgroundColor === '#D4A574' || 
+                              service.backgroundColor === '#A89B7A' ||
+                              service.backgroundColor === '#8B7D5B') ? 'rgba(0,0,0,0.8)' : '#ffffff' 
+                    }}
+                  />
                 </div>
               </div>
 

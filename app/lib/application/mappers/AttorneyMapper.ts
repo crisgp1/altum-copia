@@ -45,6 +45,7 @@ export class AttorneyMapper {
       experienciaAnios: publicInfo.experienciaAnios,
       educacion: publicInfo.educacion,
       idiomas: publicInfo.idiomas,
+      correo: publicInfo.correo, // Incluido para contacto por email
       telefono: publicInfo.telefono, // Incluido para contacto por WhatsApp
       biografia: publicInfo.biografia,
       logros: publicInfo.logros,

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:webpack": "next dev",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,13 +13,18 @@
     "@clerk/backend": "^2.6.2",
     "@clerk/localizations": "^3.21.2",
     "@clerk/nextjs": "^6.28.1",
+    "@glidejs/glide": "^3.7.1",
     "@hello-pangea/dnd": "^18.0.1",
     "@types/nodemailer": "^6.4.17",
     "@vercel/blob": "^1.1.1",
     "bcryptjs": "^2.4.3",
+    "draft-js": "^0.11.7",
+    "draftjs-to-html": "^0.9.1",
     "gsap": "^3.13.0",
+    "html-to-draftjs": "^1.5.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.539.0",
+    "mongodb": "^6.19.0",
     "mongoose": "^8.0.3",
     "motion": "^12.23.7",
     "next": "15.4.3",
@@ -31,6 +36,7 @@
     "slate": "^0.118.0",
     "slate-history": "^0.113.1",
     "slate-react": "^0.117.4",
+    "swiper": "^11.2.10",
     "zustand": "^5.0.8"
   },
   "devDependencies": {

@@ -256,28 +256,65 @@ export default function ServicesAdmin() {
   };
 
   const onDragEnd = async (result: DropResult) => {
-    if (!result.destination) {
+    const { source, destination, draggableId } = result;
+    
+    if (!destination) {
+      console.log('No destination found');
       return;
     }
 
-    const sourceId = result.draggableId;
-    const service = services.find(s => s.id === sourceId);
-    if (!service) return;
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
+      console.log('Item dropped in same position');
+      return;
+    }
 
-    // Get siblings (services with same parent)
-    const siblings = services.filter(s => s.parentId === service.parentId);
-    const reorderedSiblings = Array.from(siblings);
+    const service = services.find(s => s.id === draggableId);
+    if (!service) {
+      console.log('Service not found:', draggableId);
+      return;
+    }
+
+    console.log('Drag result:', { source, destination, service: service.name });
+
+    // Determine if we're reordering within the same parent group
+    const sourceIsParent = source.droppableId.startsWith('parent-');
+    const destIsParent = destination.droppableId.startsWith('parent-');
     
-    const sourceIndex = reorderedSiblings.findIndex(s => s.id === sourceId);
-    const [removed] = reorderedSiblings.splice(sourceIndex, 1);
-    reorderedSiblings.splice(result.destination.index, 0, removed);
+    if (sourceIsParent && destIsParent) {
+      // Reordering parent services
+      const siblings = services.filter(s => !s.parentId).sort((a, b) => a.order - b.order);
+      const reorderedSiblings = Array.from(siblings);
+      
+      const sourceIndex = reorderedSiblings.findIndex(s => s.id === draggableId);
+      const [removed] = reorderedSiblings.splice(sourceIndex, 1);
+      reorderedSiblings.splice(destination.index, 0, removed);
 
-    // Update order for siblings only
-    const updates = reorderedSiblings.map((s, index) => ({
-      id: s.id,
-      order: index
-    }));
+      const updates = reorderedSiblings.map((s, index) => ({
+        id: s.id,
+        order: index
+      }));
 
+      await updateServiceOrder(updates);
+    } else if (!sourceIsParent && !destIsParent) {
+      // Reordering child services within same parent
+      const parentId = service.parentId;
+      const siblings = services.filter(s => s.parentId === parentId).sort((a, b) => a.order - b.order);
+      const reorderedSiblings = Array.from(siblings);
+      
+      const sourceIndex = reorderedSiblings.findIndex(s => s.id === draggableId);
+      const [removed] = reorderedSiblings.splice(sourceIndex, 1);
+      reorderedSiblings.splice(destination.index, 0, removed);
+
+      const updates = reorderedSiblings.map((s, index) => ({
+        id: s.id,
+        order: index
+      }));
+
+      await updateServiceOrder(updates);
+    }
+  };
+
+  const updateServiceOrder = async (updates: Array<{id: string, order: number}>) => {
     try {
       const response = await fetch('/api/services', {
         method: 'PUT',
@@ -535,13 +572,14 @@ export default function ServicesAdmin() {
           <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : (
-        <div className="space-y-3 sm:space-y-4">
-          {parentServices.map((parentService, parentIndex) => {
-            const childServices = getChildServices(parentService.id);
-            const isExpanded = expandedServices.has(parentService.id);
-            
-            return (
-              <div key={parentService.id} className="relative">
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="space-y-3 sm:space-y-4">
+            {parentServices.map((parentService, parentIndex) => {
+              const childServices = getChildServices(parentService.id);
+              const isExpanded = expandedServices.has(parentService.id);
+              
+              return (
+                <div key={parentService.id} className="relative">
                 {/* Parent Service Section Header - Responsive */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                   <div className="flex flex-wrap items-center gap-2">
@@ -563,71 +601,68 @@ export default function ServicesAdmin() {
                   </button>
                 </div>
 
-                <DragDropContext onDragEnd={onDragEnd}>
-                  <Droppable droppableId={`parent-${parentService.id}`}>
+                <Droppable droppableId={`parent-${parentService.id}`}>
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                      <Draggable draggableId={parentService.id} index={parentIndex}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <ServiceItem 
+                              service={parentService} 
+                              index={parentIndex}
+                              isDragging={snapshot.isDragging}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+                
+                {isExpanded && childServices.length > 0 && (
+                  <Droppable droppableId={`children-${parentService.id}`}>
                     {(provided) => (
-                      <div {...provided.droppableProps} ref={provided.innerRef}>
-                        <Draggable draggableId={parentService.id} index={parentIndex}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <ServiceItem 
-                                service={parentService} 
-                                index={parentIndex}
-                                isDragging={snapshot.isDragging}
-                              />
-                            </div>
-                          )}
-                        </Draggable>
+                      <div 
+                        {...provided.droppableProps} 
+                        ref={provided.innerRef}
+                        className="mt-1 sm:mt-2 space-y-1 sm:space-y-2"
+                      >
+                        {childServices.map((childService, childIndex) => (
+                          <Draggable 
+                            key={childService.id} 
+                            draggableId={childService.id} 
+                            index={childIndex}
+                          >
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <ServiceItem 
+                                  service={childService} 
+                                  index={childIndex}
+                                  isDragging={snapshot.isDragging}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
                         {provided.placeholder}
                       </div>
                     )}
                   </Droppable>
-                </DragDropContext>
-                
-                {isExpanded && childServices.length > 0 && (
-                  <DragDropContext onDragEnd={onDragEnd}>
-                    <Droppable droppableId={`children-${parentService.id}`}>
-                      {(provided) => (
-                        <div 
-                          {...provided.droppableProps} 
-                          ref={provided.innerRef}
-                          className="mt-1 sm:mt-2 space-y-1 sm:space-y-2"
-                        >
-                          {childServices.map((childService, childIndex) => (
-                            <Draggable 
-                              key={childService.id} 
-                              draggableId={childService.id} 
-                              index={childIndex}
-                            >
-                              {(provided, snapshot) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                >
-                                  <ServiceItem 
-                                    service={childService} 
-                                    index={childIndex}
-                                    isDragging={snapshot.isDragging}
-                                  />
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
                 )}
-              </div>
-            );
-          })}
-        </div>
+                </div>
+              );
+            })}
+          </div>
+        </DragDropContext>
       )}
 
       {/* Modal - Responsive */}

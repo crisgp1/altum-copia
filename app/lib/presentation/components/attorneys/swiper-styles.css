@@ -1,0 +1,131 @@
+/* Swiper Custom Styles */
+.attorneys-swiper {
+  padding-bottom: 60px !important;
+}
+
+/* Pagination Bullets - Better visibility */
+.attorneys-swiper .swiper-pagination {
+  bottom: 20px !important;
+}
+
+.attorneys-swiper .swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background-color: #cbd5e1; /* slate-300 */
+  opacity: 1;
+  transition: all 0.3s ease;
+  margin: 0 6px !important;
+}
+
+.attorneys-swiper .swiper-pagination-bullet-active {
+  width: 24px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #ea580c; /* amber-600 */
+}
+
+/* Hide default Swiper navigation buttons */
+.attorneys-swiper .swiper-button-prev,
+.attorneys-swiper .swiper-button-next {
+  display: none;
+}
+
+/* Ensure equal height for slides */
+.attorneys-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+}
+
+.attorneys-swiper .swiper-wrapper {
+  align-items: stretch;
+}
+
+/* Attorney Card Standardized Layout */
+.attorney-card {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  height: 100%;
+  min-height: 420px;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.attorney-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  min-height: 120px;
+}
+
+.attorney-card-header {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.attorney-card-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  min-height: 2.5rem;
+}
+
+.attorney-card-position {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ea580c;
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  min-height: 1.25rem;
+}
+
+
+/* Better touch/click feedback */
+.attorneys-swiper .swiper-slide > div {
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.attorneys-swiper .swiper-slide > div:active {
+  transform: translateY(2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .attorneys-swiper {
+    padding-bottom: 50px !important;
+  }
+  
+  .attorneys-swiper .swiper-pagination {
+    bottom: 15px !important;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .attorneys-swiper * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .attorneys-swiper .swiper-pagination-bullet {
+    border: 2px solid #000;
+  }
+  
+  .attorneys-swiper .swiper-pagination-bullet-active {
+    background-color: #000;
+  }
+}

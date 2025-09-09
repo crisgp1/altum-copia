@@ -1,0 +1,206 @@
+/* Glide.js Custom Styles */
+.glide {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.glide * {
+  box-sizing: inherit;
+}
+
+.glide__track {
+  overflow: hidden;
+}
+
+.glide__slides {
+  position: relative;
+  width: 100%;
+  list-style: none;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  touch-action: pan-Y;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  display: flex;
+  flex-wrap: nowrap;
+  will-change: transform;
+}
+
+.glide__slide {
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
+  white-space: normal;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Attorney Card Standardized Layout */
+.attorney-card {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  height: 100%;
+  min-height: 420px;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.attorney-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  min-height: 120px;
+}
+
+.attorney-card-header {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.attorney-card-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  min-height: 2.5rem;
+}
+
+.attorney-card-position {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ea580c;
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  min-height: 1.25rem;
+}
+
+/* Custom Navigation Arrows */
+.glide__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: #334155;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 0;
+  outline: none;
+}
+
+.glide__arrow:focus {
+  outline: 2px solid #ea580c;
+}
+
+.glide__arrow:hover {
+  color: #0f172a;
+}
+
+.glide__arrow--left {
+  left: -3rem;
+}
+
+.glide__arrow--right {
+  right: -3rem;
+}
+
+/* Custom Bullets */
+.glide__bullets {
+  position: absolute;
+  bottom: -3rem;
+  left: 50%;
+  display: flex;
+  transform: translateX(-50%);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.glide__bullet {
+  background-color: #cbd5e1;
+  width: 10px;
+  height: 10px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  margin: 0 6px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.glide__bullet:focus {
+  outline: 2px solid #ea580c;
+  outline-offset: 2px;
+}
+
+.glide__bullet:hover,
+.glide__bullet--active {
+  background-color: #ea580c;
+  width: 24px;
+  border-radius: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .glide__arrow--left {
+    left: -2rem;
+  }
+  
+  .glide__arrow--right {
+    right: -2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .glide__arrow--left {
+    left: -1.5rem;
+  }
+  
+  .glide__arrow--right {
+    right: -1.5rem;
+  }
+  
+  .glide__bullets {
+    bottom: -2.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .glide__arrow--left,
+  .glide__arrow--right {
+    display: none;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .glide * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .glide__bullet {
+    border: 2px solid #000;
+  }
+  
+  .glide__bullet:hover,
+  .glide__bullet--active {
+    background-color: #000;
+  }
+}

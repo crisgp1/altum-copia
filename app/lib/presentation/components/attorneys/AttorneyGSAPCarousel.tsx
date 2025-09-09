@@ -90,6 +90,11 @@ export const AttorneyGSAPCarousel: React.FC = () => {
 
   return (
     <>
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       <section className="py-12 sm:py-16 pb-16 sm:pb-24 bg-neutral-50">
         <div className="w-full" style={{ margin: 0, padding: 0 }}>
           {/* Section Header */}
@@ -155,24 +160,27 @@ export const AttorneyGSAPCarousel: React.FC = () => {
                 </div>
               ) : (
                 <div
-                  className="flex h-full w-full"
+                  className="flex h-full w-full overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none hide-scrollbar"
                   style={{
                     gap: 'clamp(5px, 1vw, 10px)', // Mobile responsive gap
                     margin: 0,
-                    padding: 0
+                    padding: 0,
+                    scrollbarWidth: 'none', // Firefox
+                    msOverflowStyle: 'none', // IE and Edge
                   }}
                 >
-                  {attorneys.slice(0, 4).map((attorney, index) => (
-                    <AttorneyGSAPCard
-                      key={attorney.id}
-                      attorney={attorney}
-                      index={index}
-                      isActive={hoveredIndex === index}
-                      onCardHover={setHoveredIndex}
-                      onClick={handleCardClick}
-                      totalCards={Math.min(attorneys.length, 4)}
-                      hoveredIndex={hoveredIndex}
-                    />
+                  {attorneys.slice(0, 6).map((attorney, index) => (
+                    <div key={attorney.id} className="snap-center flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-auto">
+                      <AttorneyGSAPCard
+                        attorney={attorney}
+                        index={index}
+                        isActive={hoveredIndex === index}
+                        onCardHover={setHoveredIndex}
+                        onClick={handleCardClick}
+                        totalCards={Math.min(attorneys.length, 6)}
+                        hoveredIndex={hoveredIndex}
+                      />
+                    </div>
                   ))}
                 </div>
               )}

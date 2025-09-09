@@ -32,7 +32,10 @@
       "Bash(git push:*)",
       "Bash(git checkout -- app/components/sections/HeroSection.tsx app/components/sections/ServicesPreview.tsx)",
       "WebSearch",
-      "WebFetch(domain:faq.whatsapp.com)"
+      "WebFetch(domain:faq.whatsapp.com)",
+      "WebFetch(domain:swiperjs.com)",
+      "WebFetch(domain:draftjs.org)",
+      "WebFetch(domain:www.npmjs.com)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

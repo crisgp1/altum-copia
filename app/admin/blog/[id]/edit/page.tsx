@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 import { PostStatus } from '@/app/lib/domain/entities/BlogPost';
-import SlateEditor from '@/app/components/admin/SlateEditor';
+import DraftJsEditor from '@/app/components/admin/DraftJsEditor';
 import { BlogImageUpload } from '@/app/components/admin/BlogImageUpload';
 import toast from 'react-hot-toast';
 
@@ -22,13 +22,18 @@ interface BlogFormData {
   publishedAt?: Date;
 }
 
-const categories = [
-  { id: 'derecho-corporativo', name: 'Derecho Corporativo' },
-  { id: 'derecho-fiscal', name: 'Derecho Fiscal' },
-  { id: 'derecho-digital', name: 'Derecho Digital' },
-  { id: 'derecho-internacional', name: 'Derecho Internacional' },
-  { id: 'propiedad-intelectual', name: 'Propiedad Intelectual' },
-  { id: 'compliance', name: 'Compliance' }
+// Suggested categories for autocomplete
+const suggestedCategories = [
+  'Derecho Corporativo',
+  'Derecho Fiscal', 
+  'Derecho Digital',
+  'Derecho Internacional',
+  'Propiedad Intelectual',
+  'Compliance',
+  'Derecho Laboral',
+  'Derecho Inmobiliario',
+  'Derecho Penal',
+  'Derecho Civil'
 ];
 
 export default function EditBlogPost() {
@@ -54,6 +59,9 @@ export default function EditBlogPost() {
   });
 
   const [tagInput, setTagInput] = useState('');
+  const [categoryInput, setCategoryInput] = useState('');
+  const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
+  const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
 
   // Load existing post data
   useEffect(() => {
@@ -80,6 +88,7 @@ export default function EditBlogPost() {
               seoDescription: post.seoDescription || '',
               publishedAt: post.publishedAt ? new Date(post.publishedAt) : undefined
             });
+            setCategoryInput(post.categoryId || '');
           } else {
             toast.error('Post no encontrado');
             router.push('/admin/blog');
@@ -139,6 +148,28 @@ export default function EditBlogPost() {
 
   const handleRemoveTag = (tagToRemove: string) => {
     handleInputChange('tags', formData.tags.filter(tag => tag !== tagToRemove));
+  };
+
+  // Handle category input changes
+  const handleCategoryInputChange = (value: string) => {
+    setCategoryInput(value);
+    handleInputChange('categoryId', value);
+    
+    if (value.trim()) {
+      const filtered = suggestedCategories.filter(category => 
+        category.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredCategories(filtered);
+      setShowCategorySuggestions(filtered.length > 0);
+    } else {
+      setShowCategorySuggestions(false);
+    }
+  };
+
+  const selectCategory = (category: string) => {
+    setCategoryInput(category);
+    handleInputChange('categoryId', category);
+    setShowCategorySuggestions(false);
   };
 
   const handleSubmit = async (status: PostStatus) => {
@@ -343,29 +374,103 @@ export default function EditBlogPost() {
                   </div>
 
                   {/* Category */}
-                  <div>
+                  <div className="relative">
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       Categoría *
                     </label>
-                    <select
-                      value={formData.categoryId}
-                      onChange={(e) => handleInputChange('categoryId', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 ${
-                        !formData.categoryId 
-                          ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                          : 'border-stone-300 focus:ring-amber-500 focus:border-amber-500'
-                      } text-slate-900`}
-                    >
-                      <option value="">Selecciona una categoría</option>
-                      {categories.map(category => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={categoryInput}
+                        onChange={(e) => handleCategoryInputChange(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (filteredCategories.length > 0 && showCategorySuggestions) {
+                              selectCategory(filteredCategories[0]);
+                            } else if (categoryInput.trim()) {
+                              selectCategory(categoryInput.trim());
+                            }
+                          }
+                        }}
+                        onFocus={() => {
+                          if (filteredCategories.length > 0) {
+                            setShowCategorySuggestions(true);
+                          }
+                        }}
+                        onBlur={() => {
+                          // Delay to allow click on suggestions
+                          setTimeout(() => setShowCategorySuggestions(false), 200);
+                        }}
+                        placeholder="Escribe una categoría y presiona Enter..."
+                        className={`w-full px-4 py-3 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 ${
+                          !formData.categoryId 
+                            ? 'border-red-300 focus:ring-red-500 focus:border-red-500 bg-white' 
+                            : 'border-green-300 focus:ring-green-500 focus:border-green-500 bg-green-50'
+                        } text-slate-900 placeholder:text-slate-400`}
+                      />
+                      
+                      {/* Success Icon */}
+                      {formData.categoryId && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Selected Category Badge */}
+                    {formData.categoryId && (
+                      <div className="mt-2">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
+                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                          </svg>
+                          {formData.categoryId}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCategoryInput('');
+                              handleInputChange('categoryId', '');
+                            }}
+                            className="ml-2 inline-flex items-center justify-center w-4 h-4 text-green-600 hover:text-green-800 hover:bg-green-200 rounded-full transition-colors"
+                            title="Quitar categoría"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Category Suggestions Dropdown */}
+                    {showCategorySuggestions && filteredCategories.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-stone-300 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                        {filteredCategories.map((category, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => selectCategory(category)}
+                            className="w-full text-left px-4 py-2 hover:bg-amber-50 text-slate-900 transition-colors"
+                          >
+                            {category}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    
                     {!formData.categoryId && (
                       <p className="mt-1 text-sm text-red-600">La categoría es requerida</p>
                     )}
+                    
+                    <p className="text-xs text-slate-500 mt-1">
+                      {formData.categoryId 
+                        ? 'Categoría seleccionada. Puedes cambiarla escribiendo una nueva.' 
+                        : 'Escribe una categoría y presiona Enter para agregarla, o selecciona de las sugerencias'
+                      }
+                    </p>
                   </div>
 
                   {/* Content Editor */}
@@ -373,7 +478,7 @@ export default function EditBlogPost() {
                     <label className="block text-base font-semibold text-slate-900 mb-2">
                       Contenido *
                     </label>
-                    <SlateEditor
+                    <DraftJsEditor
                       value={formData.content}
                       onChange={(value) => handleInputChange('content', value)}
                       placeholder="Escribe el contenido del post aquí... Usa la barra de herramientas para formatear el texto."

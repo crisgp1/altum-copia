@@ -26,7 +26,6 @@ interface FormattedService {
   title: string;
   subtitle: string;
   description: string;
-  detailedDescription: string;
   services: string[];
   icon: React.ReactNode;
   imageUrl?: string;
@@ -109,7 +108,6 @@ const formatServiceForDisplay = (service: ServiceData, children: ServiceData[]):
     title: service.name.toUpperCase(),
     subtitle: service.shortDescription,
     description: service.description,
-    detailedDescription: service.description,
     services: children.map(child => child.name),
     icon: service.iconUrl ? getIconById(service.iconUrl) : getIconById('balance-scale'),
     imageUrl: service.imageUrl,
@@ -298,10 +296,6 @@ export default function ServiceDetailPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </button>
-                <button className="border-2 px-8 py-4 font-medium hover:bg-slate-800 hover:text-white transition-colors duration-300"
-                  style={{ borderColor: service.color, color: service.color }}>
-                  Contactar Especialista
-                </button>
               </div>
             </div>
             
@@ -360,7 +354,9 @@ export default function ServiceDetailPage() {
                 Nuestro Enfoque Especializado
               </h2>
               <p className="text-lg text-slate-600 leading-relaxed mb-8">
-                {service.detailedDescription}
+                En ALTUM Legal sabemos que detrás de cada asunto legal hay personas, familias y empresas
+                que confían en un equipo para defender lo que más les importa. Por eso, nuestro compromiso
+                va más allá de representar casos: defendemos causas, cuidamos intereses y protegemos derechos.
               </p>
               
               <div className="bg-gradient-to-r from-amber-50 to-stone-50 border-l-4 p-6 mb-8"
@@ -491,7 +487,7 @@ export default function ServiceDetailPage() {
                         <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        <span className="text-xs text-slate-500">Disponible</span>
+                        <span className="text-xs text-slate-500">{attorney.email}</span>
                       </div>
                       
                       {/* WhatsApp Button - Always show, fallback for debugging */}

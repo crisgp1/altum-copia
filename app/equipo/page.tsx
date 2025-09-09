@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 import { AttorneyResponseDTO } from '@/app/lib/application/dtos/AttorneyDTO';
@@ -30,8 +31,9 @@ interface LegalArea {
 }
 
 export default function EquipoPage() {
+  const router = useRouter();
   const [selectedAttorney, setSelectedAttorney] = useState<AttorneyResponseDTO | null>(null);
-  const [selectedArea, setSelectedArea] = useState<string>('Derecho Corporativo');
+  const [selectedArea, setSelectedArea] = useState<string>('Todos');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [attorneys, setAttorneys] = useState<AttorneyResponseDTO[]>([]);
   const [legalAreas, setLegalAreas] = useState<LegalArea[]>([]);
@@ -46,18 +48,26 @@ export default function EquipoPage() {
     loadData();
   }, []);
 
-  // Initialize selected attorney when data is loaded
+  // Initialize selected attorney when data is loaded - Always default to "Todos"
   useEffect(() => {
-    const firstAreaWithAttorneys = legalAreas.find(area => area.attorneys.length > 0);
-    if (firstAreaWithAttorneys && firstAreaWithAttorneys.attorneys.length > 0) {
-      setSelectedAttorney(firstAreaWithAttorneys.attorneys[0]);
-      setSelectedArea(firstAreaWithAttorneys.name);
+    if (legalAreas.length > 0 && attorneys.length > 0) {
+      // Always start with "Todos" area to show all attorneys
+      const todosArea = legalAreas.find(area => area.name === 'Todos');
+      if (todosArea && todosArea.attorneys.length > 0) {
+        setSelectedAttorney(todosArea.attorneys[0]);
+        setSelectedArea('Todos');
+      } else if (attorneys.length > 0) {
+        // Fallback to first attorney if "Todos" area is not found
+        setSelectedAttorney(attorneys[0]);
+        setSelectedArea('Todos');
+      }
     }
-  }, [legalAreas]);
+  }, [legalAreas, attorneys]);
 
   const fetchAttorneys = async () => {
     try {
-      const response = await fetch('/api/attorneys');
+      // Request all attorneys with a high limit and only active ones
+      const response = await fetch('/api/attorneys?limit=100&activo=true');
       if (response.ok) {
         const data = await response.json();
         setAttorneys(data.attorneys || []);
@@ -115,43 +125,45 @@ export default function EquipoPage() {
         })
       }));
       
-      // Add a "Todos los Abogados" area for attorneys not assigned to any specific service
-      const unassignedAttorneys = attorneys.filter((attorney: AttorneyResponseDTO) => {
-        return !areas.some(area => area.attorneys.find(a => a.id === attorney.id));
+      // Add a "Todos" area with all attorneys
+      areas.unshift({
+        id: 'todos',
+        name: 'Todos',
+        description: 'Nuestro equipo completo de profesionales legales',
+        color: 'slate',
+        attorneys: attorneys
       });
-      
-      if (unassignedAttorneys.length > 0) {
-        areas.push({
-          id: 'todos',
-          name: 'Todos los Abogados',
-          description: 'Nuestro equipo completo de profesionales legales',
-          color: 'slate',
-          attorneys: unassignedAttorneys
-        });
-      }
       
       setLegalAreas(areas);
       setIsLoading(false);
     }
   }, [services, attorneys]);
 
-  const handleAttorneySelect = (attorney: AttorneyResponseDTO) => {
-    if (selectedAttorney?.id === attorney.id) return;
+  const handleAttorneySelect = (attorney: AttorneyResponseDTO, e?: React.MouseEvent) => {
+    // Check if the click has modifiers (ctrl, cmd, etc) to open in new tab
+    if (e && (e.ctrlKey || e.metaKey)) {
+      window.open(`/equipo/${attorney.id}`, '_blank');
+      return;
+    }
     
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setSelectedAttorney(attorney);
-      setIsTransitioning(false);
-    }, 300); // Fade out duration
+    // Regular click - navigate to attorney profile
+    router.push(`/equipo/${attorney.id}`);
   };
 
   const handleAreaSelect = (areaName: string) => {
     if (selectedArea === areaName) return;
     
     setSelectedArea(areaName);
+    
+    // Update the selected attorney to the first one in the new area for display purposes
+    // but don't navigate away - this just updates the hero section
     const firstAttorneyInArea = legalAreas.find(area => area.name === areaName)?.attorneys[0];
     if (firstAttorneyInArea) {
-      handleAttorneySelect(firstAttorneyInArea);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setSelectedAttorney(firstAttorneyInArea);
+        setIsTransitioning(false);
+      }, 300);
     }
   };
 
@@ -355,7 +367,7 @@ export default function EquipoPage() {
               <p className="text-slate-500">Selecciona otra área de práctica para ver nuestro equipo.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-6 lg:gap-8 auto-rows-fr">
               {currentAreaAttorneys.map((attorney, index) => (
               <div
                 key={attorney.id}
@@ -364,7 +376,7 @@ export default function EquipoPage() {
                     ? 'ring-4 ring-amber-200'
                     : 'hover:ring-2 hover:ring-amber-100'
                 }`}
-                onClick={() => handleAttorneySelect(attorney)}
+                onClick={(e) => handleAttorneySelect(attorney, e)}
               >
                 <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden aspect-[3/4] sm:aspect-[4/5] shadow-lg group-hover:shadow-xl transition-shadow duration-300 min-h-[300px] sm:min-h-[280px] lg:min-h-[320px]">
                   {attorney.imagenUrl ? (
@@ -403,6 +415,12 @@ export default function EquipoPage() {
                           {spec}
                         </span>
                       ))}
+                    </div>
+                    {/* Click indicator */}
+                    <div className="flex items-center justify-center mt-3">
+                      <span className="text-xs bg-white/30 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
+                        Ver Perfil →
+                      </span>
                     </div>
                   </div>
                 </div>

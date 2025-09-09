@@ -3,16 +3,34 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
-import Image from 'next/image'; // 🔄 UPDATE 1: Added Next.js Image import
-import {
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
-import { useUserRole } from '@/app/lib/hooks/useUserRole';
-import { LayoutDashboard } from 'lucide-react';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
+import LegalBanner from '@/app/components/banners/LegalBanner';
+
+// Dynamic import for Clerk components to avoid hydration issues
+const AuthButtons = dynamic(
+  () => import('./ClerkAuthButtons').then(mod => mod.AuthButtons),
+  { 
+    ssr: false,
+    loading: () => <div className="w-20 h-8" /> // placeholder while loading
+  }
+);
+
+const MobileAuthButtons = dynamic(
+  () => import('./ClerkAuthButtons').then(mod => mod.MobileAuthButtons),
+  { 
+    ssr: false,
+    loading: () => <div className="w-8 h-8" /> // placeholder while loading
+  }
+);
+
+const MobileMenuAuth = dynamic(
+  () => import('./ClerkAuthButtons').then(mod => mod.MobileMenuAuth),
+  { 
+    ssr: false,
+    loading: () => <div className="w-full h-12" /> // placeholder while loading
+  }
+);
 
 interface NavItem {
   label: string;
@@ -39,7 +57,6 @@ export default function Navbar() {
   const logoRef = useRef<HTMLDivElement>(null);
   const ctaButtonRef = useRef<HTMLButtonElement>(null);
   const navbarRef = useRef<HTMLDivElement>(null); // Reference to main navbar
-  const { isAdmin, isContentCreator } = useUserRole();
 
   // Handle logo click for home redirect
   const handleLogoClick = () => {
@@ -216,13 +233,11 @@ export default function Navbar() {
                   {/* Text Logo - Initial State */}
                   <div
                     className={`text-sm sm:text-base lg:text-lg leading-tight transition-all duration-500 ease-out ${
-                      isMounted && isScrolled ? 'opacity-0 transform scale-95 -translate-y-2' : 'opacity-100 transform scale-100 translate-y-0'
+                      isScrolled ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
                     }`}
                     style={{
-                      position: isMounted && isScrolled ? 'absolute' : 'relative',
-                      top: isMounted && isScrolled ? '50%' : '0',
-                      left: isMounted && isScrolled ? '50%' : '0',
-                      transform: isMounted && isScrolled ? 'translate(-50%, -50%) scale(0.95)' : 'none'
+                      position: isScrolled ? 'absolute' : 'relative',
+                      pointerEvents: isScrolled ? 'none' : 'auto'
                     }}
                   >
                     <span className="altum-brand text-slate-800">ALTUM</span>{' '}
@@ -230,89 +245,40 @@ export default function Navbar() {
                   </div>
                   
                   {/* Cropped Logo - Scrolled State */}
-                  <div
-                    className={`transition-all duration-500 ease-out ${
-                      isMounted && isScrolled ? 'opacity-100 transform scale-100 translate-y-0' : 'opacity-0 transform scale-105 translate-y-2'
-                    }`}
-                    style={{
-                      position: isMounted && isScrolled ? 'relative' : 'absolute',
-                      top: isMounted && isScrolled ? '0' : '50%',
-                      left: isMounted && isScrolled ? '0' : '50%',
-                      transform: isMounted && isScrolled ? 'none' : 'translate(-50%, -50%) scale(1.05)'
-                    }}
-                  >
-                    <Image
-                      src="/images/attorneys/logos/logo-dark.png"
-                      alt="Altum Legal"
-                      width={120}
-                      height={30}
-                      className="object-contain w-[85px] h-auto sm:w-[95px] sm:h-auto lg:w-[120px] lg:h-auto"
-                      priority
-                    />
-                  </div>
+                  {isMounted && (
+                    <div
+                      className={`transition-all duration-500 ease-out ${
+                        isScrolled ? 'opacity-100 transform scale-100' : 'opacity-0 transform scale-105'
+                      }`}
+                      style={{
+                        position: isScrolled ? 'relative' : 'absolute',
+                        top: isScrolled ? '0' : '50%',
+                        left: isScrolled ? '0' : '50%',
+                        transform: isScrolled ? 'none' : 'translate(-50%, -50%)',
+                        pointerEvents: isScrolled ? 'auto' : 'none'
+                      }}
+                    >
+                      <Image
+                        src="/images/attorneys/logos/logo-dark.png"
+                        alt="Altum Legal"
+                        width={120}
+                        height={30}
+                        className="object-contain w-[85px] h-auto sm:w-[95px] sm:h-auto lg:w-[120px] lg:h-auto"
+                        priority
+                      />
+                    </div>
+                  )}
                 </button>
               </div>
 
               {/* Auth Section - Responsive */}
               <div className="hidden sm:flex items-center gap-2 sm:gap-3 lg:gap-4 mr-2 sm:mr-3 lg:mr-4">
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors px-2 py-1">
-                      Iniciar Sesión
-                    </button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <button className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white rounded-full transition-colors"
-                      style={{ backgroundColor: '#B79F76' }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#152239'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#B79F76'}
-                    >
-                      <span className="hidden sm:inline">Registrarse</span>
-                      <span className="sm:hidden">Registro</span>
-                    </button>
-                  </SignUpButton>
-                </SignedOut>
-                <SignedIn>
-                  {(isAdmin() || isContentCreator()) && (
-                    <button
-                      onClick={() => router.push('/admin')}
-                      className="group flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-white bg-white/80 hover:bg-amber-600 border border-slate-200 hover:border-amber-600 rounded-full transition-all duration-200"
-                      title="Panel de administración"
-                    >
-                      <LayoutDashboard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      <span className="hidden lg:inline">Dashboard</span>
-                    </button>
-                  )}
-                  <UserButton 
-                    appearance={{
-                      elements: {
-                        avatarBox: "w-7 h-7 sm:w-8 sm:h-8"
-                      }
-                    }}
-                  />
-                </SignedIn>
+                <AuthButtons />
               </div>
 
               {/* Mobile Auth Section */}
               <div className="flex sm:hidden items-center gap-2 mr-2">
-                <SignedIn>
-                  {(isAdmin() || isContentCreator()) && (
-                    <button
-                      onClick={() => router.push('/admin')}
-                      className="p-1.5 text-slate-700 hover:text-amber-600 transition-colors"
-                      title="Dashboard"
-                    >
-                      <LayoutDashboard className="w-5 h-5" />
-                    </button>
-                  )}
-                  <UserButton 
-                    appearance={{
-                      elements: {
-                        avatarBox: "w-6 h-6"
-                      }
-                    }}
-                  />
-                </SignedIn>
+                <MobileAuthButtons />
               </div>
 
               {/* Menu Button - Responsive */}
@@ -423,38 +389,7 @@ export default function Navbar() {
             
             {/* Mobile Auth Section in Menu */}
             <div className="flex sm:hidden justify-center pt-8 pb-4 border-t border-slate-200 mt-8">
-              <SignedOut>
-                <div className="flex flex-col gap-3 w-full max-w-xs">
-                  <SignInButton mode="modal">
-                    <button className="w-full text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors px-4 py-3 border border-slate-300 rounded-lg">
-                      Iniciar Sesión
-                    </button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <button className="w-full px-4 py-3 text-sm font-medium text-white rounded-lg transition-colors"
-                      style={{ backgroundColor: '#B79F76' }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#152239'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#B79F76'}
-                    >
-                      Registrarse
-                    </button>
-                  </SignUpButton>
-                </div>
-              </SignedOut>
-              <SignedIn>
-                {(isAdmin() || isContentCreator()) && (
-                  <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      setTimeout(() => router.push('/admin'), 300);
-                    }}
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-                  >
-                    <LayoutDashboard className="w-5 h-5" />
-                    <span>Ir al Dashboard</span>
-                  </button>
-                )}
-              </SignedIn>
+              <MobileMenuAuth onClose={() => setIsOpen(false)} />
             </div>
             
             {/* Sophisticated CTA Button */}
@@ -508,6 +443,13 @@ export default function Navbar() {
               <span>ESC para cerrar</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Legal Banner - Fixed position below navbar */}
+      <div className="fixed top-20 left-0 right-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <LegalBanner />
         </div>
       </div>
     </>
