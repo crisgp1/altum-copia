@@ -214,6 +214,7 @@ export default function BlogPage() {
         <BlogCategories 
           selectedCategory={selectedCategory}
           onCategoryChange={handleCategoryChange}
+          posts={blogPosts}
         />
       )}
       

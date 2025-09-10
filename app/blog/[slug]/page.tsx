@@ -10,6 +10,7 @@ import PostContent from './components/PostContent';
 import PostMeta from './components/PostMeta';
 import RelatedPosts from './components/RelatedPosts';
 import PostNavigation from './components/PostNavigation';
+import CitationComponent from './components/CitationComponent';
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -294,7 +295,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         />
         
         {/* Post Content - Medium Style Layout */}
-        <div className="relative">
+        <div className="relative pb-16 lg:pb-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-center">
               {/* Main Content - Medium Style Width */}
@@ -303,23 +304,31 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
               
               {/* Sidebar - Sticky positioned like Medium */}
-              <div className="hidden lg:block lg:w-80 lg:pl-12 lg:flex-shrink-0">
-                <div className="sticky top-24 pt-8">
+              <div className="hidden lg:block lg:w-96 lg:pl-20 lg:flex-shrink-0">
+                <div className="sticky top-24 pt-8 space-y-8 pr-4">
                   <PostMeta
                     post={post}
                     author={author}
                     category={category!}
+                  />
+                  <CitationComponent
+                    post={post}
+                    author={author}
                   />
                 </div>
               </div>
             </div>
             
             {/* Mobile Sidebar - Below content on mobile */}
-            <div className="lg:hidden max-w-2xl mx-auto mt-12">
+            <div className="lg:hidden max-w-2xl mx-auto mt-16 mb-8 space-y-6">
               <PostMeta
                 post={post}
                 author={author}
                 category={category!}
+              />
+              <CitationComponent
+                post={post}
+                author={author}
               />
             </div>
           </div>
@@ -331,7 +340,9 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         )}
         
         {/* Post Navigation */}
-        <PostNavigation currentPost={post} allPosts={[]} />
+        <div className="pb-16 lg:pb-20">
+          <PostNavigation currentPost={post} allPosts={[]} />
+        </div>
       </main>
       
       {/* Footer */}

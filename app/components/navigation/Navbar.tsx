@@ -43,7 +43,7 @@ const navItems: NavItem[] = [
   { label: 'Nosotros', href: '/about' },
   { label: 'Equipo', href: '/equipo' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Contacto', href: '/contacto' }
+  { label: 'Contacto', href: 'https://wa.me/523336297531?text=Hola%2C%20me%20interesa%20obtener%20asesor%C3%ADa%20legal.%20%C2%BFPodr%C3%ADan%20ayudarme%3F' }
 ];
 
 export default function Navbar() {
@@ -206,9 +206,14 @@ export default function Navbar() {
     setIsOpen(false);
     // Add a small delay for the menu close animation
     setTimeout(() => {
-      router.push(href);
-      }, 300);
-    };
+      // Check if it's an external link (WhatsApp)
+      if (href.startsWith('http')) {
+        window.open(href, '_blank');
+      } else {
+        router.push(href);
+      }
+    }, 300);
+  };
   
 
   return (

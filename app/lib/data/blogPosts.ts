@@ -346,6 +346,43 @@ export const createBlogPosts = (): BlogPost[] => {
   return sampleBlogPosts.map(post => new BlogPost(post));
 };
 
+// Function to generate categories dynamically from posts
+export const generateCategoriesFromPosts = (posts: BlogPost[]) => {
+  const categoryMap = new Map();
+  const defaultColors = ['#B79F76', '#152239', '#8B7355', '#6B5B47', '#9C8A6B', '#7A6B5A', '#A68B5B', '#5D4E3A'];
+  let colorIndex = 0;
+  
+  posts.forEach(post => {
+    if (post.categoryId && !categoryMap.has(post.categoryId)) {
+      // Create category object with friendly name
+      const categoryName = post.categoryId
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      
+      categoryMap.set(post.categoryId, {
+        id: post.categoryId,
+        name: categoryName,
+        slug: post.categoryId,
+        description: `Artículos de ${categoryName.toLowerCase()}`,
+        color: defaultColors[colorIndex % defaultColors.length],
+        postCount: 0
+      });
+      colorIndex++;
+    }
+  });
+  
+  // Count posts per category
+  posts.forEach(post => {
+    if (post.categoryId && categoryMap.has(post.categoryId)) {
+      const category = categoryMap.get(post.categoryId);
+      category.postCount = (category.postCount || 0) + 1;
+    }
+  });
+  
+  return Array.from(categoryMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+};
+
 // Reading time calculation utility
 export const calculateReadingTime = (content: string): number => {
   const wordsPerMinute = 200;

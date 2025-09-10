@@ -14,7 +14,7 @@ export default function TermsPage() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const sectionRefs = useRef<HTMLDivElement[]>([]);
 
-  useEffect(() => {
+useEffect(() => {
     const ctx = gsap.context(() => {
       // Hero animation
       if (titleRef.current) {

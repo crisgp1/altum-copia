@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
+import { generateCategoriesFromPosts } from '@/app/lib/data/blogPosts';
 import BlogCard from './BlogCard';
 import BlogPagination from './BlogPagination';
 
@@ -18,6 +19,9 @@ export default function BlogGrid({ posts, selectedCategory, searchTerm = '', isS
   const postsPerPage = 6;
   const gridRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  
+  // Generate categories dynamically for stats
+  const dynamicCategories = generateCategoriesFromPosts(posts);
 
   // Filter posts by category
   const filteredPosts = selectedCategory 
@@ -75,16 +79,11 @@ export default function BlogGrid({ posts, selectedCategory, searchTerm = '', isS
     
     if (!selectedCategory) return 'Todos los Artículos';
     
-    const categoryMap: { [key: string]: string } = {
-      'derecho-corporativo': 'Derecho Corporativo',
-      'derecho-fiscal': 'Derecho Fiscal',
-      'derecho-digital': 'Derecho Digital',
-      'derecho-internacional': 'Derecho Internacional',
-      'propiedad-intelectual': 'Propiedad Intelectual',
-      'compliance': 'Compliance'
-    };
-    
-    return categoryMap[selectedCategory] || 'Artículos';
+    // Generate category name dynamically from categoryId
+    return selectedCategory
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   return (
@@ -188,7 +187,7 @@ export default function BlogGrid({ posts, selectedCategory, searchTerm = '', isS
             </div>
             <div>
               <div className="text-3xl font-bold mb-2" style={{ color: '#B79F76' }}>
-                6
+                {dynamicCategories.length}
               </div>
               <div className="text-slate-600 font-medium">Áreas de Especialización</div>
             </div>

@@ -62,7 +62,7 @@ export default function PostHeader({ post, author, category }: PostHeaderProps) 
   }, []);
 
   return (
-    <header ref={headerRef} className="relative py-16 bg-gradient-to-br from-slate-50 to-stone-100 overflow-hidden">
+    <header ref={headerRef} className="relative pt-24 lg:pt-32 pb-16 bg-gradient-to-br from-slate-50 to-stone-100 overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-20 right-20 w-32 h-32 bg-gradient-to-br from-amber-200/20 to-stone-300/10 rounded-full blur-2xl"></div>
       <div className="absolute bottom-20 left-20 w-24 h-24 bg-gradient-to-br from-slate-200/30 to-amber-100/20 rounded-full blur-xl"></div>
@@ -168,14 +168,23 @@ export default function PostHeader({ post, author, category }: PostHeaderProps) 
           ref={imageRef} 
           className="relative h-64 md:h-80 lg:h-96 bg-gradient-to-br from-stone-200 via-slate-200 to-stone-300 rounded-2xl overflow-hidden shadow-xl"
         >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <svg className="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" />
-            </svg>
-          </div>
-          
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+          {post.featuredImage ? (
+            <>
+              <img 
+                src={post.featuredImage} 
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
+              {/* Gradient Overlay for better text readability if needed */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            </>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg className="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" />
+              </svg>
+            </div>
+          )}
         </div>
       </div>
     </header>

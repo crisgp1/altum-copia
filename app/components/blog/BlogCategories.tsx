@@ -2,16 +2,22 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import { blogCategories } from '@/app/lib/data/blogPosts';
+import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
+import { generateCategoriesFromPosts } from '@/app/lib/data/blogPosts';
 
 interface BlogCategoriesProps {
   selectedCategory: string | null;
   onCategoryChange: (categoryId: string | null) => void;
+  posts: BlogPost[];
 }
 
-export default function BlogCategories({ selectedCategory, onCategoryChange }: BlogCategoriesProps) {
+export default function BlogCategories({ selectedCategory, onCategoryChange, posts }: BlogCategoriesProps) {
   const categoriesRef = useRef<HTMLDivElement>(null);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  
+  // Generate categories dynamically from posts
+  const dynamicCategories = generateCategoriesFromPosts(posts);
+  const totalPosts = posts.length;
 
   useEffect(() => {
     if (categoriesRef.current) {
@@ -88,13 +94,13 @@ export default function BlogCategories({ selectedCategory, onCategoryChange }: B
                       ? 'bg-white/25 text-white' 
                       : 'bg-gradient-to-r from-stone-100 to-stone-200 text-slate-700'
                   }`}>
-                    2
+                    {totalPosts}
                   </span>
                 </span>
               </button>
 
               {/* Individual Category Tabs */}
-              {blogCategories.map((category, index) => (
+              {dynamicCategories.map((category, index) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryClick(category.id)}
@@ -130,7 +136,7 @@ export default function BlogCategories({ selectedCategory, onCategoryChange }: B
                           : 'bg-gradient-to-r from-stone-100 to-stone-200 text-slate-700'
                       }`}
                     >
-                      {index === 0 ? '2' : '0'}
+                      {category.postCount}
                     </span>
                   </span>
                 </button>

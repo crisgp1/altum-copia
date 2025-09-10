@@ -1,10 +1,11 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
-import { formatBlogDate, calculateReadingTime, blogCategories } from '@/app/lib/data/blogPosts';
+import { formatBlogDate, calculateReadingTime } from '@/app/lib/data/blogPosts';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -75,20 +76,37 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
         {/* Related Posts Cards */}
         <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post, index) => {
-            const category = blogCategories.find(cat => cat.id === post.categoryId);
+            // Generate category dynamically from post data
+            const category = {
+              id: post.categoryId,
+              name: post.categoryId ? post.categoryId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : 'Legal',
+              color: '#B79F76' // Default color
+            };
             
             return (
-              <article 
+              <Link 
                 key={post.id}
-                className="group bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden hover:shadow-xl hover:border-amber-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer"
+                href={`/blog/${post.slug}`}
+                className="block"
               >
+                <article 
+                  className="group bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden hover:shadow-xl hover:border-amber-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer"
+                >
                 {/* Featured Image */}
                 <div className="relative h-48 bg-gradient-to-br from-stone-200 via-slate-200 to-stone-300 overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" />
-                    </svg>
-                  </div>
+                  {post.featuredImage ? (
+                    <img 
+                      src={post.featuredImage} 
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" />
+                      </svg>
+                    </div>
+                  )}
                   
                   {/* Category Badge */}
                   <div className="absolute top-4 left-4">
@@ -150,7 +168,8 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
                     </div>
                   </div>
                 </div>
-              </article>
+                </article>
+              </Link>
             );
           })}
         </div>

@@ -76,7 +76,7 @@ export default function PostMeta({ post, author, category }: PostMetaProps) {
   };
 
   return (
-    <aside ref={sidebarRef} className="space-y-6">
+    <aside ref={sidebarRef} className="space-y-6 px-2">
       {/* Author Card - Medium Style */}
       {author && (
         <div className="border-b border-gray-100 pb-6">

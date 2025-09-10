@@ -38,6 +38,15 @@ export default function BlogHero({ featuredPosts }: BlogHeroProps) {
   const featuredPost = featuredPosts[0];
   if (!featuredPost) return null;
 
+  // Generate category dynamically from post data
+  const featuredCategory = {
+    id: featuredPost.categoryId,
+    name: featuredPost.categoryId ? 
+      featuredPost.categoryId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : 
+      'Legal',
+    color: '#B79F76'
+  };
+
   return (
     <section ref={heroRef} className="relative pt-32 pb-24 bg-gradient-to-br from-slate-50 to-stone-100 overflow-hidden">
       {/* Decorative elements */}
@@ -70,12 +79,20 @@ export default function BlogHero({ featuredPosts }: BlogHeroProps) {
               <div className="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:border-amber-200">
               <div className="grid lg:grid-cols-2 gap-0">
                 {/* Featured Image */}
-                <div className="relative h-64 lg:h-96 bg-gradient-to-br from-stone-200 via-slate-200 to-stone-300">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <svg className="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" />
-                    </svg>
-                  </div>
+                <div className="relative h-64 lg:h-96 bg-gradient-to-br from-stone-200 via-slate-200 to-stone-300 overflow-hidden">
+                  {featuredPost.featuredImage ? (
+                    <img 
+                      src={featuredPost.featuredImage} 
+                      alt={featuredPost.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <svg className="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" />
+                      </svg>
+                    </div>
+                  )}
                   
                   {/* Featured Badge */}
                   <div className="absolute top-6 left-6">
@@ -94,9 +111,9 @@ export default function BlogHero({ featuredPosts }: BlogHeroProps) {
                   <div className="mb-4">
                     <span 
                       className="text-sm font-medium uppercase tracking-wider"
-                      style={{ color: '#B79F76' }}
+                      style={{ color: featuredCategory.color }}
                     >
-                      Derecho Corporativo
+                      {featuredCategory.name}
                     </span>
                   </div>
 
