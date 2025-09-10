@@ -6,6 +6,7 @@ import { gsap } from 'gsap';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import LegalBanner from '@/app/components/banners/LegalBanner';
+import { generateWhatsAppURL, WHATSAPP_MESSAGES } from '@/app/lib/constants/contact';
 
 // Dynamic import for Clerk components to avoid hydration issues
 const AuthButtons = dynamic(
@@ -43,7 +44,7 @@ const navItems: NavItem[] = [
   { label: 'Nosotros', href: '/about' },
   { label: 'Equipo', href: '/equipo' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Contacto', href: 'https://wa.me/523336297531?text=Hola%2C%20me%20interesa%20obtener%20asesor%C3%ADa%20legal.%20%C2%BFPodr%C3%ADan%20ayudarme%3F' }
+  { label: 'Contacto', href: generateWhatsAppURL(WHATSAPP_MESSAGES.general) }
 ];
 
 export default function Navbar() {

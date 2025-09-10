@@ -4,6 +4,7 @@ import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
+import { generateBlogWhatsAppURL } from '@/app/lib/constants/contact';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -148,7 +149,9 @@ export default function PostContent({ post }: PostContentProps) {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
-              href="/contact"
+              href={generateBlogWhatsAppURL(post.title)}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-6 py-3 bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors duration-300 rounded"
               style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
             >
