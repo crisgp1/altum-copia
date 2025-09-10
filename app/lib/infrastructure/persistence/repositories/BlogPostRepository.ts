@@ -155,6 +155,9 @@ export class BlogPostRepository implements IBlogPostRepository {
       content: doc.content,
       featuredImage: doc.featuredImage,
       authorId: doc.authorId,
+      hasExternalCollaborator: doc.hasExternalCollaborator || false,
+      externalCollaboratorName: doc.externalCollaboratorName,
+      externalCollaboratorTitle: doc.externalCollaboratorTitle,
       categoryId: doc.categoryId,
       tags: doc.tags,
       status: doc.status as PostStatus,
@@ -162,6 +165,7 @@ export class BlogPostRepository implements IBlogPostRepository {
       seoTitle: doc.seoTitle,
       seoDescription: doc.seoDescription,
       viewCount: doc.viewCount,
+      formatConfig: doc.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 },
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt
     });
@@ -175,13 +179,17 @@ export class BlogPostRepository implements IBlogPostRepository {
       content: post.content,
       featuredImage: post.featuredImage,
       authorId: post.authorId,
+      hasExternalCollaborator: post.hasExternalCollaborator,
+      externalCollaboratorName: post.externalCollaboratorName,
+      externalCollaboratorTitle: post.externalCollaboratorTitle,
       categoryId: post.categoryId,
       tags: post.tags,
       status: post.status,
       publishedAt: post.publishedAt,
       seoTitle: post.seoTitle,
       seoDescription: post.seoDescription,
-      viewCount: post.viewCount
+      viewCount: post.viewCount,
+      formatConfig: post.formatConfig
     };
   }
 }

@@ -1,3 +1,8 @@
+export interface FormatConfig {
+  lineHeight: number;
+  paragraphSpacing: number;
+}
+
 export interface BlogPostProps {
   id?: string;
   title: string;
@@ -6,6 +11,9 @@ export interface BlogPostProps {
   content: string;
   featuredImage?: string;
   authorId: string;
+  hasExternalCollaborator: boolean;
+  externalCollaboratorName?: string;
+  externalCollaboratorTitle?: string;
   categoryId: string;
   tags: string[];
   status: PostStatus;
@@ -13,6 +21,7 @@ export interface BlogPostProps {
   seoTitle?: string;
   seoDescription?: string;
   viewCount: number;
+  formatConfig?: FormatConfig;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -32,6 +41,9 @@ export class BlogPost {
   private _content: string;
   private _featuredImage?: string;
   private _authorId: string;
+  private _hasExternalCollaborator: boolean;
+  private _externalCollaboratorName?: string;
+  private _externalCollaboratorTitle?: string;
   private _categoryId: string;
   private _tags: string[];
   private _status: PostStatus;
@@ -39,6 +51,7 @@ export class BlogPost {
   private _seoTitle?: string;
   private _seoDescription?: string;
   private _viewCount: number;
+  private _formatConfig?: FormatConfig;
   private readonly _createdAt: Date;
   private _updatedAt: Date;
 
@@ -50,6 +63,9 @@ export class BlogPost {
     this._content = props.content;
     this._featuredImage = props.featuredImage;
     this._authorId = props.authorId;
+    this._hasExternalCollaborator = props.hasExternalCollaborator || false;
+    this._externalCollaboratorName = props.externalCollaboratorName;
+    this._externalCollaboratorTitle = props.externalCollaboratorTitle;
     this._categoryId = props.categoryId;
     this._tags = props.tags;
     this._status = props.status;
@@ -57,6 +73,7 @@ export class BlogPost {
     this._seoTitle = props.seoTitle;
     this._seoDescription = props.seoDescription;
     this._viewCount = props.viewCount || 0;
+    this._formatConfig = props.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 };
     this._createdAt = props.createdAt || new Date();
     this._updatedAt = props.updatedAt || new Date();
   }
@@ -91,6 +108,18 @@ export class BlogPost {
 
   get authorId(): string {
     return this._authorId;
+  }
+
+  get hasExternalCollaborator(): boolean {
+    return this._hasExternalCollaborator;
+  }
+
+  get externalCollaboratorName(): string | undefined {
+    return this._externalCollaboratorName;
+  }
+
+  get externalCollaboratorTitle(): string | undefined {
+    return this._externalCollaboratorTitle;
   }
 
   get categoryId(): string {
@@ -129,6 +158,10 @@ export class BlogPost {
     return this._updatedAt;
   }
 
+  get formatConfig(): FormatConfig {
+    return this._formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 };
+  }
+
   get isPublished(): boolean {
     return this._status === PostStatus.PUBLISHED;
   }
@@ -163,6 +196,11 @@ export class BlogPost {
   updateSeo(seoTitle: string, seoDescription: string): void {
     this._seoTitle = seoTitle;
     this._seoDescription = seoDescription;
+    this._updatedAt = new Date();
+  }
+
+  updateFormatConfig(formatConfig: FormatConfig): void {
+    this._formatConfig = formatConfig;
     this._updatedAt = new Date();
   }
 

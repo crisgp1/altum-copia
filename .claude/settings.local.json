@@ -35,7 +35,8 @@
       "WebFetch(domain:faq.whatsapp.com)",
       "WebFetch(domain:swiperjs.com)",
       "WebFetch(domain:draftjs.org)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:medium.com)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

@@ -95,9 +95,17 @@ export default function PostMeta({ post, author, category }: PostMetaProps) {
           
           <div className="flex items-start space-x-3">
             <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-sm font-medium text-gray-600">
-                {author.name.split(' ').map(n => n[0]).join('')}
-              </span>
+              {author.avatar ? (
+                <img
+                  src={author.avatar}
+                  alt={author.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              ) : (
+                <span className="text-sm font-medium text-gray-600">
+                  {author.name.split(' ').map(n => n[0]).join('')}
+                </span>
+              )}
             </div>
             <div className="flex-1 overflow-hidden">
               <h4
@@ -131,6 +139,41 @@ export default function PostMeta({ post, author, category }: PostMetaProps) {
               ))}
             </div>
           </div>
+          
+          {/* External Collaborator */}
+          {post.hasExternalCollaborator && post.externalCollaboratorName && (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <p
+                className="text-sm text-gray-600 mb-2"
+                style={{ fontFamily: 'Bennet, serif', fontWeight: 'normal' }}
+              >
+                <strong>Colaboración con:</strong>
+              </p>
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-medium text-amber-700">
+                    {post.externalCollaboratorName.split(' ').map(n => n[0]).join('')}
+                  </span>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <h5
+                    className="text-sm font-semibold text-gray-900 mb-1 break-words"
+                    style={{ fontFamily: 'Bennet, serif', fontWeight: '600' }}
+                  >
+                    {post.externalCollaboratorName}
+                  </h5>
+                  {post.externalCollaboratorTitle && (
+                    <p
+                      className="text-xs text-gray-600 break-words"
+                      style={{ fontFamily: 'Bennet, serif', fontWeight: 'normal' }}
+                    >
+                      {post.externalCollaboratorTitle}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

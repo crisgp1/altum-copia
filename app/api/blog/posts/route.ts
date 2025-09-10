@@ -80,12 +80,16 @@ export async function POST(request: NextRequest) {
       content: body.content,
       excerpt: body.excerpt || '',
       authorId: body.authorId || 'admin', // Default author if not provided
+      hasExternalCollaborator: body.hasExternalCollaborator || false,
+      externalCollaboratorName: body.externalCollaboratorName || '',
+      externalCollaboratorTitle: body.externalCollaboratorTitle || '',
       categoryId: body.categoryId,
       tags: body.tags || [],
       featuredImage: body.featuredImage || '',
       seoTitle: body.seoTitle || body.title,
       seoDescription: body.seoDescription || body.excerpt || '',
-      status: body.status || PostStatus.DRAFT
+      status: body.status || PostStatus.DRAFT,
+      formatConfig: body.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 }
     };
     
     const createdPost = await createBlogPostUseCase.execute(createDTO);
@@ -100,11 +104,15 @@ export async function POST(request: NextRequest) {
         content: createdPost.content,
         featuredImage: createdPost.featuredImage,
         authorId: createdPost.authorId,
+        hasExternalCollaborator: createdPost.hasExternalCollaborator,
+        externalCollaboratorName: createdPost.externalCollaboratorName,
+        externalCollaboratorTitle: createdPost.externalCollaboratorTitle,
         categoryId: createdPost.categoryId,
         tags: createdPost.tags,
         status: createdPost.status,
         seoTitle: createdPost.seoTitle,
         seoDescription: createdPost.seoDescription,
+        formatConfig: createdPost.formatConfig,
         createdAt: createdPost.createdAt,
         updatedAt: createdPost.updatedAt,
         publishedAt: createdPost.publishedAt,

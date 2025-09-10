@@ -17,6 +17,7 @@ export default function PostContent({ post }: PostContentProps) {
   const articleRef = useRef<HTMLDivElement>(null);
   const tagsRef = useRef<HTMLDivElement>(null);
 
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Initial animation
@@ -87,13 +88,13 @@ export default function PostContent({ post }: PostContentProps) {
         style={{
           fontFamily: 'Bennet, serif',
           fontSize: '20px',
-          lineHeight: '1.58',
+          lineHeight: post.formatConfig.lineHeight.toString(),
           color: '#292929',
           fontWeight: 'normal'
         }}
       >
         <div
-          className="content-section medium-prose"
+          className="content-section medium-prose post-content-formatted"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </article>
@@ -163,6 +164,38 @@ export default function PostContent({ post }: PostContentProps) {
           </div>
         </div>
       </div>
+      
+      {/* Dynamic CSS for paragraph spacing */}
+      <style jsx global>{`
+        .post-content-formatted p {
+          margin-bottom: ${post.formatConfig.paragraphSpacing}em !important;
+          line-height: ${post.formatConfig.lineHeight} !important;
+        }
+        .post-content-formatted h1,
+        .post-content-formatted h2,
+        .post-content-formatted h3,
+        .post-content-formatted h4,
+        .post-content-formatted h5,
+        .post-content-formatted h6 {
+          line-height: ${post.formatConfig.lineHeight} !important;
+          margin-bottom: ${post.formatConfig.paragraphSpacing * 1.5}em !important;
+        }
+        .post-content-formatted ul,
+        .post-content-formatted ol {
+          margin-bottom: ${post.formatConfig.paragraphSpacing}em !important;
+        }
+        .post-content-formatted li {
+          margin-bottom: ${post.formatConfig.paragraphSpacing * 0.5}em !important;
+          line-height: ${post.formatConfig.lineHeight} !important;
+        }
+        .post-content-formatted blockquote {
+          margin-bottom: ${post.formatConfig.paragraphSpacing * 1.5}em !important;
+          line-height: ${post.formatConfig.lineHeight} !important;
+        }
+        .post-content-formatted div {
+          line-height: ${post.formatConfig.lineHeight} !important;
+        }
+      `}</style>
     </div>
   );
 }

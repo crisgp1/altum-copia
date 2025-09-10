@@ -7,6 +7,9 @@ export interface IBlogPostDocument extends Document {
   content: string;
   featuredImage?: string;
   authorId: string;
+  hasExternalCollaborator: boolean;
+  externalCollaboratorName?: string;
+  externalCollaboratorTitle?: string;
   categoryId: string;
   tags: string[];
   status: string;
@@ -14,6 +17,10 @@ export interface IBlogPostDocument extends Document {
   seoTitle?: string;
   seoDescription?: string;
   viewCount: number;
+  formatConfig?: {
+    lineHeight: number;
+    paragraphSpacing: number;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,13 +33,20 @@ const BlogPostSchema = new Schema<IBlogPostDocument>(
     content: { type: String, required: true },
     featuredImage: { type: String },
     authorId: { type: String, required: true },
+    hasExternalCollaborator: { type: Boolean, default: false },
+    externalCollaboratorName: { type: String },
+    externalCollaboratorTitle: { type: String },
     categoryId: { type: String, ref: 'Category', required: true },
     tags: [{ type: String }],
     status: { type: String, default: 'DRAFT', enum: ['DRAFT', 'PUBLISHED', 'SCHEDULED', 'ARCHIVED'] },
     publishedAt: { type: Date },
     seoTitle: { type: String },
     seoDescription: { type: String },
-    viewCount: { type: Number, default: 0 }
+    viewCount: { type: Number, default: 0 },
+    formatConfig: {
+      lineHeight: { type: Number, default: 1.4 },
+      paragraphSpacing: { type: Number, default: 0.5 }
+    }
   },
   {
     timestamps: true

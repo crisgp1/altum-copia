@@ -34,6 +34,9 @@ export async function GET(request: NextRequest) {
       content: post.content,
       featuredImage: post.featuredImage,
       authorId: post.authorId,
+      hasExternalCollaborator: post.hasExternalCollaborator,
+      externalCollaboratorName: post.externalCollaboratorName,
+      externalCollaboratorTitle: post.externalCollaboratorTitle,
       categoryId: post.categoryId,
       tags: post.tags,
       status: post.status.toLowerCase(), // Convert to lowercase for frontend

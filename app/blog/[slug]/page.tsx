@@ -22,10 +22,74 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [resolvedParams, setResolvedParams] = useState<{slug: string} | null>(null);
+  const [author, setAuthor] = useState<{
+    id: string;
+    name: string;
+    position: string;
+    bio: string;
+    avatar: string;
+    expertise: string[];
+  } | null>(null);
 
   useEffect(() => {
     params.then(p => setResolvedParams(p));
   }, [params]);
+
+  useEffect(() => {
+    if (!post) return;
+    
+    const fetchAuthor = async () => {
+      try {
+        // Try to fetch attorney data
+        const attorneyResponse = await fetch('/api/attorneys/all-members');
+        if (attorneyResponse.ok) {
+          const attorneyResult = await attorneyResponse.json();
+          // The API returns an array directly, not wrapped in a success object
+          if (Array.isArray(attorneyResult)) {
+            console.log('Available attorneys:', attorneyResult.map(a => ({ id: a.id, name: a.nombre })));
+            console.log('Looking for authorId:', post.authorId);
+            const foundAttorney = attorneyResult.find((att: any) => att.id === post.authorId);
+            console.log('Found attorney:', foundAttorney);
+            if (foundAttorney) {
+              setAuthor({
+                id: foundAttorney.id,
+                name: foundAttorney.nombre,
+                position: foundAttorney.cargo,
+                bio: foundAttorney.descripcionCorta || 'Especialista en derecho con amplia experiencia en el área legal.',
+                avatar: foundAttorney.imagenUrl || '',
+                expertise: foundAttorney.especializaciones || ['Derecho Legal']
+              });
+              return;
+            }
+          }
+        }
+        
+        // Fallback to placeholder data if attorney not found
+        console.log('Attorney not found, using fallback for authorId:', post.authorId);
+        setAuthor({
+          id: post.authorId,
+          name: post.authorId === 'admin' ? 'Equipo Altum Legal' : `Autor (ID: ${post.authorId})`,
+          position: 'Abogado Especialista',
+          bio: 'Especialista en derecho con amplia experiencia en el área legal.',
+          avatar: '',
+          expertise: ['Derecho Corporativo', 'Asesoría Legal', 'Litigios']
+        });
+      } catch (error) {
+        console.error('Error fetching attorney:', error);
+        // Fallback to placeholder data
+        setAuthor({
+          id: post.authorId,
+          name: post.authorId === 'admin' ? 'Equipo Altum Legal' : `Autor (ID: ${post.authorId})`,
+          position: 'Abogado Especialista',
+          bio: 'Especialista en derecho con amplia experiencia en el área legal.',
+          avatar: '',
+          expertise: ['Derecho Corporativo', 'Asesoría Legal', 'Litigios']
+        });
+      }
+    };
+    
+    fetchAuthor();
+  }, [post]);
 
   useEffect(() => {
     if (!resolvedParams) return;
@@ -83,6 +147,9 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           content: postData.content,
           featuredImage: postData.featuredImage,
           authorId: postData.authorId,
+          hasExternalCollaborator: postData.hasExternalCollaborator || false,
+          externalCollaboratorName: postData.externalCollaboratorName || '',
+          externalCollaboratorTitle: postData.externalCollaboratorTitle || '',
           categoryId: postData.categoryId,
           tags: postData.tags,
           status: PostStatus.PUBLISHED,
@@ -90,6 +157,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           seoTitle: postData.seoTitle,
           seoDescription: postData.seoDescription,
           viewCount: postData.viewCount,
+          formatConfig: postData.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 },
           createdAt: postData.createdAt ? new Date(postData.createdAt) : new Date(),
           updatedAt: postData.updatedAt ? new Date(postData.updatedAt) : new Date()
         });
@@ -108,6 +176,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             content: '',
             featuredImage: p.featuredImage,
             authorId: p.authorId,
+            hasExternalCollaborator: false,
             categoryId: p.categoryId,
             tags: p.tags,
             status: PostStatus.PUBLISHED,
@@ -190,24 +259,28 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       </div>
     );
   }
-
-  // Create placeholder author and category objects from the post data
-  const author = {
-    id: post.authorId,
-    name: post.authorId === 'admin' ? 'Administrador' : 'Autor',
-    position: 'Abogado Especialista',
-    bio: 'Especialista en derecho con amplia experiencia en el área legal.',
-    avatar: '',
-    expertise: ['Derecho Corporativo', 'Asesoría Legal', 'Litigios']
-  };
   
-  const category = {
+  const category = post ? {
     id: post.categoryId,
     name: post.categoryId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
     slug: post.categoryId,
     description: '',
     color: '#B79F76'
-  };
+  } : null;
+
+  if (!author) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 80px)' }}>
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-600">Cargando información del autor...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -217,7 +290,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         <PostHeader
           post={post}
           author={author}
-          category={category}
+          category={category!}
         />
         
         {/* Post Content - Medium Style Layout */}
@@ -235,7 +308,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                   <PostMeta
                     post={post}
                     author={author}
-                    category={category}
+                    category={category!}
                   />
                 </div>
               </div>
@@ -246,7 +319,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               <PostMeta
                 post={post}
                 author={author}
-                category={category}
+                category={category!}
               />
             </div>
           </div>

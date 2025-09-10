@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 import { PostStatus } from '@/app/lib/domain/entities/BlogPost';
@@ -8,18 +8,37 @@ import DraftJsEditor from '@/app/components/admin/DraftJsEditor';
 import { BlogImageUpload } from '@/app/components/admin/BlogImageUpload';
 import toast from 'react-hot-toast';
 
+interface FormatConfig {
+  lineHeight: number;
+  paragraphSpacing: number;
+}
+
 interface BlogFormData {
   title: string;
   slug: string;
   excerpt: string;
   content: string;
   featuredImage: string;
+  authorId: string;
+  hasExternalCollaborator: boolean;
+  externalCollaboratorName: string;
+  externalCollaboratorTitle: string;
   categoryId: string;
   tags: string[];
   status: PostStatus;
   seoTitle: string;
   seoDescription: string;
   publishedAt?: Date;
+  formatConfig: FormatConfig;
+}
+
+interface Attorney {
+  id: string;
+  nombre: string;
+  cargo: string;
+  imagenUrl?: string;
+  descripcionCorta: string;
+  tipo?: string; // 'Socio' | 'Colaborador'
 }
 
 // Suggested categories for autocomplete
@@ -41,6 +60,8 @@ export default function NewBlogPost() {
   const { user, hasPermission } = useUserRole();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'content' | 'seo' | 'settings'>('content');
+  const [attorneys, setAttorneys] = useState<Attorney[]>([]);
+  const [loadingAttorneys, setLoadingAttorneys] = useState(true);
   
   const [formData, setFormData] = useState<BlogFormData>({
     title: '',
@@ -48,17 +69,45 @@ export default function NewBlogPost() {
     excerpt: '',
     content: '',
     featuredImage: '',
+    authorId: '',
+    hasExternalCollaborator: false,
+    externalCollaboratorName: '',
+    externalCollaboratorTitle: '',
     categoryId: '',
     tags: [],
     status: PostStatus.DRAFT,
     seoTitle: '',
     seoDescription: '',
+    formatConfig: { lineHeight: 1.4, paragraphSpacing: 0.5 }
   });
 
   const [tagInput, setTagInput] = useState('');
   const [categoryInput, setCategoryInput] = useState('');
   const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
   const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
+
+  // Fetch attorneys on component mount
+  useEffect(() => {
+    const fetchAttorneys = async () => {
+      try {
+        setLoadingAttorneys(true);
+        const response = await fetch('/api/attorneys/all-members');
+        if (response.ok) {
+          const data = await response.json();
+          setAttorneys(data);
+        } else {
+          toast.error('Error al cargar el equipo legal');
+        }
+      } catch (error) {
+        console.error('Error fetching attorneys:', error);
+        toast.error('Error al cargar el equipo legal');
+      } finally {
+        setLoadingAttorneys(false);
+      }
+    };
+
+    fetchAttorneys();
+  }, []);
 
   // Generate slug from title
   const generateSlug = (title: string) => {
@@ -151,13 +200,22 @@ export default function NewBlogPost() {
       return;
     }
 
+    if (!formData.authorId) {
+      toast.error('Debes seleccionar un autor (abogado de la firma)');
+      return;
+    }
+    
+    if (formData.hasExternalCollaborator && !formData.externalCollaboratorName.trim()) {
+      toast.error('Debes escribir el nombre del colaborador externo');
+      return;
+    }
+
     setIsLoading(true);
     
     try {
       const postData = {
         ...formData,
         status,
-        authorId: user?.id || '',
         publishedAt: status === PostStatus.PUBLISHED ? new Date() : undefined
       };
 
@@ -228,7 +286,14 @@ export default function NewBlogPost() {
           </button>
           <button
             onClick={() => handleSubmit(PostStatus.PUBLISHED)}
-            disabled={isLoading || !formData.title.trim() || !formData.content.trim() || !formData.categoryId}
+            disabled={
+              isLoading || 
+              !formData.title.trim() || 
+              !formData.content.trim() || 
+              !formData.categoryId ||
+              !formData.authorId ||
+              (formData.hasExternalCollaborator && !formData.externalCollaboratorName.trim())
+            }
             className="px-4 sm:px-6 py-2 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base order-1 sm:order-3"
             style={{ backgroundColor: '#B79F76' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#9C8A6B'}
@@ -422,6 +487,198 @@ export default function NewBlogPost() {
                     </p>
                   </div>
 
+                  {/* Author Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Autor Principal *
+                    </label>
+                    
+                    {/* Attorney Selection */}
+                    {loadingAttorneys ? (
+                      <div className="flex items-center justify-center h-12 border border-stone-300 rounded-lg bg-slate-50">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-600"></div>
+                        <span className="ml-2 text-sm text-slate-600">Cargando abogados...</span>
+                      </div>
+                    ) : (
+                      <select
+                        value={formData.authorId}
+                        onChange={(e) => handleInputChange('authorId', e.target.value)}
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm sm:text-base ${
+                          !formData.authorId 
+                            ? 'border-red-300 focus:ring-red-500 focus:border-red-500 bg-white' 
+                            : 'border-green-300 focus:ring-green-500 focus:border-green-500 bg-green-50'
+                        } text-slate-900`}
+                      >
+                        <option value="">Seleccionar abogado autor...</option>
+                        
+                        {/* Group partners first */}
+                        {attorneys.filter(attorney => attorney.tipo === 'Socio').length > 0 && (
+                          <optgroup label="🏛️ Socios">
+                            {attorneys.filter(attorney => attorney.tipo === 'Socio').map((attorney) => (
+                              <option key={attorney.id} value={attorney.id}>
+                                {attorney.nombre} - {attorney.cargo}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+                        
+                        {/* Then collaborators */}
+                        {attorneys.filter(attorney => attorney.tipo === 'Colaborador').length > 0 && (
+                          <optgroup label="👨‍💼 Abogados Colaboradores">
+                            {attorneys.filter(attorney => attorney.tipo === 'Colaborador').map((attorney) => (
+                              <option key={attorney.id} value={attorney.id}>
+                                {attorney.nombre} - {attorney.cargo}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+                      </select>
+                    )}
+                    
+                    {/* Selected Attorney Preview */}
+                    {formData.authorId && !loadingAttorneys && (
+                      <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        {(() => {
+                          const selectedAttorney = attorneys.find(a => a.id === formData.authorId);
+                          return selectedAttorney ? (
+                            <div className="flex items-center space-x-3">
+                              {selectedAttorney.imagenUrl && (
+                                <img 
+                                  src={selectedAttorney.imagenUrl} 
+                                  alt={selectedAttorney.nombre}
+                                  className="w-10 h-10 rounded-full object-cover"
+                                />
+                              )}
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium text-green-900 text-sm">
+                                    {selectedAttorney.nombre}
+                                  </p>
+                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-amber-100 text-amber-800">
+                                    Autor Principal
+                                  </span>
+                                  {selectedAttorney.tipo && (
+                                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                                      selectedAttorney.tipo === 'Socio' 
+                                        ? 'bg-blue-100 text-blue-800' 
+                                        : 'bg-purple-100 text-purple-800'
+                                    }`}>
+                                      {selectedAttorney.tipo}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-green-700 text-xs">
+                                  {selectedAttorney.cargo}
+                                </p>
+                                <p className="text-green-600 text-xs mt-1">
+                                  {selectedAttorney.descripcionCorta}
+                                </p>
+                              </div>
+                            </div>
+                          ) : null;
+                        })()}
+                      </div>
+                    )}
+                    
+                    {!formData.authorId && (
+                      <p className="mt-1 text-sm text-red-600">Debes seleccionar un abogado autor</p>
+                    )}
+                    
+                    <p className="text-xs text-slate-500 mt-1">
+                      Selecciona el abogado principal que escribió el artículo
+                    </p>
+
+                    {/* External Collaborator Section */}
+                    <div className="mt-6 pt-4 border-t border-stone-200">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <input
+                          type="checkbox"
+                          id="hasExternalCollaborator"
+                          checked={formData.hasExternalCollaborator}
+                          onChange={(e) => {
+                            handleInputChange('hasExternalCollaborator', e.target.checked);
+                            // Clear external collaborator fields when unchecked
+                            if (!e.target.checked) {
+                              handleInputChange('externalCollaboratorName', '');
+                              handleInputChange('externalCollaboratorTitle', '');
+                            }
+                          }}
+                          className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 focus:ring-2"
+                        />
+                        <label htmlFor="hasExternalCollaborator" className="text-sm font-medium text-slate-700">
+                          🤝 ¿Tiene colaborador externo?
+                        </label>
+                      </div>
+
+                      {/* External Collaborator Input */}
+                      {formData.hasExternalCollaborator && (
+                        <div className="space-y-4 pl-7">
+                          <div>
+                            <label className="block text-xs font-medium text-slate-600 mb-1">
+                              Nombre del colaborador externo *
+                            </label>
+                            <input
+                              type="text"
+                              value={formData.externalCollaboratorName}
+                              onChange={(e) => handleInputChange('externalCollaboratorName', e.target.value)}
+                              placeholder="Ej: Dr. Juan Pérez, María González"
+                              className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm sm:text-base ${
+                                !formData.externalCollaboratorName.trim()
+                                  ? 'border-red-300 focus:ring-red-500 focus:border-red-500 bg-white' 
+                                  : 'border-green-300 focus:ring-green-500 focus:border-green-500 bg-green-50'
+                              } text-slate-900 placeholder:text-slate-400`}
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs font-medium text-slate-600 mb-1">
+                              Título o especialización (opcional)
+                            </label>
+                            <input
+                              type="text"
+                              value={formData.externalCollaboratorTitle}
+                              onChange={(e) => handleInputChange('externalCollaboratorTitle', e.target.value)}
+                              placeholder="Ej: Especialista en Derecho Internacional"
+                              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base"
+                            />
+                          </div>
+                          
+                          {/* External Collaborator Preview */}
+                          {formData.externalCollaboratorName.trim() && (
+                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <span className="text-blue-600 font-semibold text-sm">
+                                    {formData.externalCollaboratorName.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium text-blue-900 text-sm">
+                                      {formData.externalCollaboratorName}
+                                    </p>
+                                    <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
+                                      Colaborador Externo
+                                    </span>
+                                  </div>
+                                  {formData.externalCollaboratorTitle && (
+                                    <p className="text-blue-700 text-xs">
+                                      {formData.externalCollaboratorTitle}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          <p className="text-xs text-slate-500">
+                            Persona externa que colaboró en el artículo junto al abogado autor
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Content Editor */}
                   <div>
                     <label className="block text-base font-semibold text-slate-900 mb-2">
@@ -431,6 +688,8 @@ export default function NewBlogPost() {
                       value={formData.content}
                       onChange={(value) => handleInputChange('content', value)}
                       placeholder="Escribe el contenido del post aquí... Usa la barra de herramientas para formatear el texto."
+                      formatConfig={formData.formatConfig}
+                      onFormatConfigChange={(config) => handleInputChange('formatConfig', config)}
                     />
                     <p className="text-xs text-slate-500 mt-1">
                       Editor enriquecido con soporte para formato visual. {formData.content.length} caracteres
@@ -574,9 +833,23 @@ export default function NewBlogPost() {
               <div className="flex items-center justify-between">
                 <span className="text-xs sm:text-sm text-slate-600">Autor:</span>
                 <span className="text-xs sm:text-sm font-medium text-slate-900 truncate ml-2">
-                  {user?.firstName} {user?.lastName}
+                  {formData.authorId ? 
+                    (() => {
+                      const selectedAttorney = attorneys.find(a => a.id === formData.authorId);
+                      return selectedAttorney ? selectedAttorney.nombre : 'Sin seleccionar';
+                    })() : 
+                    'Sin seleccionar'
+                  }
                 </span>
               </div>
+              {formData.hasExternalCollaborator && (
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm text-slate-600">Colaborador:</span>
+                  <span className="text-xs sm:text-sm font-medium text-orange-700 truncate ml-2">
+                    {formData.externalCollaboratorName.trim() || 'Sin nombre'}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <span className="text-xs sm:text-sm text-slate-600">Creado:</span>
                 <span className="text-xs sm:text-sm text-slate-600">

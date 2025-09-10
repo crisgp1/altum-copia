@@ -7,12 +7,19 @@ export interface CreateBlogPostDTO {
   content: string;
   excerpt: string;
   authorId: string;
+  hasExternalCollaborator?: boolean;
+  externalCollaboratorName?: string;
+  externalCollaboratorTitle?: string;
   categoryId: string;
   tags: string[];
   featuredImage?: string;
   seoTitle?: string;
   seoDescription?: string;
   status?: PostStatus;
+  formatConfig?: {
+    lineHeight: number;
+    paragraphSpacing: number;
+  };
 }
 
 export class CreateBlogPostUseCase {
@@ -32,6 +39,9 @@ export class CreateBlogPostUseCase {
       content: dto.content,
       excerpt: dto.excerpt,
       authorId: dto.authorId,
+      hasExternalCollaborator: dto.hasExternalCollaborator || false,
+      externalCollaboratorName: dto.externalCollaboratorName || '',
+      externalCollaboratorTitle: dto.externalCollaboratorTitle || '',
       categoryId: dto.categoryId,
       tags: dto.tags,
       featuredImage: dto.featuredImage,
@@ -39,7 +49,8 @@ export class CreateBlogPostUseCase {
       seoDescription: dto.seoDescription,
       status: dto.status || PostStatus.DRAFT,
       publishedAt: dto.status === PostStatus.PUBLISHED ? new Date() : undefined,
-      viewCount: 0
+      viewCount: 0,
+      formatConfig: dto.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 }
     });
 
     await this.blogPostRepository.save(blogPost);
