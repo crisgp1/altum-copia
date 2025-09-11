@@ -317,11 +317,9 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                     post={post}
                     author={author}
                   />
-                  {post.citationConfig?.enabled && post.citationConfig?.references && post.citationConfig.references.length > 0 && (
-                    <ArticleReferences
-                      post={post}
-                    />
-                  )}
+                  <ArticleReferences
+                    post={post}
+                  />
                 </div>
               </div>
             </div>
@@ -337,11 +335,9 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 post={post}
                 author={author}
               />
-              {post.citationConfig?.enabled && post.citationConfig?.references && post.citationConfig.references.length > 0 && (
-                <ArticleReferences
-                  post={post}
-                />
-              )}
+              <ArticleReferences
+                post={post}
+              />
             </div>
           </div>
         </div>

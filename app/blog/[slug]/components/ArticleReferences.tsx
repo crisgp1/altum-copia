@@ -22,10 +22,8 @@ export default function ArticleReferences({ post }: ArticleReferencesProps) {
   const references = post.citationConfig?.references || [];
 
 
-  // If no references, don't render
-  if (!referencesEnabled || references.length === 0) {
-    return null;
-  }
+  // Show a placeholder if no references are configured
+  const showPlaceholder = !referencesEnabled || references.length === 0;
 
   useEffect(() => {
     if (isExpanded && contentRef.current) {
@@ -84,20 +82,32 @@ export default function ArticleReferences({ post }: ArticleReferencesProps) {
       {isExpanded && (
         <div ref={contentRef} className="px-6 pb-6">
           <div className="bg-white rounded-lg border border-stone-200 p-4">
-            {Object.entries(groupedReferences).map(([category, refs]) => (
-              <div key={category} className="mb-6 last:mb-0">
-                <h4 className="font-semibold text-slate-800 mb-3 text-sm border-b border-slate-200 pb-2">
-                  {categoryNames[category] || category}
-                </h4>
-                <div className="space-y-3">
-                  {refs.map((ref, index) => (
-                    <div key={index} className="text-xs text-slate-700 leading-relaxed font-mono bg-slate-50 p-3 rounded border">
-                      {ref.text}
-                    </div>
-                  ))}
-                </div>
+            {showPlaceholder ? (
+              <div className="text-center py-8">
+                <svg className="mx-auto h-12 w-12 text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <p className="text-sm text-slate-600 font-medium">Referencias no disponibles</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  Las referencias y fuentes consultadas para este artículo no han sido configuradas por el autor.
+                </p>
               </div>
-            ))}
+            ) : (
+              Object.entries(groupedReferences).map(([category, refs]) => (
+                <div key={category} className="mb-6 last:mb-0">
+                  <h4 className="font-semibold text-slate-800 mb-3 text-sm border-b border-slate-200 pb-2">
+                    {categoryNames[category] || category}
+                  </h4>
+                  <div className="space-y-3">
+                    {refs.map((ref, index) => (
+                      <div key={index} className="text-xs text-slate-700 leading-relaxed font-mono bg-slate-50 p-3 rounded border">
+                        {ref.text}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Footer Note */}

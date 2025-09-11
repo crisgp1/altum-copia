@@ -30,10 +30,11 @@ export default function CitationComponent({ post, author }: CitationComponentPro
   const citationsEnabled = post.citationConfig?.enabled ?? true; // Default to true if no config
   const adminCitations = post.citationConfig?.citations || [];
 
-  // If citations are explicitly disabled, don't render the component
-  if (post.citationConfig && post.citationConfig.enabled === false) {
-    return null;
-  }
+
+  // Always show citations - we'll handle the logic inside the component
+  // if (!citationsEnabled) {
+  //   return null;
+  // }
 
   useEffect(() => {
     if (isExpanded && contentRef.current) {
