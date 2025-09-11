@@ -188,9 +188,20 @@ export default function Footer() {
           <p className="text-slate-400 text-sm">
             © 2025 ALTUM Legal. Todos los derechos reservados.
           </p>
-          <p className="text-slate-500 text-xs mt-2 md:mt-0">
-            Defendemos causas, cuidamos intereses y protegemos derechos
-          </p>
+          <div className="flex flex-col items-center md:items-end mt-2 md:mt-0 space-y-1">
+            <p className="text-slate-500 text-xs">
+              Defendemos causas, cuidamos intereses y protegemos derechos
+            </p>
+            <a 
+              href="https://hyrk.io" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all duration-200 text-xs border border-slate-700 hover:border-slate-600"
+            >
+              <span>Desarrollado por hyrk.io</span>
+              <span className="ml-1">🇲🇽</span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>

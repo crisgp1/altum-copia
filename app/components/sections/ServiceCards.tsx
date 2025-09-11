@@ -202,47 +202,95 @@ export default function ServiceCards() {
           </div>
         )}
 
-        {/* Sub-services Grid */}
+        {/* Sub-services Grid - Improved responsive design */}
         {subServices.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {subServices.map((subService) => (
-              <div
-                key={subService.id}
-                className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 border border-gray-200"
-              >
-                <div className="flex items-start mb-4">
-                  {subService.iconUrl && subService.iconUrl.trim() && subService.iconUrl !== 'undefined' && subService.iconUrl.startsWith('http') ? (
-                    <img
-                      src={subService.iconUrl}
-                      alt={subService.name}
-                      className="w-12 h-12 mr-4"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center mr-4">
-                      <span className="text-slate-700 font-bold text-lg">{subService.name.charAt(0)}</span>
-                    </div>
-                  )}
-                  <div>
-                    <h4 className="text-lg font-semibold mb-2" style={{ color: '#152239' }}>
-                      {subService.name}
-                    </h4>
-                    <p className="text-gray-600 text-sm">
-                      {subService.shortDescription}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => router.push(`/services/${subService.id}`)}
-                  className="mt-4 text-sm font-medium flex items-center group"
-                  style={{ color: '#B79F76' }}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {subServices.map((subService, subIndex) => {
+              const colorSchemes = [
+                { bg: '#1a365d', accent: '#3182ce' },
+                { bg: '#2d3748', accent: '#4a5568' },
+                { bg: '#2c5530', accent: '#38a169' },
+                { bg: '#5d2e5d', accent: '#805ad5' },
+                { bg: '#744210', accent: '#d69e2e' }
+              ];
+              const colorScheme = colorSchemes[subIndex % colorSchemes.length];
+              
+              return (
+                <div
+                  key={subService.id}
+                  className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-4 sm:p-6 border border-gray-100 group transform hover:scale-[1.02]"
+                  style={{
+                    background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)'
+                  }}
                 >
-                  <span>Más información</span>
-                  <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            ))}
+                  {/* Icon and content container */}
+                  <div className="flex flex-col space-y-4">
+                    {/* Icon and title section */}
+                    <div className="flex items-start space-x-3 sm:space-x-4">
+                      {/* Better proportioned icon sizing */}
+                      {subService.iconUrl && subService.iconUrl.trim() && subService.iconUrl !== 'undefined' && subService.iconUrl.startsWith('http') ? (
+                        <div 
+                          className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
+                          style={{ backgroundColor: colorScheme.accent }}
+                        >
+                          <img
+                            src={subService.iconUrl}
+                            alt={subService.name}
+                            className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 filter brightness-0 invert"
+                          />
+                        </div>
+                      ) : (
+                        <div 
+                          className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
+                          style={{ backgroundColor: colorScheme.bg }}
+                        >
+                          <span className="text-white font-bold text-xs sm:text-sm lg:text-base">
+                            {subService.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Title and description */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-base sm:text-lg font-semibold text-slate-900 mb-2 leading-tight">
+                          {subService.name}
+                        </h4>
+                        <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                          {subService.shortDescription}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* CTA button */}
+                    <div className="pt-2">
+                      <button
+                        onClick={() => router.push(`/services/${subService.id}`)}
+                        className="inline-flex items-center text-sm sm:text-base font-medium group/cta transition-colors duration-200"
+                        style={{ color: colorScheme.accent }}
+                      >
+                        <span className="transition-colors duration-200 group-hover/cta:opacity-80">
+                          Más información
+                        </span>
+                        <svg 
+                          className="w-4 h-4 ml-2 transition-all duration-300 group-hover/cta:translate-x-1 group-hover/cta:opacity-80" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Subtle accent line on hover */}
+                  <div 
+                    className="absolute top-0 left-0 w-full h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out rounded-t-xl"
+                    style={{ backgroundColor: colorScheme.accent }}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
 
