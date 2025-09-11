@@ -85,7 +85,7 @@ export default function EditBlogPost() {
     seoTitle: '',
     seoDescription: '',
     formatConfig: { lineHeight: 1.4, paragraphSpacing: 0.5 },
-    citationConfig: { enabled: false, citations: [] }
+    citationConfig: { enabled: false, citations: [], references: [] }
   });
 
   const [tagInput, setTagInput] = useState('');
@@ -145,7 +145,7 @@ export default function EditBlogPost() {
               seoDescription: post.seoDescription || '',
               publishedAt: post.publishedAt ? new Date(post.publishedAt) : undefined,
               formatConfig: post.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 },
-              citationConfig: post.citationConfig || { enabled: false, citations: [] }
+              citationConfig: post.citationConfig || { enabled: false, citations: [], references: [] }
             });
             setCategoryInput(post.categoryId || '');
           } else {

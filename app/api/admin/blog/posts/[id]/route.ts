@@ -43,6 +43,7 @@ export async function GET(
         seoTitle: post.seoTitle,
         seoDescription: post.seoDescription,
         formatConfig: post.formatConfig,
+        citationConfig: post.citationConfig,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         publishedAt: post.publishedAt,
@@ -111,6 +112,7 @@ export async function PUT(
       seoDescription: body.seoDescription || body.excerpt || '',
       status: body.status?.toUpperCase() as PostStatus || PostStatus.DRAFT,
       formatConfig: body.formatConfig || existingPost.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 },
+      citationConfig: body.citationConfig || existingPost.citationConfig || { enabled: false, citations: [], references: [] },
       viewCount: existingPost.viewCount,
       publishedAt: body.status?.toUpperCase() === 'PUBLISHED' && !existingPost.publishedAt
         ? new Date()
@@ -142,6 +144,7 @@ export async function PUT(
         seoTitle: updatedPost.seoTitle,
         seoDescription: updatedPost.seoDescription,
         formatConfig: updatedPost.formatConfig,
+        citationConfig: updatedPost.citationConfig,
         createdAt: updatedPost.createdAt,
         updatedAt: updatedPost.updatedAt,
         publishedAt: updatedPost.publishedAt,
