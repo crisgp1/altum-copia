@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
+import { DEFAULT_CITATION_TEMPLATES, generateDefaultCitations } from '@/app/lib/domain/entities/Citation';
 import toast from 'react-hot-toast';
 
 interface CitationComponentProps {
@@ -24,6 +25,15 @@ export default function CitationComponent({ post, author }: CitationComponentPro
   const [isExpanded, setIsExpanded] = useState(false);
   const componentRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Check if citations are enabled for this post
+  const citationsEnabled = post.citationConfig?.enabled ?? true; // Default to true if no config
+  const adminCitations = post.citationConfig?.citations || [];
+
+  // If citations are explicitly disabled, don't render the component
+  if (post.citationConfig && post.citationConfig.enabled === false) {
+    return null;
+  }
 
   useEffect(() => {
     if (isExpanded && contentRef.current) {
@@ -55,27 +65,44 @@ export default function CitationComponent({ post, author }: CitationComponentPro
   };
 
   const generateCitation = (format: CitationFormat): string => {
-    const authorName = author?.name || 'ALTUM Legal';
-    const title = post.title;
+    // First check if there's an admin-configured citation for this format
+    const adminCitation = adminCitations.find(c => c.format === format);
+    if (adminCitation && adminCitation.citation) {
+      return adminCitation.citation;
+    }
+
+    // Fallback to auto-generated citation
+    const authorName = post.citationConfig?.customAuthor || author?.name || 'ALTUM Legal';
+    const title = post.citationConfig?.customTitle || post.title;
     const siteName = 'ALTUM Legal';
-    const publishDate = formatDate(post.publishedAt!);
+    const publishDate = post.citationConfig?.customDate || formatDate(post.publishedAt!);
     const accessDate = getCurrentDate();
     const url = getCurrentUrl();
     const year = post.publishedAt?.getFullYear() || new Date().getFullYear();
 
+    // Use the templates from the Citation entity
+    const template = DEFAULT_CITATION_TEMPLATES.find(t => t.id === format);
+    if (template) {
+      return template.template
+        .replace(/{author}/g, authorName)
+        .replace(/{title}/g, title)
+        .replace(/{siteName}/g, siteName)
+        .replace(/{publishDate}/g, publishDate)
+        .replace(/{accessDate}/g, accessDate)
+        .replace(/{url}/g, url)
+        .replace(/{year}/g, year.toString());
+    }
+
+    // Legacy fallback
     switch (format) {
       case 'apa':
         return `${authorName} (${year}). ${title}. *${siteName}*. Recuperado el ${accessDate}, de ${url}`;
-      
       case 'harvard':
         return `${authorName} (${year}) '${title}', *${siteName}*, ${publishDate}. Disponible en: ${url} (Consultado: ${accessDate}).`;
-      
       case 'mla':
         return `${authorName}. "${title}." *${siteName}*, ${publishDate}, ${url}. Consultado el ${accessDate}.`;
-      
       case 'chicago':
         return `${authorName}. "${title}." ${siteName}. ${publishDate}. ${url}.`;
-      
       default:
         return '';
     }
@@ -101,12 +128,29 @@ export default function CitationComponent({ post, author }: CitationComponentPro
     }
   };
 
-  const formats = [
-    { id: 'apa' as CitationFormat, name: 'APA', description: 'American Psychological Association' },
-    { id: 'harvard' as CitationFormat, name: 'Harvard', description: 'Harvard Reference System' },
-    { id: 'mla' as CitationFormat, name: 'MLA', description: 'Modern Language Association' },
-    { id: 'chicago' as CitationFormat, name: 'Chicago', description: 'Chicago Manual of Style' }
-  ];
+  // Get available formats - either from admin or default templates
+  const getAvailableFormats = () => {
+    if (adminCitations.length > 0) {
+      // Show formats that are configured in admin
+      return adminCitations.map(citation => {
+        const template = DEFAULT_CITATION_TEMPLATES.find(t => t.id === citation.format);
+        return {
+          id: citation.format as CitationFormat,
+          name: template?.name || citation.format.toUpperCase(),
+          description: template?.description || citation.format
+        };
+      });
+    } else {
+      // Show all default formats
+      return DEFAULT_CITATION_TEMPLATES.map(template => ({
+        id: template.id as CitationFormat,
+        name: template.name,
+        description: template.description
+      }));
+    }
+  };
+
+  const formats = getAvailableFormats();
 
   return (
     <div ref={componentRef} className="bg-gradient-to-br from-slate-50 to-stone-100 rounded-xl border border-stone-200 overflow-hidden mx-2">
@@ -230,7 +274,17 @@ export default function CitationComponent({ post, author }: CitationComponentPro
               </svg>
               <div className="text-xs text-blue-800">
                 <p className="font-medium mb-1">Nota sobre las citaciones:</p>
-                <p>Verifica siempre los requisitos específicos de tu institución o publicación. Las fechas de acceso se generan automáticamente con la fecha actual.</p>
+                <p>
+                  {adminCitations.length > 0 
+                    ? 'Estas citas han sido configuradas y verificadas por ALTUM Legal para garantizar precisión académica.' 
+                    : 'Verifica siempre los requisitos específicos de tu institución o publicación.'
+                  } Las fechas de acceso se generan automáticamente con la fecha actual.
+                </p>
+                {adminCitations.some(c => c.isCustom) && (
+                  <p className="mt-1 text-blue-700">
+                    ✨ Incluye citas personalizadas por nuestro equipo editorial.
+                  </p>
+                )}
               </div>
             </div>
           </div>

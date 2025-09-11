@@ -21,6 +21,21 @@ export interface IBlogPostDocument extends Document {
     lineHeight: number;
     paragraphSpacing: number;
   };
+  citationConfig?: {
+    enabled: boolean;
+    customAuthor?: string;
+    customTitle?: string;
+    customDate?: string;
+    citations: Array<{
+      format: string;
+      citation: string;
+      isCustom: boolean;
+    }>;
+    references?: Array<{
+      text: string;
+      category: string;
+    }>;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +61,21 @@ const BlogPostSchema = new Schema<IBlogPostDocument>(
     formatConfig: {
       lineHeight: { type: Number, default: 1.4 },
       paragraphSpacing: { type: Number, default: 0.5 }
+    },
+    citationConfig: {
+      enabled: { type: Boolean, default: false },
+      customAuthor: { type: String },
+      customTitle: { type: String },
+      customDate: { type: String },
+      citations: [{
+        format: { type: String, required: true },
+        citation: { type: String, required: true },
+        isCustom: { type: Boolean, default: false }
+      }],
+      references: [{
+        text: { type: String, required: true },
+        category: { type: String, required: true }
+      }]
     }
   },
   {

@@ -166,6 +166,7 @@ export class BlogPostRepository implements IBlogPostRepository {
       seoDescription: doc.seoDescription,
       viewCount: doc.viewCount,
       formatConfig: doc.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 },
+      citationConfig: doc.citationConfig || { enabled: false, citations: [], references: [] },
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt
     });
@@ -189,7 +190,8 @@ export class BlogPostRepository implements IBlogPostRepository {
       seoTitle: post.seoTitle,
       seoDescription: post.seoDescription,
       viewCount: post.viewCount,
-      formatConfig: post.formatConfig
+      formatConfig: post.formatConfig,
+      citationConfig: post.citationConfig
     };
   }
 }

@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 import { PostStatus } from '@/app/lib/domain/entities/BlogPost';
+import { CitationConfig } from '@/app/lib/domain/entities/Citation';
 import DraftJsEditor from '@/app/components/admin/DraftJsEditor';
 import { BlogImageUpload } from '@/app/components/admin/BlogImageUpload';
+import CitationManager from '@/app/components/admin/CitationManager';
 import toast from 'react-hot-toast';
 
 interface FormatConfig {
@@ -30,6 +32,7 @@ interface BlogFormData {
   seoDescription: string;
   publishedAt?: Date;
   formatConfig: FormatConfig;
+  citationConfig: CitationConfig;
 }
 
 interface Attorney {
@@ -81,7 +84,8 @@ export default function EditBlogPost() {
     status: PostStatus.DRAFT,
     seoTitle: '',
     seoDescription: '',
-    formatConfig: { lineHeight: 1.4, paragraphSpacing: 0.5 }
+    formatConfig: { lineHeight: 1.4, paragraphSpacing: 0.5 },
+    citationConfig: { enabled: false, citations: [] }
   });
 
   const [tagInput, setTagInput] = useState('');
@@ -140,7 +144,8 @@ export default function EditBlogPost() {
               seoTitle: post.seoTitle || '',
               seoDescription: post.seoDescription || '',
               publishedAt: post.publishedAt ? new Date(post.publishedAt) : undefined,
-              formatConfig: post.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 }
+              formatConfig: post.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 },
+              citationConfig: post.citationConfig || { enabled: false, citations: [] }
             });
             setCategoryInput(post.categoryId || '');
           } else {
@@ -372,6 +377,7 @@ export default function EditBlogPost() {
                 {[
                   { id: 'content', name: 'Contenido', icon: '📝' },
                   { id: 'seo', name: 'SEO', icon: '🔍' },
+                  { id: 'citations', name: 'Citas Académicas', icon: '📚' },
                   { id: 'settings', name: 'Configuración', icon: '⚙️' }
                 ].map((tab) => (
                   <button
@@ -812,6 +818,19 @@ export default function EditBlogPost() {
                       </div>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Citations Tab */}
+              {activeTab === 'citations' && (
+                <div className="space-y-6">
+                  <CitationManager
+                    citationConfig={formData.citationConfig}
+                    onCitationConfigChange={(config) => handleInputChange('citationConfig', config)}
+                    postTitle={formData.title}
+                    publishedAt={formData.publishedAt}
+                    postSlug={formData.slug}
+                  />
                 </div>
               )}
 

@@ -11,6 +11,7 @@ import PostMeta from './components/PostMeta';
 import RelatedPosts from './components/RelatedPosts';
 import PostNavigation from './components/PostNavigation';
 import CitationComponent from './components/CitationComponent';
+import ArticleReferences from './components/ArticleReferences';
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -159,6 +160,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           seoDescription: postData.seoDescription,
           viewCount: postData.viewCount,
           formatConfig: postData.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 },
+          citationConfig: postData.citationConfig || { enabled: false, citations: [] },
           createdAt: postData.createdAt ? new Date(postData.createdAt) : new Date(),
           updatedAt: postData.updatedAt ? new Date(postData.updatedAt) : new Date()
         });
@@ -315,6 +317,11 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                     post={post}
                     author={author}
                   />
+                  {post.citationConfig?.enabled && post.citationConfig?.references && post.citationConfig.references.length > 0 && (
+                    <ArticleReferences
+                      post={post}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -330,6 +337,11 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 post={post}
                 author={author}
               />
+              {post.citationConfig?.enabled && post.citationConfig?.references && post.citationConfig.references.length > 0 && (
+                <ArticleReferences
+                  post={post}
+                />
+              )}
             </div>
           </div>
         </div>

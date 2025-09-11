@@ -36,7 +36,8 @@
       "WebFetch(domain:swiperjs.com)",
       "WebFetch(domain:draftjs.org)",
       "WebFetch(domain:www.npmjs.com)",
-      "WebFetch(domain:medium.com)"
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:www.brianbriscoe.dev)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

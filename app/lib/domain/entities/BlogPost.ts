@@ -1,3 +1,5 @@
+import { CitationConfig } from './Citation';
+
 export interface FormatConfig {
   lineHeight: number;
   paragraphSpacing: number;
@@ -22,6 +24,7 @@ export interface BlogPostProps {
   seoDescription?: string;
   viewCount: number;
   formatConfig?: FormatConfig;
+  citationConfig?: CitationConfig;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -52,6 +55,7 @@ export class BlogPost {
   private _seoDescription?: string;
   private _viewCount: number;
   private _formatConfig?: FormatConfig;
+  private _citationConfig?: CitationConfig;
   private readonly _createdAt: Date;
   private _updatedAt: Date;
 
@@ -74,6 +78,7 @@ export class BlogPost {
     this._seoDescription = props.seoDescription;
     this._viewCount = props.viewCount || 0;
     this._formatConfig = props.formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 };
+    this._citationConfig = props.citationConfig || { enabled: false, citations: [] };
     this._createdAt = props.createdAt || new Date();
     this._updatedAt = props.updatedAt || new Date();
   }
@@ -162,6 +167,10 @@ export class BlogPost {
     return this._formatConfig || { lineHeight: 1.4, paragraphSpacing: 0.5 };
   }
 
+  get citationConfig(): CitationConfig {
+    return this._citationConfig || { enabled: false, citations: [] };
+  }
+
   get isPublished(): boolean {
     return this._status === PostStatus.PUBLISHED;
   }
@@ -201,6 +210,11 @@ export class BlogPost {
 
   updateFormatConfig(formatConfig: FormatConfig): void {
     this._formatConfig = formatConfig;
+    this._updatedAt = new Date();
+  }
+
+  updateCitationConfig(citationConfig: CitationConfig): void {
+    this._citationConfig = citationConfig;
     this._updatedAt = new Date();
   }
 
