@@ -102,6 +102,18 @@ const sendToAttorneyWhatsApp = (attorney: Attorney, serviceName: string) => {
   window.open(whatsappUrl, '_blank');
 };
 
+// Generate SEO-friendly slug from attorney name
+const generateAttorneySlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .trim();
+};
+
 // Format service data for display
 const formatServiceForDisplay = (service: ServiceData, children: ServiceData[]): FormattedService => {
   return {
@@ -505,15 +517,16 @@ export default function ServiceDetailPage() {
                         <span>{attorney.phone ? 'Contactar por WhatsApp' : 'Sin WhatsApp disponible'}</span>
                       </button>
                       
-                      {/* Email Button - Secondary */}
-                      <button
-                        className="w-full text-sm font-medium py-2 px-4 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors duration-200 inline-flex items-center justify-center space-x-2"
+                      {/* View Profile Button */}
+                      <a
+                        href={`/equipo/${generateAttorneySlug(attorney.name)}`}
+                        className="w-full text-sm font-medium py-2 px-4 rounded-lg border-2 border-amber-600 text-amber-600 hover:bg-amber-50 transition-colors duration-200 inline-flex items-center justify-center space-x-2"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        <span>Enviar Email</span>
-                      </button>
+                        <span>Conoce al abogado</span>
+                      </a>
                     </div>
                   </div>
                 </div>
