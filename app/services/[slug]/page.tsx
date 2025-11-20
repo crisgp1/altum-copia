@@ -299,7 +299,7 @@ export default function ServiceDetailPage() {
               </div>
             </div>
             
-            <div className="relative">
+            <div className="relative hidden lg:block">
               <div className="aspect-square bg-white rounded-2xl shadow-2xl flex items-center justify-center relative overflow-hidden">
                 {service.imageUrl ? (
                   <>
@@ -317,13 +317,11 @@ export default function ServiceDetailPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-black/40 flex items-center justify-center">
                       <div className="text-center relative z-10 text-white">
-                        <div className="flex items-center justify-center mb-4">
+                        <div className="flex items-center justify-center">
                           <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-white">
                             {service.icon}
                           </div>
                         </div>
-                        <h3 className="text-xl font-serif font-bold">Especialización</h3>
-                        <p className="text-sm opacity-90 mt-2">Experiencia Comprobada</p>
                       </div>
                     </div>
                   </>
@@ -333,13 +331,11 @@ export default function ServiceDetailPage() {
                       style={{ background: `linear-gradient(135deg, ${service.color}20 0%, ${service.color}40 100%)` }}>
                     </div>
                     <div className="text-center relative z-10" style={{ color: service.color }}>
-                      <div className="flex items-center justify-center mb-4">
+                      <div className="flex items-center justify-center">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24" style={{ color: service.color }}>
                           {service.icon}
                         </div>
                       </div>
-                      <h3 className="text-xl font-serif font-bold mt-4">Especialización</h3>
-                      <p className="text-sm opacity-70 mt-2">Experiencia Comprobada</p>
                     </div>
                   </>
                 )}
