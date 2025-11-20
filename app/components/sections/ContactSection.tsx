@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import toast from 'react-hot-toast';
 import { validateContactForm, sanitizeInput } from '@/app/lib/utils/validation';
 import { FaPhone, FaWhatsapp, FaMapMarkerAlt, FaClock, FaEnvelope, FaArrowRight } from 'react-icons/fa';
+import { useServicesStore } from '@/app/lib/stores/servicesStore';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -41,7 +42,7 @@ export default function ContactSection() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -49,9 +50,25 @@ export default function ContactSection() {
     area: '',
     message: ''
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Obtener servicios desde el store
+  const services = useServicesStore((state) => state.services);
+  const servicesLoading = useServicesStore((state) => state.isLoading);
+  const fetchServices = useServicesStore((state) => state.fetchServices);
+  const getParentServices = useServicesStore((state) => state.getParentServices);
+
+  // Cargar servicios al montar el componente
+  useEffect(() => {
+    if (services.length === 0 && !servicesLoading) {
+      fetchServices();
+    }
+  }, [services.length, servicesLoading]); // fetchServices es estable en el store
+
+  // Obtener solo los servicios principales (padres)
+  const parentServices = getParentServices();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -299,18 +316,21 @@ export default function ContactSection() {
                   <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-2">
                     Área de interés
                   </label>
-                  <select 
+                  <select
                     name="area"
                     value={formData.area}
                     onChange={handleInputChange}
                     className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 text-sm sm:text-base"
+                    disabled={servicesLoading}
                   >
-                    <option value="">Seleccione un área</option>
-                    <option value="Derecho Administrativo">Derecho Administrativo</option>
-                    <option value="Derecho Notarial">Derecho Notarial</option>
-                    <option value="Derecho Corporativo">Derecho Corporativo</option>
-                    <option value="Derecho Familiar">Derecho Familiar</option>
-                    <option value="Derecho Civil">Derecho Civil</option>
+                    <option value="">
+                      {servicesLoading ? 'Cargando áreas...' : 'Seleccione un área'}
+                    </option>
+                    {parentServices.map((service) => (
+                      <option key={service.id} value={service.name}>
+                        {service.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
