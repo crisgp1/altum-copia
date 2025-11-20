@@ -21,7 +21,8 @@ interface ServicesState {
   isLoading: boolean;
   error: string | null;
   lastFetched: number | null;
-  
+  abortController: AbortController | null;
+
   // Actions
   setServices: (services: Service[]) => void;
   setLoading: (loading: boolean) => void;
@@ -45,6 +46,7 @@ export const useServicesStore = create<ServicesState>()(
       isLoading: false,
       error: null,
       lastFetched: null,
+      abortController: null,
 
       // Actions
       setServices: (services: Service[]) => 
@@ -62,23 +64,32 @@ export const useServicesStore = create<ServicesState>()(
 
       fetchServices: async (forceRefresh = false) => {
         const state = get();
-        
+
+        // Abort any pending request
+        if (state.abortController) {
+          state.abortController.abort();
+        }
+
         // Check if we need to fetch (cache is stale or force refresh)
         if (!forceRefresh && !state.isDataStale() && state.services.length > 0) {
           return; // Use cached data
         }
 
-        set({ isLoading: true, error: null });
+        // Create new AbortController for this request
+        const abortController = new AbortController();
+        set({ isLoading: true, error: null, abortController });
 
         try {
           console.log('🔄 Fetching services from API...');
-          const response = await fetch('/api/services?active=true');
+          const response = await fetch('/api/services?active=true', {
+            signal: abortController.signal
+          });
           console.log('📡 API Response status:', response.status);
-          
+
           if (!response.ok) {
             throw new Error(`API response not ok: ${response.status}`);
           }
-          
+
           const data = await response.json();
           console.log('📦 API Response data:', data);
 
@@ -114,10 +125,15 @@ export const useServicesStore = create<ServicesState>()(
             state.setError('Error al cargar servicios: ' + (data.error || 'respuesta no válida'));
           }
         } catch (error) {
+          // Don't show error if request was aborted
+          if (error instanceof Error && error.name === 'AbortError') {
+            console.log('Fetch aborted - newer request in progress');
+            return;
+          }
           console.error('❌ Error fetching services:', error);
           state.setError('Error al cargar servicios: ' + (error instanceof Error ? error.message : 'error desconocido'));
         } finally {
-          set({ isLoading: false });
+          set({ isLoading: false, abortController: null });
         }
       },
 

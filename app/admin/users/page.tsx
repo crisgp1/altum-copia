@@ -45,10 +45,10 @@ export default function UsersPage() {
   
   const { role: currentUserRole } = useUserRole();
 
-  const fetchUsers = async (page = 1) => {
+  const fetchUsers = async (page = 1, signal?: AbortSignal) => {
     try {
       setLoading(true);
-      
+
       // Use admin API directly instead of UserService
       const params = new URLSearchParams();
       if (selectedRole) params.set('role', selectedRole);
@@ -58,7 +58,7 @@ export default function UsersPage() {
       params.set('page', page.toString());
       params.set('limit', '10');
 
-      const response = await fetch(`/api/admin/users?${params}`);
+      const response = await fetch(`/api/admin/users?${params}`, { signal });
       if (!response.ok) throw new Error('Error al obtener usuarios');
       
       const result = await response.json();
@@ -85,6 +85,11 @@ export default function UsersPage() {
         setTotalPages(Math.ceil(usersData.length / 10));
       }
     } catch (error) {
+      // Don't show error if request was aborted (race condition prevention)
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Fetch aborted - newer request in progress');
+        return;
+      }
       toast.error('Error al cargar usuarios');
       console.error('Error fetching users:', error);
     } finally {
@@ -160,7 +165,18 @@ export default function UsersPage() {
   };
 
   useEffect(() => {
-    fetchUsers();
+    const abortController = new AbortController();
+
+    // Debounce search term to avoid too many requests
+    const debounceTimeout = setTimeout(() => {
+      fetchUsers(1, abortController.signal);
+    }, 300); // 300ms debounce for search
+
+    // Cleanup: abort pending request and clear timeout on unmount or dependency change
+    return () => {
+      clearTimeout(debounceTimeout);
+      abortController.abort();
+    };
   }, [searchTerm, selectedRole, selectedStatus]);
 
   useEffect(() => {
@@ -707,7 +723,8 @@ function InviteUserModal({
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // RFC 5322 compliant email validation - allows hyphens, plus signs, etc.
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     if (!emailRegex.test(email)) {
       toast.error('Por favor ingresa un email válido');
       return;

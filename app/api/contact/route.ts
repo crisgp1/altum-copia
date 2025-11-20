@@ -33,8 +33,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Validate email format - RFC 5322 compliant
+    // Allows hyphens, plus signs, dots, and other valid characters
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     if (!emailRegex.test(body.email)) {
       return NextResponse.json(
         { error: 'Por favor ingrese un correo electrónico válido' },
@@ -43,8 +44,11 @@ export async function POST(request: NextRequest) {
     }
     
     // Save to database (if MongoDB is configured)
+    let insertedId: any = null;
+    let db: any = null;
+
     try {
-      const db = await connectToDatabase();
+      db = await connectToDatabase();
       if (db) {
         const contactData: ContactDocument = {
           name: body.name,
@@ -55,32 +59,56 @@ export async function POST(request: NextRequest) {
           createdAt: new Date(),
           status: 'pending'
         };
-        
+
         const result = await db.collection('contacts').insertOne(contactData);
-        console.log('Contact saved to database:', result.insertedId);
+        insertedId = result.insertedId;
+        console.log('Contact saved to database:', insertedId);
       }
     } catch (dbError) {
       console.log('Database not configured or error saving:', dbError);
       // Continue without database - email will still work
     }
-    
-    // Send email notifications
-    const [notificationSent, confirmationSent] = await Promise.all([
-      EmailService.sendContactNotification(body),
-      EmailService.sendClientConfirmation(body)
-    ]);
-    
-    if (notificationSent || confirmationSent) {
-      console.log('Email notifications sent:', { notificationSent, confirmationSent });
+
+    // Send email notifications with error handling and rollback
+    try {
+      const [notificationSent, confirmationSent] = await Promise.all([
+        EmailService.sendContactNotification(body),
+        EmailService.sendClientConfirmation(body)
+      ]);
+
+      if (notificationSent || confirmationSent) {
+        console.log('Email notifications sent:', { notificationSent, confirmationSent });
+      }
+
+      return NextResponse.json(
+        {
+          message: 'Su consulta ha sido recibida. Nos pondremos en contacto pronto.',
+          success: true
+        },
+        { status: 200 }
+      );
+    } catch (emailError) {
+      console.error('Error sending emails:', emailError);
+
+      // Rollback: Delete database entry if email sending failed
+      if (db && insertedId) {
+        try {
+          await db.collection('contacts').deleteOne({ _id: insertedId });
+          console.log('Rolled back database entry due to email failure');
+        } catch (rollbackError) {
+          console.error('Error rolling back database entry:', rollbackError);
+        }
+      }
+
+      // Return error to user
+      return NextResponse.json(
+        {
+          error: 'Error al enviar la consulta. Por favor intente nuevamente.',
+          success: false
+        },
+        { status: 500 }
+      );
     }
-    
-    return NextResponse.json(
-      { 
-        message: 'Su consulta ha sido recibida. Nos pondremos en contacto pronto.',
-        success: true
-      },
-      { status: 200 }
-    );
     
   } catch (error) {
     console.error('Error processing contact form:', error);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AttorneyResponseDTO } from '@/app/lib/application/dtos/AttorneyDTO';
 import { AttorneyService } from '@/app/lib/application/services/AttorneyService';
 import { useServicesStore } from '@/app/lib/stores/servicesStore';
@@ -82,6 +82,8 @@ export default function AttorneyFormModal({
   const [customIdioma, setCustomIdioma] = useState('');
   const [serviceSearchQuery, setServiceSearchQuery] = useState('');
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
+  const [expandedServices, setExpandedServices] = useState<Set<string>>(new Set());
+  const [showExpandHint, setShowExpandHint] = useState<string | null>(null);
   
   // Use Zustand store directly to avoid infinite loops
   const availableServices = useServicesStore((state) => state.services);
@@ -98,74 +100,80 @@ export default function AttorneyFormModal({
       error: servicesError,
       services: availableServices
     });
-  }, [availableServices.length, servicesLoading, servicesError]);
+  }, [availableServices, servicesLoading, servicesError]); // Dependencia completa para logging consistente
 
   // Fetch services on mount
   useEffect(() => {
     if (availableServices.length === 0 && !servicesLoading) {
       fetchServices();
     }
-  }, [availableServices.length, servicesLoading, fetchServices]);
+  }, [availableServices.length, servicesLoading]); // fetchServices es estable en el store
 
+  // Cargar datos del attorney solo cuando servicios estén disponibles
   useEffect(() => {
-    if (attorney) {
-      console.log('🔍 Loading attorney data:', attorney);
-      
-      setFormData({
-        nombre: attorney.nombre,
-        cargo: attorney.cargo,
-        especializaciones: attorney.especializaciones,
-        serviciosQueAtiende: attorney.serviciosQueAtiende || [], // Use attorney field directly
-        experienciaAnios: attorney.experienciaAnios,
-        educacion: attorney.educacion.length > 0 ? attorney.educacion : [''],
-        idiomas: attorney.idiomas,
-        correo: attorney.correo || '',
-        telefono: attorney.telefono || '',
-        biografia: attorney.biografia,
-        logros: attorney.logros.length > 0 ? attorney.logros : [''],
-        casosDestacados: attorney.casosDestacados.length > 0 ? attorney.casosDestacados : [''],
-        imagenUrl: attorney.imagenUrl || '',
-        linkedIn: attorney.linkedIn || '',
-        esSocio: attorney.esSocio,
-        descripcionCorta: attorney.descripcionCorta,
-        activo: true
-      });
-      if (attorney.imagenUrl) {
-        setImagePreview(attorney.imagenUrl);
-      }
-      
-      // Debug log to see what services are loaded
-      console.log('✅ Attorney services loaded:', attorney.serviciosQueAtiende);
-    }
-    
-    // Always start with General tab
-    setActiveTab('general');
-  }, [attorney]);
+    // Solo proceder si hay attorney Y servicios están cargados (o no hay servicios que validar)
+    if (!attorney) return;
 
-  // Additional useEffect to validate services after available services are loaded
-  useEffect(() => {
-    if (attorney && availableServices.length > 0 && attorney.serviciosQueAtiende) {
+    console.log('🔍 Loading attorney data:', attorney);
+
+    // Validar servicios solo si hay servicios disponibles
+    let validatedServices = attorney.serviciosQueAtiende || [];
+    if (availableServices.length > 0 && validatedServices.length > 0) {
       console.log('🔧 Validating attorney services against available services...');
-      console.log('Attorney services:', attorney.serviciosQueAtiende);
-      console.log('Available services:', availableServices.map(s => s.id));
-      
-      // Verify that all attorney's services exist in available services
-      const validServices = attorney.serviciosQueAtiende.filter((serviceId: string) =>
+      validatedServices = validatedServices.filter((serviceId: string) =>
         getServiceById(serviceId)
       );
-      
-      console.log('✅ Valid services found:', validServices);
-      
-      // Only update if different from current formData
-      if (JSON.stringify(validServices.sort()) !== JSON.stringify(formData.serviciosQueAtiende.sort())) {
-        console.log('🔄 Updating form data with validated services');
-        setFormData(prev => ({
-          ...prev,
-          serviciosQueAtiende: validServices
-        }));
-      }
+      console.log('✅ Valid services found:', validatedServices);
     }
-  }, [attorney, availableServices, getServiceById]);
+
+    setFormData({
+      nombre: attorney.nombre,
+      cargo: attorney.cargo,
+      especializaciones: attorney.especializaciones,
+      serviciosQueAtiende: validatedServices,
+      experienciaAnios: attorney.experienciaAnios,
+      educacion: attorney.educacion.length > 0 ? attorney.educacion : [''],
+      idiomas: attorney.idiomas,
+      correo: attorney.correo || '',
+      telefono: attorney.telefono || '',
+      biografia: attorney.biografia,
+      logros: attorney.logros.length > 0 ? attorney.logros : [''],
+      casosDestacados: attorney.casosDestacados.length > 0 ? attorney.casosDestacados : [''],
+      imagenUrl: attorney.imagenUrl || '',
+      linkedIn: attorney.linkedIn || '',
+      esSocio: attorney.esSocio,
+      descripcionCorta: attorney.descripcionCorta,
+      activo: true
+    });
+
+    if (attorney.imagenUrl) {
+      setImagePreview(attorney.imagenUrl);
+    }
+
+    console.log('✅ Attorney data loaded with services:', validatedServices);
+
+    // Auto-expandir servicios padre que tienen hijos seleccionados o están seleccionados
+    if (availableServices.length > 0 && validatedServices.length > 0) {
+      const parentsToExpand = new Set<string>();
+      validatedServices.forEach((serviceId: string) => {
+        const service = getServiceById(serviceId);
+        if (service) {
+          // Si es hijo, expandir su padre
+          if (service.parentId) {
+            parentsToExpand.add(service.parentId);
+          }
+          // Si es padre, expandirlo
+          if (service.isParent) {
+            parentsToExpand.add(service.id);
+          }
+        }
+      });
+      setExpandedServices(parentsToExpand);
+    }
+
+    // Always start with General tab
+    setActiveTab('general');
+  }, [attorney?.id, availableServices.length]); // Dependencias estables: solo IDs y length
 
   // Handle services error
   useEffect(() => {
@@ -174,20 +182,48 @@ export default function AttorneyFormModal({
     }
   }, [servicesError]);
 
-  // Handle Escape key to close modal
-  useEffect(() => {
-    const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+  // Handle Escape key to close modal (memoized to prevent multiple listeners)
+  const handleEscapeKey = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      if (isServiceDropdownOpen) {
+        setIsServiceDropdownOpen(false);
+        setServiceSearchQuery('');
+      } else {
         onCancel();
       }
-    };
+    }
+  }, [isServiceDropdownOpen, onCancel]);
 
+  useEffect(() => {
     document.addEventListener('keydown', handleEscapeKey);
-    
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
     };
-  }, [onCancel]);
+  }, [handleEscapeKey]);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    if (!isServiceDropdownOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Check if click is outside the dropdown container
+      if (!target.closest('.service-dropdown-container')) {
+        setIsServiceDropdownOpen(false);
+        setServiceSearchQuery('');
+      }
+    };
+
+    // Small delay to avoid closing immediately after opening
+    const timer = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isServiceDropdownOpen]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -311,46 +347,77 @@ export default function AttorneyFormModal({
   };
 
   const addCustomEspecializacion = () => {
-    if (customEspecializacion.trim() && !formData.especializaciones.includes(customEspecializacion.trim())) {
-      setFormData({ 
-        ...formData, 
-        especializaciones: [...formData.especializaciones, customEspecializacion.trim()] 
+    if (customEspecializacion.trim()) {
+      setFormData(prev => {
+        if (prev.especializaciones.includes(customEspecializacion.trim())) {
+          return prev;
+        }
+        return {
+          ...prev,
+          especializaciones: [...prev.especializaciones, customEspecializacion.trim()]
+        };
       });
       setCustomEspecializacion('');
     }
   };
 
   const addCustomIdioma = () => {
-    if (customIdioma.trim() && !formData.idiomas.includes(customIdioma.trim())) {
-      setFormData({ 
-        ...formData, 
-        idiomas: [...formData.idiomas, customIdioma.trim()] 
+    if (customIdioma.trim()) {
+      setFormData(prev => {
+        if (prev.idiomas.includes(customIdioma.trim())) {
+          return prev;
+        }
+        return {
+          ...prev,
+          idiomas: [...prev.idiomas, customIdioma.trim()]
+        };
       });
       setCustomIdioma('');
     }
   };
 
   const removeEspecializacion = (esp: string) => {
-    setFormData({ 
-      ...formData, 
-      especializaciones: formData.especializaciones.filter(e => e !== esp) 
-    });
+    setFormData(prev => ({
+      ...prev,
+      especializaciones: prev.especializaciones.filter(e => e !== esp)
+    }));
   };
 
   const removeIdioma = (idioma: string) => {
-    setFormData({
-      ...formData,
-      idiomas: formData.idiomas.filter(i => i !== idioma)
-    });
+    setFormData(prev => ({
+      ...prev,
+      idiomas: prev.idiomas.filter(i => i !== idioma)
+    }));
   };
 
-  const toggleService = (serviceId: string) => {
+  const toggleService = (serviceId: string, hasChildren: boolean) => {
+    const isExpanded = expandedServices.has(serviceId);
+
+    // Si tiene hijos y NO está expandido, mostrar hint
+    if (hasChildren && !isExpanded) {
+      setShowExpandHint(serviceId);
+      setTimeout(() => setShowExpandHint(null), 2000);
+    }
+
     setFormData(prevData => ({
       ...prevData,
       serviciosQueAtiende: prevData.serviciosQueAtiende.includes(serviceId)
         ? prevData.serviciosQueAtiende.filter(id => id !== serviceId)
         : [...prevData.serviciosQueAtiende, serviceId]
     }));
+  };
+
+  const toggleServiceExpansion = (serviceId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevenir que se ejecute toggleService
+    setExpandedServices(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(serviceId)) {
+        newSet.delete(serviceId);
+      } else {
+        newSet.add(serviceId);
+      }
+      return newSet;
+    });
   };
 
   const removeService = (serviceId: string) => {
@@ -601,37 +668,71 @@ export default function AttorneyFormModal({
                                     const isSelected = formData.serviciosQueAtiende.includes(parentService.id);
                                     
                                     return (
-                                      <div key={parentService.id}>
+                                      <div key={parentService.id} className="relative">
                                         {/* Parent Service Option */}
-                                        <div
-                                          onClick={() => {
-                                            toggleService(parentService.id);
-                                            setServiceSearchQuery('');
-                                          }}
-                                          className={`service-dropdown-item parent-service ${isSelected ? 'selected' : ''}`}
-                                        >
-                                          <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
+                                        <div className={`service-dropdown-item parent-service ${isSelected ? 'selected' : ''} ${showExpandHint === parentService.id ? 'ring-2 ring-blue-400 ring-offset-1' : ''}`}>
+                                          <div className="flex items-center justify-between w-full">
+                                            <div
+                                              onClick={() => {
+                                                toggleService(parentService.id, childServices.length > 0);
+                                                setServiceSearchQuery('');
+                                              }}
+                                              className="flex-1 flex items-center gap-3 cursor-pointer"
+                                            >
                                               <div className={`status-dot ${isSelected ? 'selected' : 'unselected'}`}></div>
                                               <span>{parentService.name}</span>
                                               <span className="service-badge parent">Principal</span>
+                                              {isSelected && (
+                                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                              )}
                                             </div>
-                                            {isSelected && (
-                                              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                              </svg>
+
+                                            {/* Botón de expansión/colapso */}
+                                            {childServices.length > 0 && (
+                                              <button
+                                                type="button"
+                                                onClick={(e) => toggleServiceExpansion(parentService.id, e)}
+                                                className={`ml-2 p-1 hover:bg-gray-200 rounded transition-all ${showExpandHint === parentService.id ? 'bg-blue-100 ring-2 ring-blue-500 animate-pulse' : ''}`}
+                                                title={expandedServices.has(parentService.id) ? "Ocultar especialidades" : "Mostrar especialidades"}
+                                              >
+                                                <svg
+                                                  className={`w-4 h-4 transition-transform duration-200 ${expandedServices.has(parentService.id) ? 'rotate-90' : ''} ${showExpandHint === parentService.id ? 'text-blue-600' : ''}`}
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  viewBox="0 0 24 24"
+                                                >
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                              </button>
                                             )}
                                           </div>
                                         </div>
 
-                                        {/* Child Services Options */}
-                                        {childServices.map(childService => {
+                                        {/* Hint tooltip cuando se hace click sin expandir */}
+                                        {showExpandHint === parentService.id && childServices.length > 0 && !expandedServices.has(parentService.id) && (
+                                          <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-blue-50 border-2 border-blue-400 rounded-lg shadow-lg p-3 animate-fade-in">
+                                            <div className="flex items-start gap-2">
+                                              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                              </svg>
+                                              <div className="text-sm text-blue-800">
+                                                <p className="font-semibold">💡 Este servicio tiene especialidades</p>
+                                                <p className="text-xs mt-1">Usa la flecha <span className="inline-flex items-center mx-1 px-1.5 py-0.5 bg-blue-100 rounded">→</span> para ver y seleccionar especialidades</p>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {/* Child Services Options - Solo mostrar si está expandido */}
+                                        {expandedServices.has(parentService.id) && childServices.map(childService => {
                                           const isChildSelected = formData.serviciosQueAtiende.includes(childService.id);
                                           return (
                                             <div
                                               key={childService.id}
                                               onClick={() => {
-                                                toggleService(childService.id);
+                                                toggleService(childService.id, false);
                                                 setServiceSearchQuery('');
                                               }}
                                               className={`service-dropdown-item child-service ${isChildSelected ? 'selected' : ''}`}
@@ -671,15 +772,6 @@ export default function AttorneyFormModal({
                                 </>
                               )}
                             </div>
-                            
-                            {/* Click outside to close dropdown */}
-                            <div
-                              className="service-dropdown-overlay"
-                              onClick={() => {
-                                setIsServiceDropdownOpen(false);
-                                setServiceSearchQuery('');
-                              }}
-                            ></div>
                           </>
                         )}
                       </div>
@@ -787,9 +879,9 @@ export default function AttorneyFormModal({
                           checked={formData.especializaciones.includes(esp)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setFormData({ ...formData, especializaciones: [...formData.especializaciones, esp] });
+                              setFormData(prev => ({ ...prev, especializaciones: [...prev.especializaciones, esp] }));
                             } else {
-                              setFormData({ ...formData, especializaciones: formData.especializaciones.filter(e => e !== esp) });
+                              setFormData(prev => ({ ...prev, especializaciones: prev.especializaciones.filter(e => e !== esp) }));
                             }
                           }}
                           className="w-4 h-4 text-amber-600 border-stone-300 rounded focus:ring-amber-500 mt-0.5"
@@ -870,9 +962,9 @@ export default function AttorneyFormModal({
                           checked={formData.idiomas.includes(idioma)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setFormData({ ...formData, idiomas: [...formData.idiomas, idioma] });
+                              setFormData(prev => ({ ...prev, idiomas: [...prev.idiomas, idioma] }));
                             } else {
-                              setFormData({ ...formData, idiomas: formData.idiomas.filter(i => i !== idioma) });
+                              setFormData(prev => ({ ...prev, idiomas: prev.idiomas.filter(i => i !== idioma) }));
                             }
                           }}
                           className="w-4 h-4 text-amber-600 border-stone-300 rounded focus:ring-amber-500 mt-0.5"

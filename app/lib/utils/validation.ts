@@ -23,11 +23,12 @@ export function validateContactForm(data: ContactFormData): ValidationResult {
     errors.name = 'El nombre no puede exceder 100 caracteres';
   }
 
-  // Email validation
+  // Email validation - RFC 5322 compliant
   if (!data.email.trim()) {
     errors.email = 'El correo electrónico es requerido';
   } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Allows hyphens, plus signs, dots, and other valid characters
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     if (!emailRegex.test(data.email)) {
       errors.email = 'Por favor ingrese un correo electrónico válido';
     }

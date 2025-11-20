@@ -117,13 +117,13 @@ export default function ContactSection() {
     
     // Reset form after successful validation
     setTimeout(() => {
-      setFormData({
+      setFormData(() => ({
         name: '',
         email: '',
         phone: '',
         area: '',
         message: ''
-      });
+      }));
     }, 1000);
   };
 
@@ -158,13 +158,13 @@ export default function ContactSection() {
       if (response.ok) {
         toast.success(data.message || 'Su consulta ha sido enviada exitosamente');
         // Reset form
-        setFormData({
+        setFormData(() => ({
           name: '',
           email: '',
           phone: '',
           area: '',
           message: ''
-        });
+        }));
       } else {
         toast.error(data.error || 'Error al enviar el formulario');
       }

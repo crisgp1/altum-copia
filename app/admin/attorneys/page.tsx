@@ -10,7 +10,7 @@ import { useUserRole } from '@/app/lib/hooks/useUserRole';
 
 export default function AdminAttorneysPage() {
   const { hasPermission } = useUserRole();
-  const [attorneys, setAttorneys] = useState<AttorneyResponseDTO[]>([]);
+  const [attorneys, setAttorneys] = useState<any[]>([]);
   const [selectedAttorney, setSelectedAttorney] = useState<AttorneyResponseDTO | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,7 +20,39 @@ export default function AdminAttorneysPage() {
   const attorneyService = new AttorneyService();
 
   useEffect(() => {
-    fetchAttorneys();
+    let isMounted = true;
+    const abortController = new AbortController();
+
+    const loadAttorneys = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch all attorneys (not just active ones) to show all in admin
+        const response = await attorneyService.getAllAttorneys();
+        console.log('📊 Fetched attorneys:', response);
+
+        // Only update state if component is still mounted
+        if (isMounted) {
+          setAttorneys(response.attorneys || []);
+        }
+      } catch (error) {
+        if (isMounted) {
+          toast.error('Error al cargar los abogados');
+          console.error('❌ Error fetching attorneys:', error);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadAttorneys();
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMounted = false;
+      abortController.abort();
+    };
   }, []);
 
   const fetchAttorneys = async () => {
