@@ -1,5 +1,6 @@
 export interface AttorneyProps {
   id?: string;
+  slug?: string;
   nombre: string;
   cargo: string;
   especializaciones: string[];
@@ -75,7 +76,7 @@ export class Attorney {
   }
 
   private isValidEmail(email: string): boolean {
-    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     return emailRegex.test(email);
   }
 
@@ -91,6 +92,10 @@ export class Attorney {
 
   get id(): string | undefined {
     return this.props.id;
+  }
+
+  get slug(): string | undefined {
+    return this.props.slug;
   }
 
   get nombre(): string {
@@ -178,14 +183,33 @@ export class Attorney {
     return publicInfo;
   }
 
+  public static generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single
+      .trim();
+  }
+
   public static create(props: Omit<AttorneyProps, 'id'>): Attorney {
-    return new Attorney(props);
+    // Auto-generate slug if not provided
+    const slug = props.slug || Attorney.generateSlug(props.nombre);
+    return new Attorney({ ...props, slug });
   }
 
   public update(props: Partial<AttorneyProps>): Attorney {
+    // Regenerate slug if name is being updated and slug is not explicitly provided
+    const slug = props.nombre && !props.slug
+      ? Attorney.generateSlug(props.nombre)
+      : props.slug || this.props.slug;
+
     return new Attorney({
       ...this.props,
       ...props,
+      slug,
       fechaActualizacion: new Date()
     });
   }

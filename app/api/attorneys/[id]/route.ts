@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/app/lib/infrastructure/database/connection';
 
 // GET /api/attorneys/[id]
+// Handles both MongoDB ID and slug lookups
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     await connectToDatabase();
-    
+
     const { id } = params;
-    
+
     if (!id) {
       return NextResponse.json(
         { error: 'ID de abogado requerido' },
@@ -21,12 +22,25 @@ export async function GET(
     // Import server-side only modules here
     const { DIContainer } = await import('@/app/lib/infrastructure/container/DIContainer');
     const { AttorneyMapper } = await import('@/app/lib/application/mappers/AttorneyMapper');
-    
-    const container = DIContainer.getInstance();
-    const useCase = container.getGetAttorneyByIdUseCase();
 
-    const attorney = await useCase.execute(id);
-    
+    const container = DIContainer.getInstance();
+    const repository = container.getAttorneyRepository();
+
+    let attorney = null;
+
+    // Check if id is a valid MongoDB ObjectId (24 hex characters)
+    const isMongoId = /^[a-f\d]{24}$/i.test(id);
+
+    if (isMongoId) {
+      // Try to find by MongoDB ID first
+      attorney = await repository.findById(id);
+    }
+
+    // If not found by ID or not a valid MongoDB ID, try finding by slug
+    if (!attorney) {
+      attorney = await repository.findBySlug(id);
+    }
+
     if (!attorney) {
       return NextResponse.json(
         { error: 'Abogado no encontrado' },
@@ -38,7 +52,7 @@ export async function GET(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Error fetching attorney by ID:', error);
+    console.error('Error fetching attorney by ID or slug:', error);
     return NextResponse.json(
       { error: 'Error al obtener el abogado' },
       { status: 500 }

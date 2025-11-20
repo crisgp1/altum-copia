@@ -14,6 +14,7 @@ export class AttorneyMapper {
   static toResponseDTO(attorney: Attorney): AttorneyResponseDTO {
     return {
       id: attorney.id!,
+      slug: attorney.slug,
       nombre: attorney.nombre,
       cargo: attorney.cargo,
       especializaciones: attorney.especializaciones,
@@ -38,6 +39,7 @@ export class AttorneyMapper {
     const publicInfo = attorney.getPublicInfo();
     return {
       id: attorney.id!,
+      slug: attorney.slug,
       nombre: publicInfo.nombre,
       cargo: publicInfo.cargo,
       especializaciones: publicInfo.especializaciones,
@@ -60,6 +62,7 @@ export class AttorneyMapper {
   static toListItemDTO(attorney: Attorney): AttorneyListItemDTO {
     return {
       id: attorney.id!,
+      slug: attorney.slug,
       nombre: attorney.nombre,
       cargo: attorney.cargo,
       especializaciones: attorney.especializaciones,

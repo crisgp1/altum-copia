@@ -12,6 +12,7 @@ export class MongoAttorneyRepository implements IAttorneyRepository {
   private toDomain(document: IAttorneyDocument): Attorney {
     return new Attorney({
       id: (document._id as any).toString(),
+      slug: document.slug,
       nombre: document.nombre,
       cargo: document.cargo,
       especializaciones: document.especializaciones || [],
@@ -46,6 +47,16 @@ export class MongoAttorneyRepository implements IAttorneyRepository {
       return document ? this.toDomain(document) : null;
     } catch (error) {
       console.error('Error finding attorney by id:', error);
+      return null;
+    }
+  }
+
+  async findBySlug(slug: string): Promise<Attorney | null> {
+    try {
+      const document = await AttorneyModel.findOne({ slug: slug.toLowerCase() });
+      return document ? this.toDomain(document) : null;
+    } catch (error) {
+      console.error('Error finding attorney by slug:', error);
       return null;
     }
   }

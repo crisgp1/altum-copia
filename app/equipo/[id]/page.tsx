@@ -40,40 +40,14 @@ export default function AttorneyProfilePage() {
     try {
       setIsLoading(true);
 
-      // Try to fetch by ID first
-      let response = await fetch(`/api/attorneys/${attorneyId}`);
+      // API now handles both MongoDB ID and slug lookups
+      const response = await fetch(`/api/attorneys/${attorneyId}`);
 
-      // If 404, try to search by name slug
-      if (response.status === 404) {
-        // Convert slug back to name for search
-        const searchName = attorneyId.replace(/-/g, ' ');
-        const searchResponse = await fetch(`/api/attorneys/search?nombre=${encodeURIComponent(searchName)}`);
-
-        if (searchResponse.ok) {
-          const searchData = await searchResponse.json();
-          // Find exact match by converting names to slugs
-          const generateSlug = (name: string) => name
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .trim();
-
-          const matchedAttorney = searchData.find((att: AttorneyResponseDTO) =>
-            generateSlug(att.nombre) === attorneyId
-          );
-
-          if (matchedAttorney) {
-            setAttorney(matchedAttorney);
-            return;
-          }
-        }
-        setError('Abogado no encontrado');
-      } else if (response.ok) {
+      if (response.ok) {
         const data = await response.json();
         setAttorney(data);
+      } else if (response.status === 404) {
+        setError('Abogado no encontrado');
       } else {
         setError('Error al cargar el perfil del abogado');
       }

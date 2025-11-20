@@ -38,7 +38,9 @@
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:medium.com)",
       "WebFetch(domain:www.brianbriscoe.dev)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

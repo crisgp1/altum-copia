@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 // Interface para el documento de Attorney
 export interface IAttorneyDocument extends Document {
+  slug: string;
   nombre: string;
   cargo: string;
   especializaciones: string[];
@@ -26,6 +27,14 @@ export interface IAttorneyDocument extends Document {
 // Definición del Schema de Attorney
 const AttorneySchema = new Schema<IAttorneyDocument>(
   {
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      index: true
+    },
     nombre: {
       type: String,
       required: [true, 'El nombre es requerido'],
@@ -67,7 +76,7 @@ const AttorneySchema = new Schema<IAttorneyDocument>(
       trim: true,
       unique: true,
       match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
         'Por favor ingrese un correo electrónico válido'
       ]
     },
@@ -140,12 +149,35 @@ AttorneySchema.methods.obtenerInfoPublica = function() {
   return obj;
 };
 
+// Utilidad para generar slug desde nombre
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .trim();
+}
+
 // Validación pre-guardado
 AttorneySchema.pre<IAttorneyDocument>('save', function(next) {
-  // Asegurar que el correo tenga formato de ALTUM Legal
-  if (this.correo && !this.correo.includes('@altumlegal.mx')) {
-    this.correo = this.correo.split('@')[0] + '@altumlegal.mx';
+  // Auto-generate slug if not provided or if nombre changed
+  if (!this.slug || this.isModified('nombre')) {
+    this.slug = generateSlug(this.nombre);
   }
+
+  // Validar que el correo tenga un dominio válido de ALTUM Legal
+  const validDomains = ['@altumlegal.mx', '@altum-legal.mx'];
+  const hasValidDomain = validDomains.some(domain =>
+    this.correo.toLowerCase().includes(domain)
+  );
+
+  if (!hasValidDomain) {
+    return next(new Error('El correo debe tener un dominio válido de ALTUM Legal (@altumlegal.mx o @altum-legal.mx)'));
+  }
+
   next();
 });
 

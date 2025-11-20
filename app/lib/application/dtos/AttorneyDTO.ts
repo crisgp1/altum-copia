@@ -1,5 +1,6 @@
 export interface AttorneyResponseDTO {
   id: string;
+  slug?: string;
   nombre: string;
   cargo: string;
   especializaciones: string[];
@@ -21,6 +22,7 @@ export interface AttorneyResponseDTO {
 
 export interface AttorneyPublicDTO {
   id: string;
+  slug?: string;
   nombre: string;
   cargo: string;
   especializaciones: string[];
@@ -41,6 +43,7 @@ export interface AttorneyPublicDTO {
 
 export interface AttorneyListItemDTO {
   id: string;
+  slug?: string;
   nombre: string;
   cargo: string;
   especializaciones: string[];

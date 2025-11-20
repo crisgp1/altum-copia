@@ -25,6 +25,7 @@ export interface PaginatedResult<T> {
 
 export interface IAttorneyRepository {
   findById(id: string): Promise<Attorney | null>;
+  findBySlug(slug: string): Promise<Attorney | null>;
   findByEmail(email: string): Promise<Attorney | null>;
   findAll(filters?: AttorneyFilters, pagination?: PaginationOptions): Promise<PaginatedResult<Attorney>>;
   findActive(): Promise<Attorney[]>;
