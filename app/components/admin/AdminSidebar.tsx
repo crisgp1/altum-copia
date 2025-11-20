@@ -143,14 +143,26 @@ export default function AdminSidebar() {
   }, [isSidebarOpen]);
 
   const isActive = (href: string) => {
+    // Exact match for dashboard
     if (href === '/admin') {
       return pathname === href;
     }
-    // For exact route matching to avoid conflicts like /admin/blog vs /admin/blog/new
+
+    // Exact match first
     if (pathname === href) {
       return true;
     }
-    // Only match if it's a true parent route (followed by /)
+
+    // Special case: /admin/blog should NOT be active when on /admin/blog/new or /admin/blog/[id]/edit
+    // because those have their own menu items
+    if (href === '/admin/blog') {
+      // Only active if exactly /admin/blog (already handled above) or editing existing post
+      return pathname.startsWith('/admin/blog/') &&
+             !pathname.startsWith('/admin/blog/new') &&
+             pathname !== '/admin/blog';
+    }
+
+    // For other routes, only match if it's a true parent route (followed by /)
     return pathname.startsWith(href + '/');
   };
 
