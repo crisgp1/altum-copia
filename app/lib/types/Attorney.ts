@@ -1,5 +1,6 @@
 export interface Attorney {
   id: string;
+  slug?: string;
   name: string;
   position: string;
   specialization: string[];

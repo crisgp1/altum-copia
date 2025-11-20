@@ -140,14 +140,17 @@ export default function EquipoPage() {
   }, [services, attorneys]);
 
   const handleAttorneySelect = (attorney: AttorneyResponseDTO, e?: React.MouseEvent) => {
+    // Use slug if available, fallback to id for backward compatibility
+    const identifier = attorney.slug || attorney.id;
+
     // Check if the click has modifiers (ctrl, cmd, etc) to open in new tab
     if (e && (e.ctrlKey || e.metaKey)) {
-      window.open(`/equipo/${attorney.id}`, '_blank');
+      window.open(`/equipo/${identifier}`, '_blank');
       return;
     }
-    
+
     // Regular click - navigate to attorney profile
-    router.push(`/equipo/${attorney.id}`);
+    router.push(`/equipo/${identifier}`);
   };
 
   const handleAreaSelect = (areaName: string) => {

@@ -519,7 +519,7 @@ export default function ServiceDetailPage() {
                       
                       {/* View Profile Button */}
                       <a
-                        href={`/equipo/${generateAttorneySlug(attorney.name)}`}
+                        href={`/equipo/${attorney.slug || generateAttorneySlug(attorney.name)}`}
                         className="w-full text-sm font-medium py-2 px-4 rounded-lg border-2 border-amber-600 text-amber-600 hover:bg-amber-50 transition-colors duration-200 inline-flex items-center justify-center space-x-2"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
