@@ -194,8 +194,8 @@ export default function AdminSidebar() {
 
       {/* Overlay for mobile */}
       {isSidebarOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+        <div
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -208,7 +208,7 @@ export default function AdminSidebar() {
           top: '80px',
           height: 'calc(100vh - 80px)'
         }}
-        className="fixed left-0 bg-white border-r border-stone-200 z-30 transition-transform duration-300 ease-in-out w-64 max-w-[85vw] lg:max-w-none"
+        className="fixed left-0 bg-white border-r border-stone-200 z-45 transition-transform duration-300 ease-in-out w-64 max-w-[85vw] lg:max-w-none"
       >
         <div className="p-3 sm:p-4 md:p-6 h-full overflow-y-auto pb-safe">
           {/* Brand */}

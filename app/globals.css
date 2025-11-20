@@ -664,6 +664,60 @@ textarea::placeholder {
   animation: fade-in 0.2s ease-out;
 }
 
+/* Responsive Design Utilities */
+
+/* Touch targets - Accessibility minimum 44px */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.touch-target-sm {
+  min-height: 40px;
+  min-width: 40px;
+}
+
+/* Responsive containers */
+.container-responsive {
+  @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto;
+}
+
+/* Standard spacing scales */
+.spacing-sm {
+  @apply space-y-4 gap-4 p-4;
+}
+
+.spacing-md {
+  @apply space-y-6 gap-6 p-6;
+}
+
+.spacing-lg {
+  @apply space-y-8 gap-8 p-8;
+}
+
+/* Responsive text sizes - standardized hierarchy */
+.heading-1 {
+  @apply text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight;
+}
+
+.heading-2 {
+  @apply text-xl sm:text-2xl lg:text-3xl font-bold leading-tight;
+}
+
+.heading-3 {
+  @apply text-lg sm:text-xl lg:text-2xl font-semibold leading-tight;
+}
+
+/* Responsive table wrapper */
+.table-responsive {
+  @apply overflow-x-auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+  @apply w-full min-w-[600px];
+}
+
 /* iPhone 12 Pro specific optimizations */
 @media (max-width: 390px) {
   /* Ensure proper spacing for very narrow screens */
@@ -671,16 +725,16 @@ textarea::placeholder {
     padding-left: 8px !important;
     padding-right: 8px !important;
   }
-  
+
   /* Better table cell spacing */
   table td {
     padding-left: 4px !important;
     padding-right: 4px !important;
   }
-  
+
   /* Ensure buttons are touchable */
   button {
-    min-height: 40px;
+    min-height: 44px;
     padding: 8px 12px;
   }
 }

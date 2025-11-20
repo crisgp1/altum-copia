@@ -306,7 +306,7 @@ export default function NewBlogPost() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-3 space-y-4 sm:space-y-6">
+        <div className="lg:col-span-3 space-y-4 sm:space-y-6 max-h-[calc(100vh-200px)] lg:max-h-none overflow-y-auto lg:overflow-visible">
           {/* Tabs */}
           <div className="bg-white rounded-lg lg:rounded-xl shadow-sm border border-stone-200">
             <div className="border-b border-stone-200">
