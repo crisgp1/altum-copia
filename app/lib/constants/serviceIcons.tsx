@@ -116,17 +116,17 @@ export const serviceIcons: ServiceIcon[] = [
   { id: 'book', name: 'Libro', icon: <FaBook className="w-6 h-6 text-current" />, category: 'Educación' },
 ];
 
-export const getIconById = (id: string): React.ReactNode => {
+export const getIconById = (id: string, className?: string): React.ReactNode => {
   const iconData = serviceIcons.find(icon => icon.id === id);
   if (iconData) {
-    // Return the icon with larger size for display
+    // Return the icon with custom size/styling or default
     const originalIcon = iconData.icon as React.ReactElement;
     return React.cloneElement(originalIcon, {
-      className: "w-12 h-12 text-white"
+      className: className || "w-full h-full text-current"
     });
   }
   // Default icon if not found
-  return <FaBalanceScale className="w-12 h-12 text-white" />;
+  return <FaBalanceScale className={className || "w-full h-full text-current"} />;
 };
 
 export const getIconForPreview = (id: string): React.ReactNode => {
