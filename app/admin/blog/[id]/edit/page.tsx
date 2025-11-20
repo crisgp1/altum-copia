@@ -93,37 +93,55 @@ export default function EditBlogPost() {
   const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
   const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
 
-  // Fetch attorneys on component mount
+  // Fetch attorneys on component mount with AbortSignal
   useEffect(() => {
+    const abortController = new AbortController();
+
     const fetchAttorneys = async () => {
       try {
         setLoadingAttorneys(true);
-        const response = await fetch('/api/attorneys/all-members');
+        const response = await fetch('/api/attorneys/all-members', {
+          signal: abortController.signal
+        });
         if (response.ok) {
           const data = await response.json();
           setAttorneys(data);
         } else {
           toast.error('Error al cargar el equipo legal');
         }
-      } catch (error) {
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log('Fetch attorneys cancelled');
+          return;
+        }
         console.error('Error fetching attorneys:', error);
         toast.error('Error al cargar el equipo legal');
       } finally {
-        setLoadingAttorneys(false);
+        if (!abortController.signal.aborted) {
+          setLoadingAttorneys(false);
+        }
       }
     };
 
     fetchAttorneys();
+
+    return () => {
+      abortController.abort();
+    };
   }, []);
 
-  // Load existing post data
+  // Load existing post data with AbortSignal
   useEffect(() => {
+    const abortController = new AbortController();
+
     const loadPost = async () => {
       if (!postId) return;
-      
+
       try {
         setIsLoadingPost(true);
-        const response = await fetch(`/api/admin/blog/posts/${postId}`);
+        const response = await fetch(`/api/admin/blog/posts/${postId}`, {
+          signal: abortController.signal
+        });
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {
@@ -156,16 +174,26 @@ export default function EditBlogPost() {
           toast.error('Error al cargar el post');
           router.push('/admin/blog');
         }
-      } catch (error) {
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log('Fetch post cancelled');
+          return;
+        }
         console.error('Error loading post:', error);
         toast.error('Error al cargar el post');
         router.push('/admin/blog');
       } finally {
-        setIsLoadingPost(false);
+        if (!abortController.signal.aborted) {
+          setIsLoadingPost(false);
+        }
       }
     };
 
     loadPost();
+
+    return () => {
+      abortController.abort();
+    };
   }, [postId, router]);
 
   // Generate slug from title

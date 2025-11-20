@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { EditorState, RichUtils, getDefaultKeyBinding, KeyBindingUtil, convertToRaw, convertFromRaw, ContentState } from 'draft-js';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { EditorState, RichUtils, getDefaultKeyBinding, KeyBindingUtil, convertToRaw, convertFromRaw, ContentState, Modifier, SelectionState, RichUtils as DraftRichUtils, CompositeDecorator } from 'draft-js';
 import { Editor } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
@@ -20,16 +20,66 @@ interface DraftJsEditorProps {
   onFormatConfigChange?: (config: FormatConfig) => void;
 }
 
-const DraftJsEditor: React.FC<DraftJsEditorProps> = ({ 
-  value, 
-  onChange, 
-  placeholder, 
+const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
+  value,
+  onChange,
+  placeholder,
   formatConfig,
-  onFormatConfigChange 
+  onFormatConfigChange
 }) => {
   const editorRef = useRef<Editor>(null);
   const [lineHeight, setLineHeight] = useState(formatConfig?.lineHeight || 1.4);
   const [paragraphSpacing, setParagraphSpacing] = useState(formatConfig?.paragraphSpacing || 0.5);
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+  const isInitialMount = useRef(true);
+  const previousValueRef = useRef(value);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
+
+  // Link decorator component
+  const Link = (props: any) => {
+    const { url } = props.contentState.getEntity(props.entityKey).getData();
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          color: '#d97706',
+          textDecoration: 'underline',
+        }}
+      >
+        {props.children}
+      </a>
+    );
+  };
+
+  // Decorator to find link entities
+  const findLinkEntities = (
+    contentBlock: any,
+    callback: any,
+    contentState: any
+  ) => {
+    contentBlock.findEntityRanges((character: any) => {
+      const entityKey = character.getEntity();
+      return (
+        entityKey !== null &&
+        contentState.getEntity(entityKey).getType() === 'LINK'
+      );
+    }, callback);
+  };
+
+  // Create decorator once
+  const decoratorRef = useRef(
+    new CompositeDecorator([
+      {
+        strategy: findLinkEntities,
+        component: Link,
+      },
+    ])
+  );
 
   // Update local state when formatConfig prop changes
   useEffect(() => {
@@ -38,33 +88,70 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
       setParagraphSpacing(formatConfig.paragraphSpacing);
     }
   }, [formatConfig]);
-  const [editorState, setEditorState] = useState(() => {
+
+  // CRITICAL FIX: Sync editor state when value prop changes
+  useEffect(() => {
+    // Skip if value hasn't actually changed
+    if (previousValueRef.current === value) {
+      return;
+    }
+
+    previousValueRef.current = value;
+
     if (value && value.trim()) {
       try {
-        // Try to parse as HTML first
         const contentBlock = htmlToDraft(value);
         if (contentBlock && contentBlock.contentBlocks) {
           const contentState = ContentState.createFromBlockArray(
             contentBlock.contentBlocks,
             contentBlock.entityMap
           );
-          return EditorState.createWithContent(contentState);
+          const newEditorState = EditorState.createWithContent(
+            contentState,
+            decoratorRef.current
+          );
+          setEditorState(newEditorState);
         }
       } catch (error) {
-        console.warn('Could not parse HTML content, creating empty editor state');
+        console.warn('Could not parse HTML content:', error);
       }
+    } else if (!value) {
+      // If value is empty, reset editor with decorator
+      setEditorState(EditorState.createEmpty(decoratorRef.current));
     }
-    return EditorState.createEmpty();
-  });
+  }, [value]);
 
-  // Convert editor state to HTML and notify parent
-  const handleEditorChange = (newEditorState: EditorState) => {
+  // Convert editor state to HTML and notify parent with debouncing
+  const handleEditorChange = useCallback((newEditorState: EditorState) => {
     setEditorState(newEditorState);
-    const contentState = newEditorState.getCurrentContent();
-    const rawContentState = convertToRaw(contentState);
-    const htmlContent = draftToHtml(rawContentState);
-    onChange(htmlContent);
-  };
+
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Debounce onChange to avoid excessive parent re-renders
+    debounceTimerRef.current = setTimeout(() => {
+      const contentState = newEditorState.getCurrentContent();
+      const rawContentState = convertToRaw(contentState);
+      const htmlContent = draftToHtml(rawContentState);
+
+      // Only call onChange if content actually changed
+      if (htmlContent !== previousValueRef.current) {
+        previousValueRef.current = htmlContent;
+        onChange(htmlContent);
+      }
+    }, 300);
+  }, [onChange]);
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Handle keyboard shortcuts
   const handleKeyCommand = (command: string, editorState: EditorState) => {
@@ -111,6 +198,58 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
     const block = editorState.getCurrentContent().getBlockForKey(blockKey);
     return block && block.getType() === blockType;
   };
+
+  // Link functionality
+  const promptForLink = useCallback(() => {
+    const selection = editorState.getSelection();
+    if (!selection.isCollapsed()) {
+      const contentState = editorState.getCurrentContent();
+      const startKey = selection.getStartKey();
+      const startOffset = selection.getStartOffset();
+      const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
+      const selectedText = blockWithLinkAtBeginning
+        .getText()
+        .slice(startOffset, selection.getEndOffset());
+
+      setLinkText(selectedText);
+      setLinkUrl('');
+      setShowLinkModal(true);
+    }
+  }, [editorState]);
+
+  const confirmLink = useCallback(() => {
+    if (!linkUrl) return;
+
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity(
+      'LINK',
+      'MUTABLE',
+      { url: linkUrl }
+    );
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+
+    let newEditorState = EditorState.set(editorState, {
+      currentContent: contentStateWithEntity
+    });
+
+    newEditorState = RichUtils.toggleLink(
+      newEditorState,
+      newEditorState.getSelection(),
+      entityKey
+    );
+
+    handleEditorChange(newEditorState);
+    setShowLinkModal(false);
+    setLinkUrl('');
+    setLinkText('');
+  }, [editorState, linkUrl, handleEditorChange]);
+
+  const removeLink = useCallback(() => {
+    const selection = editorState.getSelection();
+    if (!selection.isCollapsed()) {
+      handleEditorChange(RichUtils.toggleLink(editorState, selection, null));
+    }
+  }, [editorState, handleEditorChange]);
 
   // Get current block type for the selector
   const getCurrentBlockType = () => {
@@ -237,13 +376,38 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
             toggleInlineStyle('CODE');
           }}
           className={`px-3 py-1 text-sm font-mono rounded transition-colors ${
-            isInlineStyleActive('CODE') 
-              ? 'bg-amber-200 text-amber-800' 
+            isInlineStyleActive('CODE')
+              ? 'bg-amber-200 text-amber-800'
               : 'bg-white text-slate-700 hover:bg-stone-100'
           } border border-stone-300`}
           title="Código Inline"
         >
           {'</>'}
+        </button>
+
+        <div className="h-6 w-px bg-stone-300 mx-3"></div>
+
+        {/* Link Controls */}
+        <button
+          type="button"
+          onClick={promptForLink}
+          className="p-2 rounded transition-colors bg-white text-slate-700 hover:bg-stone-100 border border-stone-300"
+          title="Agregar enlace (selecciona texto primero)"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          onClick={removeLink}
+          className="p-2 rounded transition-colors bg-white text-slate-700 hover:bg-stone-100 border border-stone-300"
+          title="Quitar enlace"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
 
         <div className="h-6 w-px bg-stone-300 mx-3"></div>
@@ -357,7 +521,65 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
           />
         </div>
       </div>
-      
+
+      {/* Link Modal */}
+      {showLinkModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 shadow-xl max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">Agregar Enlace</h3>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Texto seleccionado:
+              </label>
+              <p className="text-sm text-slate-600 bg-stone-50 p-2 rounded border border-stone-200">
+                {linkText}
+              </p>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                URL:
+              </label>
+              <input
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://ejemplo.com"
+                className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    confirmLink();
+                  } else if (e.key === 'Escape') {
+                    setShowLinkModal(false);
+                    setLinkUrl('');
+                    setLinkText('');
+                  }
+                }}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowLinkModal(false);
+                  setLinkUrl('');
+                  setLinkText('');
+                }}
+                className="px-4 py-2 text-sm text-slate-700 hover:bg-stone-100 rounded transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmLink}
+                disabled={!linkUrl}
+                className="px-4 py-2 text-sm bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx global>{`
         .DraftEditor-root {
           color: #0f172a !important;
