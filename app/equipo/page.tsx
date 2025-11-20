@@ -371,11 +371,7 @@ export default function EquipoPage() {
               {currentAreaAttorneys.map((attorney, index) => (
               <div
                 key={attorney.id}
-                className={`relative group cursor-pointer transition-all duration-300 w-full max-w-sm mx-auto ${
-                  selectedAttorney?.id === attorney.id
-                    ? 'ring-4 ring-amber-200'
-                    : 'hover:ring-2 hover:ring-amber-100'
-                }`}
+                className="relative group cursor-pointer transition-all duration-300 w-full max-w-sm mx-auto"
                 onClick={(e) => handleAttorneySelect(attorney, e)}
               >
                 <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden aspect-[3/4] sm:aspect-[4/5] shadow-lg group-hover:shadow-xl transition-shadow duration-300 min-h-[300px] sm:min-h-[280px] lg:min-h-[320px]">
