@@ -39,6 +39,8 @@ export default function EquipoPage() {
   const [legalAreas, setLegalAreas] = useState<LegalArea[]>([]);
   const [services, setServices] = useState<ServiceData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [currentAttorneyIndex, setCurrentAttorneyIndex] = useState(0);
 
   // Fetch attorneys and services from API
   useEffect(() => {
@@ -56,13 +58,35 @@ export default function EquipoPage() {
       if (todosArea && todosArea.attorneys.length > 0) {
         setSelectedAttorney(todosArea.attorneys[0]);
         setSelectedArea('Todos');
+        setCurrentAttorneyIndex(0);
       } else if (attorneys.length > 0) {
         // Fallback to first attorney if "Todos" area is not found
         setSelectedAttorney(attorneys[0]);
         setSelectedArea('Todos');
+        setCurrentAttorneyIndex(0);
       }
     }
   }, [legalAreas, attorneys]);
+
+  // Auto-rotate attorneys in hero section
+  useEffect(() => {
+    if (!isPaused && currentAreaAttorneys.length > 1) {
+      const interval = setInterval(() => {
+        setIsTransitioning(true);
+
+        setTimeout(() => {
+          setCurrentAttorneyIndex(prev => {
+            const nextIndex = (prev + 1) % currentAreaAttorneys.length;
+            setSelectedAttorney(currentAreaAttorneys[nextIndex]);
+            return nextIndex;
+          });
+          setIsTransitioning(false);
+        }, 300);
+      }, 5000); // Change attorney every 5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [isPaused, currentAreaAttorneys, currentAttorneyIndex]);
 
   const fetchAttorneys = async () => {
     try {
@@ -155,9 +179,10 @@ export default function EquipoPage() {
 
   const handleAreaSelect = (areaName: string) => {
     if (selectedArea === areaName) return;
-    
+
     setSelectedArea(areaName);
-    
+    setCurrentAttorneyIndex(0); // Reset to first attorney in new area
+
     // Update the selected attorney to the first one in the new area for display purposes
     // but don't navigate away - this just updates the hero section
     const firstAttorneyInArea = legalAreas.find(area => area.name === areaName)?.attorneys[0];
@@ -201,7 +226,11 @@ export default function EquipoPage() {
       <Navbar />
       <main className="min-h-screen bg-white">
         {/* Hero Section with Featured Attorney */}
-        <section className="relative bg-gradient-to-br from-slate-100 to-slate-200 py-24 mt-20">
+        <section
+          className="relative bg-gradient-to-br from-slate-100 to-slate-200 py-24 mt-20"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
@@ -315,6 +344,31 @@ export default function EquipoPage() {
               )}
             </div>
           </div>
+
+          {/* Carousel Indicators */}
+          {currentAreaAttorneys.length > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              {currentAreaAttorneys.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setCurrentAttorneyIndex(index);
+                    setIsTransitioning(true);
+                    setTimeout(() => {
+                      setSelectedAttorney(currentAreaAttorneys[index]);
+                      setIsTransitioning(false);
+                    }, 300);
+                  }}
+                  className={`transition-all duration-300 rounded-full ${
+                    index === currentAttorneyIndex
+                      ? 'w-8 h-2 bg-amber-600'
+                      : 'w-2 h-2 bg-slate-400 hover:bg-slate-500'
+                  }`}
+                  aria-label={`Ver ${currentAreaAttorneys[index]?.nombre}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
