@@ -68,6 +68,10 @@ export default function EquipoPage() {
     }
   }, [legalAreas, attorneys]);
 
+  // Get current area attorneys
+  const currentArea = legalAreas.find(area => area.name === selectedArea);
+  const currentAreaAttorneys = currentArea?.attorneys || [];
+
   // Auto-rotate attorneys in hero section
   useEffect(() => {
     if (!isPaused && currentAreaAttorneys.length > 1) {
@@ -194,9 +198,6 @@ export default function EquipoPage() {
       }, 300);
     }
   };
-
-  const currentArea = legalAreas.find(area => area.name === selectedArea);
-  const currentAreaAttorneys = currentArea?.attorneys || [];
 
   // Debug logging
   console.log('Attorneys loaded:', attorneys.length);
