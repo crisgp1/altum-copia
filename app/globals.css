@@ -226,6 +226,26 @@ body {
   letter-spacing: -0.011em;
 }
 
+.medium-prose h5 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #292929;
+  font-family: 'Bennet', serif;
+  margin: 1.25rem 0 0.5rem 0;
+  line-height: 1.4;
+  letter-spacing: -0.008em;
+}
+
+.medium-prose h6 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #292929;
+  font-family: 'Bennet', serif;
+  margin: 1rem 0 0.5rem 0;
+  line-height: 1.4;
+  letter-spacing: -0.006em;
+}
+
 .medium-prose p {
   margin: 1.5rem 0;
   color: #292929;
@@ -272,6 +292,43 @@ body {
 .medium-prose i {
   font-style: italic;
   font-family: 'Bennet', serif;
+}
+
+.medium-prose u,
+.medium-prose ins {
+  text-decoration: underline;
+  text-decoration-color: #292929;
+  font-family: 'Bennet', serif;
+}
+
+.medium-prose del,
+.medium-prose s,
+.medium-prose strike {
+  text-decoration: line-through;
+  color: #6B6B6B;
+  font-family: 'Bennet', serif;
+}
+
+.medium-prose mark {
+  background-color: #fef08a;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.medium-prose sub {
+  font-size: 0.75em;
+  vertical-align: sub;
+}
+
+.medium-prose sup {
+  font-size: 0.75em;
+  vertical-align: super;
+}
+
+.medium-prose hr {
+  border: none;
+  border-top: 1px solid #e5e5e5;
+  margin: 2rem 0;
 }
 
 .medium-prose blockquote {
