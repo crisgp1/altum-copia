@@ -161,6 +161,7 @@ function EditBlogPostContent() {
           const result = await response.json();
           if (result.success && result.data) {
             const post = result.data;
+            console.log('Loaded post data:', { title: post.title, content: post.content?.substring(0, 100) });
             setFormData({
               title: post.title || '',
               slug: post.slug || '',
@@ -209,7 +210,8 @@ function EditBlogPostContent() {
     return () => {
       abortController.abort();
     };
-  }, [postId, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId]); // Remove router from dependencies to avoid re-fetching
 
   // Generate slug from title
   const generateSlug = (title: string) => {
