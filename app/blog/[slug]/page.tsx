@@ -100,45 +100,26 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       try {
         setLoading(true);
         
-        // First, get all posts to find the one with the matching slug
-        const postsResponse = await fetch('/api/blog/posts');
-        if (!postsResponse.ok) {
-          console.error('Failed to fetch posts');
-          setLoading(false);
-          return;
-        }
-        
-        const postsResult = await postsResponse.json();
-        if (!postsResult.success || !postsResult.data) {
-          console.error('Invalid posts response');
-          setLoading(false);
-          return;
-        }
-        
-        // Find the post with matching slug
-        const foundPostData = postsResult.data.find((p: any) => p.slug === resolvedParams.slug);
-        if (!foundPostData) {
-          console.error('Post not found');
-          setLoading(false);
-          return;
-        }
-        
-        // Get the full post content
-        const postResponse = await fetch(`/api/admin/blog/posts/${foundPostData.id}`);
+        // Fetch the post directly by slug using public endpoint
+        const postResponse = await fetch(`/api/blog/posts/slug/${resolvedParams.slug}`);
         if (!postResponse.ok) {
-          console.error('Failed to fetch full post');
+          console.error('Post not found or not published');
           setLoading(false);
           return;
         }
-        
+
         const postResult = await postResponse.json();
         if (!postResult.success || !postResult.data) {
           console.error('Invalid post response');
           setLoading(false);
           return;
         }
-        
+
         const postData = postResult.data;
+
+        // Also fetch all posts for related posts
+        const postsResponse = await fetch('/api/blog/posts');
+        const postsResult = postsResponse.ok ? await postsResponse.json() : { success: false, data: [] };
         
         // Convert to BlogPost entity
         const foundPost = new BlogPost({
@@ -168,7 +149,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         setPost(foundPost);
         
         // Get related posts (same category, different post)
-        const related = postsResult.data
+        const allPosts = postsResult.success && postsResult.data ? postsResult.data : [];
+        const related = allPosts
           .filter((p: any) => p.categoryId === foundPost.categoryId && p.id !== foundPost.id && p.publishedAt)
           .slice(0, 3)
           .map((p: any) => new BlogPost({
