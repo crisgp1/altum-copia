@@ -16,9 +16,14 @@ import {
   X,
   Clock,
   Image,
-  Settings
+  Settings,
+  Code,
+  Database,
+  Shield,
+  Briefcase,
+  Scale
 } from 'lucide-react';
-import { hasPermission, UserRole } from '@/app/lib/auth/roles';
+import { hasPermission, UserRole, getRoleDisplayName } from '@/app/lib/auth/roles';
 
 interface DashboardStats {
   totalPosts: number;
@@ -53,9 +58,17 @@ export default function AdminDashboard() {
   const canManageUsers = hasPermission(userRole, 'manage_users');
   const canManageAttorneys = hasPermission(userRole, 'manage_attorneys');
   const canManageServices = hasPermission(userRole, 'manage_services');
+  const canManageLegal = hasPermission(userRole, 'manage_legal');
   const canViewAnalytics = hasPermission(userRole, 'view_analytics');
   const canCreateContent = hasPermission(userRole, 'create_content');
   const canManageBlog = hasPermission(userRole, 'manage_blog');
+  const canManageMedia = hasPermission(userRole, 'manage_media');
+  const canManageSystem = hasPermission(userRole, 'manage_system');
+  const canAccessDatabase = hasPermission(userRole, 'database_access');
+  const canManageAPI = hasPermission(userRole, 'api_management');
+  const isDeveloper = userRole === UserRole.DEVELOPER;
+  const isAdmin = userRole === UserRole.ADMIN || userRole === UserRole.SUPERADMIN;
+  const roleDisplayName = getRoleDisplayName(userRole);
 
   useEffect(() => {
     // Fetch real dashboard stats and recent activity
@@ -194,13 +207,15 @@ export default function AdminDashboard() {
   // Filter quick actions based on user permissions
   const quickActions = useMemo(() => {
     const allActions = [
+      // Content Management
       {
         title: 'Crear Nuevo Post',
         description: 'Escribir un nuevo artículo para el blog',
         href: '/admin/blog/new',
         icon: <Plus className="w-8 h-8" />,
         color: 'bg-green-500',
-        permission: 'create_content'
+        permission: 'create_content',
+        category: 'content'
       },
       {
         title: 'Gestionar Posts',
@@ -208,7 +223,8 @@ export default function AdminDashboard() {
         href: '/admin/blog',
         icon: <FileText className="w-8 h-8" />,
         color: 'bg-blue-500',
-        permission: 'manage_blog'
+        permission: 'manage_blog',
+        category: 'content'
       },
       {
         title: 'Gestionar Medios',
@@ -216,31 +232,56 @@ export default function AdminDashboard() {
         href: '/admin/media',
         icon: <Image className="w-8 h-8" />,
         color: 'bg-purple-500',
-        permission: 'manage_media'
+        permission: 'manage_media',
+        category: 'content'
       },
+      // Business Management
       {
         title: 'Gestionar Abogados',
         description: 'Administrar perfiles de abogados',
         href: '/admin/attorneys',
-        icon: <Users className="w-8 h-8" />,
+        icon: <Briefcase className="w-8 h-8" />,
         color: 'bg-amber-500',
-        permission: 'manage_attorneys'
+        permission: 'manage_attorneys',
+        category: 'business'
       },
       {
         title: 'Gestionar Servicios',
         description: 'Administrar servicios legales',
         href: '/admin/services',
-        icon: <Settings className="w-8 h-8" />,
+        icon: <Scale className="w-8 h-8" />,
         color: 'bg-teal-500',
-        permission: 'manage_services'
+        permission: 'manage_services',
+        category: 'business'
       },
+      {
+        title: 'Config. Legal',
+        description: 'Términos, privacidad y banners',
+        href: '/admin/legal-settings',
+        icon: <Shield className="w-8 h-8" />,
+        color: 'bg-slate-600',
+        permission: 'manage_legal',
+        category: 'business'
+      },
+      // User Management
       {
         title: 'Gestionar Usuarios',
         description: 'Administrar usuarios y roles',
         href: '/admin/users',
         icon: <UserCheck className="w-8 h-8" />,
         color: 'bg-orange-500',
-        permission: 'manage_users'
+        permission: 'manage_users',
+        category: 'admin'
+      },
+      // Developer Tools
+      {
+        title: 'Migrar Slugs',
+        description: 'Herramientas de migración de datos',
+        href: '/admin/migrate-slugs',
+        icon: <Database className="w-8 h-8" />,
+        color: 'bg-rose-600',
+        permission: 'database_access',
+        category: 'developer'
       }
     ];
 
@@ -269,8 +310,10 @@ export default function AdminDashboard() {
                 ¡Bienvenido al Panel de Administración!
               </h3>
               <p className="text-sm sm:text-base text-green-800 mt-1">
-                {canManageUsers
+                {isAdmin
                   ? 'Has sido redirigido automáticamente porque tienes permisos de administrador. Desde aquí puedes gestionar contenido, usuarios y configuraciones.'
+                  : isDeveloper
+                  ? 'Has sido redirigido automáticamente. Tienes acceso a herramientas de desarrollo y gestión de contenido.'
                   : 'Has sido redirigido automáticamente. Desde aquí puedes gestionar el contenido del blog.'}
               </p>
             </div>
@@ -282,13 +325,28 @@ export default function AdminDashboard() {
       <div className="bg-white rounded-lg lg:rounded-xl shadow-sm border border-stone-200 p-4 sm:p-5 lg:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mb-2">
-              Bienvenido, {user?.firstName}!
-            </h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
+                Bienvenido, {user?.firstName}!
+              </h1>
+              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                userRole === UserRole.SUPERADMIN ? 'bg-red-100 text-red-700' :
+                userRole === UserRole.ADMIN ? 'bg-blue-100 text-blue-700' :
+                userRole === UserRole.DEVELOPER ? 'bg-purple-100 text-purple-700' :
+                userRole === UserRole.CONTENT_CREATOR ? 'bg-green-100 text-green-700' :
+                'bg-gray-100 text-gray-700'
+              }`}>
+                {roleDisplayName}
+              </span>
+            </div>
             <p className="text-sm sm:text-base text-slate-600">
-              {canManageUsers
-                ? 'Gestiona el contenido y los usuarios de ALTUM Legal desde este panel.'
-                : 'Gestiona el contenido del blog de ALTUM Legal desde este panel.'}
+              {isAdmin
+                ? 'Gestiona el contenido, usuarios y configuraciones de ALTUM Legal.'
+                : isDeveloper
+                ? 'Acceso a herramientas de desarrollo, contenido y configuraciones del sistema.'
+                : userRole === UserRole.CONTENT_CREATOR
+                ? 'Crea y gestiona el contenido del blog de ALTUM Legal.'
+                : 'Panel de administración de ALTUM Legal.'}
             </p>
           </div>
           <div className="text-left sm:text-right">
