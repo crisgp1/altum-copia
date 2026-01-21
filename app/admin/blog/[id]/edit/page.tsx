@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 import { PostStatus } from '@/app/lib/domain/entities/BlogPost';
 import { CitationConfig } from '@/app/lib/domain/entities/Citation';
+import RoleGuard from '@/app/components/auth/RoleGuard';
 import DraftJsEditor from '@/app/components/admin/DraftJsEditor';
 import { BlogImageUpload } from '@/app/components/admin/BlogImageUpload';
 import CitationManager from '@/app/components/admin/CitationManager';
@@ -59,6 +60,14 @@ const suggestedCategories = [
 ];
 
 export default function EditBlogPost() {
+  return (
+    <RoleGuard requiredPermission="edit_content">
+      <EditBlogPostContent />
+    </RoleGuard>
+  );
+}
+
+function EditBlogPostContent() {
   const router = useRouter();
   const params = useParams();
   const postId = params?.id as string;
@@ -839,7 +848,7 @@ export default function EditBlogPost() {
                         {formData.seoTitle || formData.title || 'Título del post'}
                       </div>
                       <div className="text-green-700 text-sm">
-                        altum-legal.com › blog › {formData.slug || 'url-del-post'}
+                        altum-legal.mx › blog › {formData.slug || 'url-del-post'}
                       </div>
                       <div className="text-slate-600 text-sm mt-1">
                         {formData.seoDescription || formData.excerpt || 'Descripción del post...'}

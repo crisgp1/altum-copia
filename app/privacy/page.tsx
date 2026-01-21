@@ -266,7 +266,7 @@ export default function PrivacyPage() {
                   CP. 44538. Guadalajara, Jalisco<br />
                   Teléfono: +52 33 3629 7531<br />
                   WhatsApp: +52 33 1568 1688<br />
-                  Email: contacto@altumlegal.com
+                  Email: contacto@altum-legal.mx
                 </p>
               </div>
             </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BlogPost, PostStatus } from '@/app/lib/domain/entities/BlogPost';
+import RoleGuard from '@/app/components/auth/RoleGuard';
 import toast from 'react-hot-toast';
 
 interface BlogPostAPI {
@@ -18,6 +19,14 @@ interface BlogPostAPI {
 }
 
 export default function BlogManagement() {
+  return (
+    <RoleGuard requiredPermission="manage_blog">
+      <BlogManagementContent />
+    </RoleGuard>
+  );
+}
+
+function BlogManagementContent() {
   const [posts, setPosts] = useState<BlogPostAPI[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<BlogPostAPI[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');

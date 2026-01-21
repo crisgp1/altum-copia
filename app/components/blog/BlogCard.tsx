@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { BlogPost } from '@/app/lib/domain/entities/BlogPost';
 import { formatBlogDate, calculateReadingTime, blogAuthors } from '@/app/lib/data/blogPosts';
+import SavePostButton from '@/app/components/user/SavePostButton';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -113,10 +114,11 @@ export default function BlogCard({ post, index }: BlogCardProps) {
           </div>
 
           {/* Reading Time */}
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-4 flex items-center gap-2">
             <span className="px-2 py-1 text-xs font-medium bg-black/70 text-white rounded-full backdrop-blur-sm">
               {calculateReadingTime(post.content)} min
             </span>
+            <SavePostButton postId={post.id} size="sm" variant="card" />
           </div>
         </div>
 

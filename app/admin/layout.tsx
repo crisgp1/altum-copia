@@ -8,7 +8,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <RoleGuard requiredPermission="manage_content">
+    <RoleGuard requiredPermission="access_admin">
       <div className="min-h-screen bg-stone-50">
         <a
           href="#main-content"

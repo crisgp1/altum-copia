@@ -79,7 +79,7 @@ useEffect(() => {
             <div ref={el => { if (el) sectionRefs.current[0] = el; }} className="mb-8">
               <p className="text-lg text-slate-700 leading-relaxed">
                 Bienvenido al sitio web de ALTUM Legal. Estos Términos de Servicio rigen el uso de 
-                nuestro sitio web www.altumlegal.com. Al acceder y utilizar este sitio, usted acepta 
+                nuestro sitio web www.altum-legal.mx. Al acceder y utilizar este sitio, usted acepta 
                 cumplir con estos términos y condiciones. Si no está de acuerdo con alguna parte de 
                 estos términos, le solicitamos no utilizar nuestro sitio web.
               </p>
@@ -345,8 +345,8 @@ useEffect(() => {
                   CP. 44538. Guadalajara, Jalisco, México<br />
                   Teléfono: +52 33 3629 7531<br />
                   WhatsApp: +52 33 1568 1688<br />
-                  Email: contacto@altumlegal.com<br />
-                  Sitio web: www.altumlegal.com
+                  Email: contacto@altum-legal.mx<br />
+                  Sitio web: www.altum-legal.mx
                 </p>
               </div>
             </div>

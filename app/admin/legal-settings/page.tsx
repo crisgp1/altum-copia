@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Save, Eye, AlertCircle, FileText, Shield, Megaphone } from 'lucide-react';
+import RoleGuard from '@/app/components/auth/RoleGuard';
 import toast from 'react-hot-toast';
 import DraftJsEditor from '@/app/components/admin/DraftJsEditor';
 
@@ -30,6 +31,14 @@ function ContentEditor({ content, onContentChange }: {
 }
 
 export default function LegalSettingsPage() {
+  return (
+    <RoleGuard requiredPermission="manage_legal">
+      <LegalSettingsContent />
+    </RoleGuard>
+  );
+}
+
+function LegalSettingsContent() {
   const [legalContents, setLegalContents] = useState<LegalContent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState<string | null>(null);

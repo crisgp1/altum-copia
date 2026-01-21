@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { UserService } from '@/app/lib/application/services/UserService';
 import { UserResponseDTO } from '@/app/lib/application/dtos/UserDTO';
 import { Users, Search, Filter, MoreVertical, Edit, Trash2, Eye, UserPlus, Shield, Mail, Send, X } from 'lucide-react';
+import RoleGuard from '@/app/components/auth/RoleGuard';
 import toast from 'react-hot-toast';
 import RoleAssignmentModal from '@/app/components/admin/RoleAssignmentModal';
 import { UserRole, ROLE_HIERARCHY, getRoleDisplayName } from '@/app/lib/auth/roles';
@@ -25,6 +26,14 @@ interface Invitation {
 }
 
 export default function UsersPage() {
+  return (
+    <RoleGuard requiredPermission="manage_users">
+      <UsersPageContent />
+    </RoleGuard>
+  );
+}
+
+function UsersPageContent() {
   const [users, setUsers] = useState<UserResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

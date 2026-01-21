@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
+import RoleGuard from '@/app/components/auth/RoleGuard';
 import { toast, Toaster } from 'react-hot-toast';
 import { MediaService } from '@/app/lib/application/services/MediaService';
 import { MediaFile } from '@/app/lib/domain/entities/MediaFile';
@@ -12,6 +13,14 @@ import { MediaFileGrid } from '@/app/components/admin/media/MediaFileGrid';
 import { UploadState } from '@/app/components/admin/UploadAnimations';
 
 export default function MediaManagementPage() {
+  return (
+    <RoleGuard requiredPermission="manage_media">
+      <MediaManagementContent />
+    </RoleGuard>
+  );
+}
+
+function MediaManagementContent() {
   const { hasPermission } = useUserRole();
   
   // State Management

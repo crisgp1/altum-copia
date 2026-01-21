@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { BlogPostRepository } from '@/app/lib/infrastructure/persistence/repositories/BlogPostRepository';
 import dbConnect from '@/app/lib/infrastructure/persistence/mongodb/connection';
+import { verifyApiAuth } from '@/app/lib/auth/api-auth';
 
 const blogPostRepository = new BlogPostRepository();
 
 export async function GET(request: NextRequest) {
+  // Verificar autenticación y permiso manage_blog
+  const authResult = await verifyApiAuth('manage_blog');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     await dbConnect();
     

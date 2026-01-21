@@ -3,12 +3,21 @@
 import { useState, useEffect } from 'react';
 import { AttorneyService } from '@/app/lib/application/services/AttorneyService';
 import { AttorneyResponseDTO } from '@/app/lib/application/dtos/AttorneyDTO';
+import RoleGuard from '@/app/components/auth/RoleGuard';
 import AttorneyListAdmin from '@/app/components/admin/AttorneyListAdmin';
 import AttorneyFormModal from '@/app/components/admin/AttorneyFormModal';
 import { toast, Toaster } from 'react-hot-toast';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 
 export default function AdminAttorneysPage() {
+  return (
+    <RoleGuard requiredPermission="manage_attorneys">
+      <AdminAttorneysContent />
+    </RoleGuard>
+  );
+}
+
+function AdminAttorneysContent() {
   const { hasPermission } = useUserRole();
   const [attorneys, setAttorneys] = useState<any[]>([]);
   const [selectedAttorney, setSelectedAttorney] = useState<AttorneyResponseDTO | null>(null);

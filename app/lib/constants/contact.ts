@@ -13,7 +13,7 @@ export const ALTUM_CONTACT = {
     state: 'Jalisco',
     full: 'Av. Faro #2522, Bosques de la Victoria, CP. 44538. Guadalajara, Jalisco'
   },
-  email: 'contacto@altumlegal.com',
+  email: 'contacto@altum-legal.mx',
   schedule: 'Lun - Vie: 09:00 - 18:00',
   website: 'https://altum-legal.mx'
 };

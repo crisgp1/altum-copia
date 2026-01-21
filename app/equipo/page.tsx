@@ -7,6 +7,7 @@ import { ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 import { AttorneyResponseDTO } from '@/app/lib/application/dtos/AttorneyDTO';
 import Navbar from '@/app/components/navigation/Navbar';
 import Footer from '@/app/components/sections/Footer';
+import FavoriteAttorneyButton from '@/app/components/user/FavoriteAttorneyButton';
 import toast from 'react-hot-toast';
 
 interface ServiceData {
@@ -410,23 +411,23 @@ export default function EquipoPage() {
         </div>
       </section>
 
-      {/* Team Grid Section - Always show all attorneys */}
+      {/* Team Grid Section - Filtered by selected area */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
 
-          {attorneys.length === 0 ? (
+          {currentAreaAttorneys.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <div className="text-slate-400 mb-4">
                 <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-slate-700 mb-2">No hay abogados disponibles</h3>
-              <p className="text-slate-500">Por favor intenta de nuevo más tarde.</p>
+              <h3 className="text-lg font-medium text-slate-700 mb-2">No hay abogados en esta área</h3>
+              <p className="text-slate-500">Selecciona otra área de práctica o ve todos los abogados.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-6 lg:gap-8 auto-rows-fr">
-              {attorneys.map((attorney, index) => (
+              {currentAreaAttorneys.map((attorney, index) => (
               <div
                 key={attorney.id}
                 className="relative group cursor-pointer transition-all duration-300 w-full max-w-sm mx-auto"
@@ -451,6 +452,11 @@ export default function EquipoPage() {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  {/* Favorite Button */}
+                  <div className="absolute top-3 right-3 z-10">
+                    <FavoriteAttorneyButton attorneyId={attorney.id} size="sm" />
+                  </div>
                   
                   {/* Overlay Info */}
                   <div className="absolute bottom-0 left-0 right-0 p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">

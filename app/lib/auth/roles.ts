@@ -29,41 +29,54 @@ export interface UserPrivateMetadata {
 
 export const ROLE_PERMISSIONS = {
   [UserRole.SUPERADMIN]: [
-    'manage_users',
-    'manage_roles',
-    'manage_content',
-    'create_content',
-    'edit_content',
-    'delete_content',
-    'publish_content',
-    'manage_system',
-    'view_analytics',
-    'manage_media',
-    'system_admin',
-    'database_access',
-    'api_management'
+    'access_admin',      // Acceso al panel admin
+    'manage_users',      // Gestionar usuarios
+    'manage_roles',      // Asignar roles
+    'manage_attorneys',  // Gestionar abogados
+    'manage_services',   // Gestionar servicios
+    'manage_blog',       // Ver/editar todos los posts
+    'create_content',    // Crear posts
+    'edit_content',      // Editar cualquier post
+    'delete_content',    // Eliminar posts
+    'publish_content',   // Publicar posts
+    'manage_media',      // Gestionar medios
+    'manage_legal',      // Configuración legal
+    'manage_system',     // Configuración del sistema
+    'view_analytics',    // Ver estadísticas
+    'system_admin',      // Admin del sistema
+    'database_access',   // Acceso a BD
+    'api_management'     // Gestión de APIs
   ],
   [UserRole.ADMIN]: [
+    'access_admin',
     'manage_users',
-    'manage_content',
+    'manage_attorneys',
+    'manage_services',
+    'manage_blog',
     'create_content',
     'edit_content',
     'delete_content',
     'publish_content',
-    'view_analytics',
-    'manage_media'
+    'manage_media',
+    'manage_legal',
+    'view_analytics'
   ],
   [UserRole.CONTENT_CREATOR]: [
-    'create_content',
-    'edit_own_content',
-    'publish_content',
-    'manage_media'
+    'access_admin',
+    'manage_blog',       // Ver posts del blog
+    'create_content',    // Crear posts
+    'edit_own_content',  // Editar sus propios posts
+    'publish_content',   // Publicar posts
+    'manage_media'       // Subir/gestionar medios
   ],
   [UserRole.DEVELOPER]: [
-    'view_analytics',
-    'manage_content',
+    'access_admin',
+    'manage_blog',
     'create_content',
     'edit_content',
+    'manage_media',
+    'manage_system',
+    'view_analytics',
     'system_admin',
     'database_access',
     'api_management',
@@ -71,7 +84,7 @@ export const ROLE_PERMISSIONS = {
     'deploy_code'
   ],
   [UserRole.USER]: [
-    'view_content'
+    'view_content'       // Solo ver contenido público (SIN access_admin)
   ]
 };
 

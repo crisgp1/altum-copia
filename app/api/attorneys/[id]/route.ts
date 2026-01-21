@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/app/lib/infrastructure/database/connection';
+import { verifyApiAuth } from '@/app/lib/auth/api-auth';
 
 // GET /api/attorneys/[id]
 // Handles both MongoDB ID and slug lookups
@@ -60,11 +61,17 @@ export async function GET(
   }
 }
 
-// PUT /api/attorneys/[id]
+// PUT /api/attorneys/[id] - Requiere permiso manage_attorneys
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Verificar autenticación y permiso manage_attorneys
+  const authResult = await verifyApiAuth('manage_attorneys');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     await connectToDatabase();
 

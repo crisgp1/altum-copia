@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ServiceRepository } from '@/app/lib/infrastructure/persistence/repositories/ServiceRepository';
 import { GetAllServicesUseCase } from '@/app/lib/application/useCases/services/GetAllServicesUseCase';
 import { Service } from '@/app/lib/domain/entities/Service';
+import { verifyApiAuth } from '@/app/lib/auth/api-auth';
 
 const serviceRepository = new ServiceRepository();
 const getAllServicesUseCase = new GetAllServicesUseCase(serviceRepository);
@@ -45,8 +46,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/services - Create new service
+// POST /api/services - Create new service - Requiere permiso manage_services
 export async function POST(request: NextRequest) {
+  // Verificar autenticación y permiso manage_services
+  const authResult = await verifyApiAuth('manage_services');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     const body = await request.json();
     console.log('=== CREATING SERVICE ===');
@@ -89,8 +96,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT /api/services - Update multiple services (for reordering)
+// PUT /api/services - Update multiple services (for reordering) - Requiere permiso manage_services
 export async function PUT(request: NextRequest) {
+  // Verificar autenticación y permiso manage_services
+  const authResult = await verifyApiAuth('manage_services');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     const body = await request.json();
     const { services } = body;

@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, ChevronDown, ChevronRight, Mail, Phone, MapPin, 
 import { AttorneyResponseDTO } from '@/app/lib/application/dtos/AttorneyDTO';
 import Navbar from '@/app/components/navigation/Navbar';
 import Footer from '@/app/components/sections/Footer';
+import FavoriteAttorneyButton from '@/app/components/user/FavoriteAttorneyButton';
 import toast from 'react-hot-toast';
 
 interface ServiceData {
@@ -260,11 +261,18 @@ export default function AttorneyProfilePage() {
                         {attorney.cargo}
                       </p>
                     </div>
-                    {attorney.esSocio && (
-                      <span className="bg-amber-100 text-amber-800 px-4 py-2 text-sm font-medium rounded-full">
-                        Socio Fundador
-                      </span>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {attorney.esSocio && (
+                        <span className="bg-amber-100 text-amber-800 px-4 py-2 text-sm font-medium rounded-full">
+                          Socio Fundador
+                        </span>
+                      )}
+                      <FavoriteAttorneyButton
+                        attorneyId={attorney.id}
+                        size="lg"
+                        showText
+                      />
+                    </div>
                   </div>
                   
                   <div className="flex items-center space-x-6 text-slate-600 mb-6">

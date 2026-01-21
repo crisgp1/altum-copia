@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import RoleGuard from '@/app/components/auth/RoleGuard';
 import { ArrowLeft, Play, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 interface MigrationResult {
@@ -39,6 +40,14 @@ interface StatusResponse {
 }
 
 export default function MigrateSlugsPage() {
+  return (
+    <RoleGuard requiredPermission="system_admin">
+      <MigrateSlugsContent />
+    </RoleGuard>
+  );
+}
+
+function MigrateSlugsContent() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<StatusResponse | null>(null);

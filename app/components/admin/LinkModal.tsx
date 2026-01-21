@@ -65,10 +65,10 @@ export default function LinkModal({ isOpen, onClose, onInsert, selectedText = ''
   };
 
   const commonUrls = [
-    { label: 'Página Principal', url: 'https://altum-legal.com' },
-    { label: 'Contacto', url: 'https://altum-legal.com/contacto' },
-    { label: 'Servicios', url: 'https://altum-legal.com/servicios' },
-    { label: 'Blog', url: 'https://altum-legal.com/blog' }
+    { label: 'Página Principal', url: 'https://altum-legal.mx' },
+    { label: 'Contacto', url: 'https://altum-legal.mx/contacto' },
+    { label: 'Servicios', url: 'https://altum-legal.mx/servicios' },
+    { label: 'Blog', url: 'https://altum-legal.mx/blog' }
   ];
 
   return (

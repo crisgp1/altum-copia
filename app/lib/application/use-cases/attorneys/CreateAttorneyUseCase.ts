@@ -21,11 +21,11 @@ export class CreateAttorneyUseCase {
     }
 
     // Validar que el correo tenga un dominio de ALTUM Legal
-    const validDomains = ['@altumlegal.mx', '@altum-legal.mx'];
-    const hasValidDomain = validDomains.some(domain => request.correo.toLowerCase().includes(domain));
+    const validDomain = '@altum-legal.mx';
+    const hasValidDomain = request.correo.toLowerCase().includes(validDomain);
 
     if (!hasValidDomain) {
-      throw new Error('El correo debe tener un dominio válido de ALTUM Legal (@altumlegal.mx o @altum-legal.mx)');
+      throw new Error('El correo debe tener el dominio de ALTUM Legal (@altum-legal.mx)');
     }
 
     // Crear la entidad Attorney

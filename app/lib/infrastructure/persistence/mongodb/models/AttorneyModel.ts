@@ -169,13 +169,11 @@ AttorneySchema.pre<IAttorneyDocument>('save', function(next) {
   }
 
   // Validar que el correo tenga un dominio válido de ALTUM Legal
-  const validDomains = ['@altumlegal.mx', '@altum-legal.mx'];
-  const hasValidDomain = validDomains.some(domain =>
-    this.correo.toLowerCase().includes(domain)
-  );
+  const validDomain = '@altum-legal.mx';
+  const hasValidDomain = this.correo.toLowerCase().includes(validDomain);
 
   if (!hasValidDomain) {
-    return next(new Error('El correo debe tener un dominio válido de ALTUM Legal (@altumlegal.mx o @altum-legal.mx)'));
+    return next(new Error('El correo debe tener el dominio de ALTUM Legal (@altum-legal.mx)'));
   }
 
   next();

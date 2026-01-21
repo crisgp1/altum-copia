@@ -748,7 +748,7 @@ export default function NewBlogPost() {
                         {formData.seoTitle || formData.title || 'Título del post'}
                       </div>
                       <div className="text-green-700 text-xs sm:text-sm break-all">
-                        altum-legal.com › blog › {formData.slug || 'url-del-post'}
+                        altum-legal.mx › blog › {formData.slug || 'url-del-post'}
                       </div>
                       <div className="text-slate-600 text-xs sm:text-sm mt-1">
                         {formData.seoDescription || formData.excerpt || 'Descripción del post...'}

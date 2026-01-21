@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { list } from '@vercel/blob';
+import { verifyApiAuth } from '@/app/lib/auth/api-auth';
 
-// GET /api/media - Get all uploaded media files
+// GET /api/media - Get all uploaded media files - Requiere permiso manage_media
 export async function GET(request: NextRequest) {
+  // Verificar autenticación y permiso manage_media
+  const authResult = await verifyApiAuth('manage_media');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     // Get all blobs from Vercel Blob Storage
     const { blobs } = await list();
@@ -59,8 +66,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// DELETE /api/media - Delete multiple media files
+// DELETE /api/media - Delete multiple media files - Requiere permiso manage_media
 export async function DELETE(request: NextRequest) {
+  // Verificar autenticación y permiso manage_media
+  const authResult = await verifyApiAuth('manage_media');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     const body = await request.json();
     const { fileIds } = body;

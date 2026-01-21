@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { BlogPostRepository } from '@/app/lib/infrastructure/persistence/repositories/BlogPostRepository';
 import { BlogPost, PostStatus } from '@/app/lib/domain/entities/BlogPost';
 import dbConnect from '@/app/lib/infrastructure/persistence/mongodb/connection';
+import { verifyApiAuth } from '@/app/lib/auth/api-auth';
 
 const blogPostRepository = new BlogPostRepository();
 
@@ -9,12 +10,16 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  // Verificar autenticación y permiso manage_blog
+  const authResult = await verifyApiAuth('manage_blog');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   const params = await context.params;
-  
+
   try {
     await dbConnect();
-    
-    console.log('Fetching blog post with ID:', params.id);
     
     const post = await blogPostRepository.findById(params.id);
     if (!post) {
@@ -63,11 +68,17 @@ export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  // Verificar autenticación y permiso edit_content
+  const authResult = await verifyApiAuth('edit_content');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   const params = await context.params;
-  
+
   try {
     await dbConnect();
-    
+
     const body = await request.json();
     
     // Validate required fields
@@ -174,14 +185,16 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  // Verificar autenticación y permiso delete_content
+  const authResult = await verifyApiAuth('delete_content');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   const params = await context.params;
-  
+
   try {
     await dbConnect();
-    
-    // Note: In a real app, you'd verify admin permissions here
-    
-    console.log('Deleting blog post with ID:', params.id);
     
     // Check if post exists
     const existingPost = await blogPostRepository.findById(params.id);

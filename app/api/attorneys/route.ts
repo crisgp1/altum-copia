@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/app/lib/infrastructure/database/connection';
+import { verifyApiAuth } from '@/app/lib/auth/api-auth';
 
-// GET /api/attorneys
+// GET /api/attorneys - Público para el sitio, pero POST requiere auth
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -50,11 +51,17 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/attorneys
+// POST /api/attorneys - Requiere permiso manage_attorneys
 export async function POST(request: NextRequest) {
+  // Verificar autenticación y permiso manage_attorneys
+  const authResult = await verifyApiAuth('manage_attorneys');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     await connectToDatabase();
-    
+
     const body = await request.json();
     
     // Import server-side only modules here

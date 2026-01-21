@@ -13,7 +13,7 @@ export const attorneys: Attorney[] = [
       'Doctorado en Derecho Empresarial - Universidad Panamericana'
     ],
     languages: ['Español', 'Inglés', 'Francés'],
-    email: 'mvasquez@altumlegal.mx',
+    email: 'mvasquez@altum-legal.mx',
     phone: '+52 55 1234-5678',
     bio: 'Reconocida especialista en derecho corporativo con más de 25 años de experiencia. Ha liderado operaciones de fusiones y adquisiciones por más de $2 billones de pesos. Considerada una de las mejores abogadas corporativas de México.',
     achievements: [
@@ -44,7 +44,7 @@ export const attorneys: Attorney[] = [
       'Certificación en Arbitraje Internacional - ICC París'
     ],
     languages: ['Español', 'Inglés', 'Portugués'],
-    email: 'rmendoza@altumlegal.mx',
+    email: 'rmendoza@altum-legal.mx',
     phone: '+52 55 1234-5679',
     bio: 'Litigante de élite especializado en casos complejos de alto perfil. Ha ganado el 94% de sus casos en los últimos 10 años. Experto en arbitraje internacional y mediación comercial.',
     achievements: [
@@ -75,7 +75,7 @@ export const attorneys: Attorney[] = [
       'Doctorado en Tributación Internacional - Universidad Complutense Madrid'
     ],
     languages: ['Español', 'Inglés', 'Alemán'],
-    email: 'aherrera@altumlegal.mx',
+    email: 'aherrera@altum-legal.mx',
     phone: '+52 55 1234-5680',
     bio: 'Experta reconocida en derecho fiscal y planeación tributaria. Ha ayudado a empresas a ahorrar más de $5 billones de pesos en optimización fiscal legal. Consultora del SAT en reformas fiscales.',
     achievements: [
@@ -106,7 +106,7 @@ export const attorneys: Attorney[] = [
       'Certificación en Derecho Digital - MIT'
     ],
     languages: ['Español', 'Inglés', 'Japonés'],
-    email: 'cruiz@altumlegal.mx',
+    email: 'cruiz@altum-legal.mx',
     phone: '+52 55 1234-5681',
     bio: 'Especialista de nueva generación en propiedad intelectual y derecho tecnológico. Ha registrado más de 500 marcas y patentes. Experto en regulación de startups y fintech.',
     achievements: [
@@ -137,7 +137,7 @@ export const attorneys: Attorney[] = [
       'Especialización en Seguridad Social - IMSS'
     ],
     languages: ['Español', 'Inglés'],
-    email: 'pmorales@altumlegal.mx',
+    email: 'pmorales@altum-legal.mx',
     phone: '+52 55 1234-5682',
     bio: 'Especialista en derecho laboral con amplia experiencia en relaciones industriales. Ha manejado más de 2,000 casos laborales con 96% de éxito. Experta en reestructuras corporativas.',
     achievements: [
@@ -167,7 +167,7 @@ export const attorneys: Attorney[] = [
       'Especialización en Derecho Inmobiliario - UNAM'
     ],
     languages: ['Español', 'Inglés'],
-    email: 'esilva@altumlegal.mx',
+    email: 'esilva@altum-legal.mx',
     phone: '+52 55 1234-5683',
     bio: 'Especialista en derecho inmobiliario con experiencia en desarrollos comerciales y residenciales. Ha participado en transacciones inmobiliarias por más de $800 millones de pesos.',
     achievements: [
@@ -197,7 +197,7 @@ export const attorneys: Attorney[] = [
       'Doctorado en Derecho Regulatorio - Universidad de Barcelona'
     ],
     languages: ['Español', 'Inglés', 'Catalán'],
-    email: 'smartinez@altumlegal.mx',
+    email: 'smartinez@altum-legal.mx',
     phone: '+52 55 1234-5684',
     bio: 'Experta en derecho ambiental y compliance regulatorio. Ha liderado casos de impacto ambiental para grandes corporaciones mexicanas.',
     achievements: [
@@ -227,7 +227,7 @@ export const attorneys: Attorney[] = [
       'Maestría en Derecho Bancario - Universidad Anáhuac'
     ],
     languages: ['Español', 'Inglés'],
-    email: 'fcastillo@altumlegal.mx',
+    email: 'fcastillo@altum-legal.mx',
     phone: '+52 55 1234-5685',
     bio: 'Especialista en derecho bancario y regulación fintech. Ha asesorado a más de 30 instituciones financieras en México.',
     achievements: [
@@ -257,7 +257,7 @@ export const attorneys: Attorney[] = [
       'Doctorado en Antimonopolio - Georgetown University'
     ],
     languages: ['Español', 'Inglés', 'Italiano'],
-    email: 'vlopez@altumlegal.mx',
+    email: 'vlopez@altum-legal.mx',
     phone: '+52 55 1234-5686',
     bio: 'Experta en derecho de competencia económica y antimonopolio. Ha representado a grandes corporaciones ante COFECE.',
     achievements: [
@@ -287,7 +287,7 @@ export const attorneys: Attorney[] = [
       'Especialización en Derecho Penal - UNAM'
     ],
     languages: ['Español', 'Inglés'],
-    email: 'dmoreno@altumlegal.mx',
+    email: 'dmoreno@altum-legal.mx',
     phone: '+52 55 1234-5687',
     bio: 'Especialista en derecho penal empresarial y compliance. Ha defendido casos de alto perfil en el ámbito corporativo.',
     achievements: [
@@ -316,7 +316,7 @@ export const attorneys: Attorney[] = [
       'Maestría en Derecho Sanitario - Universidad Complutense Madrid'
     ],
     languages: ['Español', 'Inglés', 'Francés'],
-    email: 'ivega@altumlegal.mx',
+    email: 'ivega@altum-legal.mx',
     phone: '+52 55 1234-5688',
     bio: 'Especialista en derecho sanitario y regulación farmacéutica. Ha asesorado a las principales farmacéuticas del país.',
     achievements: [
@@ -346,7 +346,7 @@ export const attorneys: Attorney[] = [
       'Doctorado en Comercio Internacional - London School of Economics'
     ],
     languages: ['Español', 'Inglés', 'Alemán', 'Mandarín'],
-    email: 'gtorres@altumlegal.mx',
+    email: 'gtorres@altum-legal.mx',
     phone: '+52 55 1234-5689',
     bio: 'Experto en derecho internacional y comercio exterior. Ha representado a México en negociaciones comerciales internacionales.',
     achievements: [
@@ -377,7 +377,7 @@ export const attorneys: Attorney[] = [
       'Doctorado en Regulación Energética - Universidad de Cambridge'
     ],
     languages: ['Español', 'Inglés', 'Francés'],
-    email: 'lhernandez@altumlegal.mx',
+    email: 'lhernandez@altum-legal.mx',
     phone: '+52 55 1234-5690',
     bio: 'Especialista en derecho energético con experiencia en proyectos de petróleo, gas y energías renovables.',
     achievements: [
@@ -407,7 +407,7 @@ export const attorneys: Attorney[] = [
       'Maestría en Derecho Marítimo - Universidad Marítima Internacional de Panamá'
     ],
     languages: ['Español', 'Inglés', 'Portugués'],
-    email: 'aramirez@altumlegal.mx',
+    email: 'aramirez@altum-legal.mx',
     phone: '+52 55 1234-5691',
     bio: 'Experto en derecho marítimo y transporte internacional. Ha manejado casos de las principales navieras del mundo.',
     achievements: [
@@ -438,7 +438,7 @@ export const attorneys: Attorney[] = [
       'Doctorado en Derecho Sucesorio - Universidad de Salamanca'
     ],
     languages: ['Español', 'Inglés', 'Italiano'],
-    email: 'cgutierrez@altumlegal.mx',
+    email: 'cgutierrez@altum-legal.mx',
     phone: '+52 55 1234-5692',
     bio: 'Especialista en estructuras patrimoniales y sucesiones de grandes fortunas. Experta en family office y wealth management legal.',
     achievements: [

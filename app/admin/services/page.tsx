@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Eye, EyeOff, GripVertical, Save, X, ChevronRight, Folder, FileText, Check } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import RoleGuard from '@/app/components/auth/RoleGuard';
 import toast from 'react-hot-toast';
 import { serviceIcons, getIconForPreview } from '@/app/lib/constants/serviceIcons';
 
@@ -31,6 +32,14 @@ interface ServiceFormData {
 }
 
 export default function ServicesAdmin() {
+  return (
+    <RoleGuard requiredPermission="manage_services">
+      <ServicesAdminContent />
+    </RoleGuard>
+  );
+}
+
+function ServicesAdminContent() {
   const [services, setServices] = useState<Service[]>([]);
   const [parentServices, setParentServices] = useState<Service[]>([]);
   const [expandedServices, setExpandedServices] = useState<Set<string>>(new Set());

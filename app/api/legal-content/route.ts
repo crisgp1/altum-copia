@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/app/lib/infrastructure/database/connection';
 import { MongoClient, Db } from 'mongodb';
+import { verifyApiAuth } from '@/app/lib/auth/api-auth';
 
 interface LegalContent {
   _id?: string;
@@ -33,7 +34,7 @@ export async function GET() {
         {
           type: 'privacy',
           title: 'Política de Privacidad',
-          content: '<h2>Política de Privacidad</h2><p>En ALTUM Legal, accesible desde altumlegal.com, una de nuestras principales prioridades es la privacidad de nuestros visitantes.</p><p>Este documento de Política de Privacidad contiene tipos de información que es recopilada y registrada por ALTUM Legal y cómo la usamos.</p>',
+          content: '<h2>Política de Privacidad</h2><p>En ALTUM Legal, accesible desde altum-legal.mx, una de nuestras principales prioridades es la privacidad de nuestros visitantes.</p><p>Este documento de Política de Privacidad contiene tipos de información que es recopilada y registrada por ALTUM Legal y cómo la usamos.</p>',
           bannerText: '',
           bannerActive: false,
           lastUpdated: new Date().toISOString()
@@ -64,8 +65,14 @@ export async function GET() {
   }
 }
 
-// PUT /api/legal-content - Update legal content
+// PUT /api/legal-content - Update legal content - Requiere permiso manage_legal
 export async function PUT(request: NextRequest) {
+  // Verificar autenticación y permiso manage_legal
+  const authResult = await verifyApiAuth('manage_legal');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     const body = await request.json();
     const { type, title, content, bannerText, bannerActive } = body;

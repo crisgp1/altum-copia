@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ServiceRepository } from '@/app/lib/infrastructure/persistence/repositories/ServiceRepository';
+import { verifyApiAuth } from '@/app/lib/auth/api-auth';
 
 const serviceRepository = new ServiceRepository();
 
@@ -44,11 +45,17 @@ export async function GET(
   }
 }
 
-// PUT /api/services/[id] - Update service by ID
+// PUT /api/services/[id] - Update service by ID - Requiere permiso manage_services
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Verificar autenticación y permiso manage_services
+  const authResult = await verifyApiAuth('manage_services');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -103,11 +110,17 @@ export async function PUT(
   }
 }
 
-// DELETE /api/services/[id] - Delete service by ID
+// DELETE /api/services/[id] - Delete service by ID - Requiere permiso manage_services
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Verificar autenticación y permiso manage_services
+  const authResult = await verifyApiAuth('manage_services');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     const { id } = await params;
     const service = await serviceRepository.findById(id);

@@ -1,14 +1,14 @@
 'use client';
 
-import { 
-  SignInButton, 
-  SignUpButton, 
-  SignedIn, 
-  SignedOut, 
-  UserButton 
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton
 } from "@clerk/nextjs";
 import { useRouter } from 'next/navigation';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, User } from 'lucide-react';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 
 export function AuthButtons() {
@@ -44,7 +44,15 @@ export function AuthButtons() {
             <span className="hidden lg:inline">Dashboard</span>
           </button>
         )}
-        <UserButton 
+        <button
+          onClick={() => router.push('/mi-cuenta')}
+          className="group flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-white bg-white/80 hover:bg-slate-700 border border-slate-200 hover:border-slate-700 rounded-full transition-all duration-200"
+          title="Mi cuenta"
+        >
+          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden lg:inline">Mi Cuenta</span>
+        </button>
+        <UserButton
           appearance={{
             elements: {
               avatarBox: "w-7 h-7 sm:w-8 sm:h-8"
@@ -71,7 +79,14 @@ export function MobileAuthButtons() {
           <LayoutDashboard className="w-5 h-5" />
         </button>
       )}
-      <UserButton 
+      <button
+        onClick={() => router.push('/mi-cuenta')}
+        className="p-1.5 text-slate-700 hover:text-slate-900 transition-colors"
+        title="Mi Cuenta"
+      >
+        <User className="w-5 h-5" />
+      </button>
+      <UserButton
         appearance={{
           elements: {
             avatarBox: "w-6 h-6"
@@ -108,18 +123,30 @@ export function MobileMenuAuth({ onClose }: { onClose: () => void }) {
         </div>
       </SignedOut>
       <SignedIn>
-        {(isAdmin() || isContentCreator()) && (
+        <div className="flex flex-col gap-3 w-full max-w-xs">
           <button
             onClick={() => {
               onClose();
-              setTimeout(() => router.push('/admin'), 300);
+              setTimeout(() => router.push('/mi-cuenta'), 300);
             }}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
-            <LayoutDashboard className="w-5 h-5" />
-            <span>Ir al Dashboard</span>
+            <User className="w-5 h-5" />
+            <span>Mi Cuenta</span>
           </button>
-        )}
+          {(isAdmin() || isContentCreator()) && (
+            <button
+              onClick={() => {
+                onClose();
+                setTimeout(() => router.push('/admin'), 300);
+              }}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              <span>Ir al Dashboard</span>
+            </button>
+          )}
+        </div>
       </SignedIn>
     </>
   );

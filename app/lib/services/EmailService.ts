@@ -56,8 +56,8 @@ class EmailService {
     };
 
     const mailOptions = {
-      from: process.env.SMTP_FROM || '"Altum Legal" <no-reply@altumlegal.mx>',
-      to: process.env.CONTACT_EMAIL || 'contacto@altumlegal.mx',
+      from: process.env.SMTP_FROM || '"Altum Legal" <no-reply@altum-legal.mx>',
+      to: process.env.CONTACT_EMAIL || 'contacto@altum-legal.mx',
       subject: `Nueva consulta de ${data.name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -80,7 +80,7 @@ class EmailService {
           </div>
           
           <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 12px;">
-            <p>Este mensaje fue enviado desde el formulario de contacto en altumlegal.mx</p>
+            <p>Este mensaje fue enviado desde el formulario de contacto en altum-legal.mx</p>
             <p>Fecha: ${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })}</p>
           </div>
         </div>
@@ -104,7 +104,7 @@ class EmailService {
     }
 
     const mailOptions = {
-      from: process.env.SMTP_FROM || '"Altum Legal" <no-reply@altumlegal.mx>',
+      from: process.env.SMTP_FROM || '"Altum Legal" <no-reply@altum-legal.mx>',
       to: data.email,
       subject: 'Hemos recibido su consulta - Altum Legal',
       html: `
@@ -137,7 +137,7 @@ class EmailService {
             <ul style="color: #475569; line-height: 1.8;">
               <li>Oficina: +52 33 3629 7531</li>
               <li>WhatsApp: +52 33 1568 1688</li>
-              <li>Email: contacto@altumlegal.mx</li>
+              <li>Email: contacto@altum-legal.mx</li>
               <li>Horario: Lunes a Viernes, 09:00 - 18:00</li>
               <li>Dirección: Av. Faro #2522, Bosques de la Victoria, CP. 44538, Guadalajara, Jalisco</li>
             </ul>

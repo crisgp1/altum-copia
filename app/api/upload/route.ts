@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
+import { verifyApiAuth } from '@/app/lib/auth/api-auth';
 
+// POST /api/upload - Requiere permiso manage_media
 export async function POST(request: NextRequest) {
+  // Verificar autenticación y permiso manage_media
+  const authResult = await verifyApiAuth('manage_media');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
