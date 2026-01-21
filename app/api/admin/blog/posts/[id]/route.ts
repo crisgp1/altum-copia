@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { BlogPostRepository } from '@/app/lib/infrastructure/persistence/repositories/BlogPostRepository';
 import { BlogPost, PostStatus } from '@/app/lib/domain/entities/BlogPost';
 import dbConnect from '@/app/lib/infrastructure/persistence/mongodb/connection';
-import { verifyApiAuth } from '@/app/lib/auth/api-auth';
+import { verifyApiAuth, verifyContentEditAuth, canEditContent } from '@/app/lib/auth/api-auth';
+import { UserRole, hasPermission } from '@/app/lib/auth/roles';
 
 const blogPostRepository = new BlogPostRepository();
 
@@ -10,7 +11,8 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  // Verificar autenticación y permiso manage_blog
+  // Verificar autenticación y permiso manage_blog (view posts)
+  // Both admin and content_creator have manage_blog
   const authResult = await verifyApiAuth('manage_blog');
   if (!authResult.authorized) {
     return authResult.error;
@@ -68,19 +70,29 @@ export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  // Verificar autenticación y permiso edit_content
-  const authResult = await verifyApiAuth('edit_content');
-  if (!authResult.authorized) {
-    return authResult.error;
-  }
-
   const params = await context.params;
 
   try {
     await dbConnect();
 
+    // First, get the post to check author
+    const existingPost = await blogPostRepository.findById(params.id);
+    if (!existingPost) {
+      return NextResponse.json(
+        { success: false, error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+
+    // Verificar autenticación y permiso de edición
+    // Acepta edit_content (puede editar cualquier post) O edit_own_content (solo sus posts)
+    const authResult = await verifyContentEditAuth(existingPost.authorId);
+    if (!authResult.authorized) {
+      return authResult.error;
+    }
+
     const body = await request.json();
-    
+
     // Validate required fields
     if (!body.title || !body.content) {
       return NextResponse.json(
@@ -88,20 +100,11 @@ export async function PUT(
         { status: 400 }
       );
     }
-    
+
     if (!body.categoryId) {
       return NextResponse.json(
         { success: false, error: 'Category is required' },
         { status: 400 }
-      );
-    }
-    
-    // Check if post exists
-    const existingPost = await blogPostRepository.findById(params.id);
-    if (!existingPost) {
-      return NextResponse.json(
-        { success: false, error: 'Post not found' },
-        { status: 404 }
       );
     }
     
@@ -185,17 +188,11 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  // Verificar autenticación y permiso delete_content
-  const authResult = await verifyApiAuth('delete_content');
-  if (!authResult.authorized) {
-    return authResult.error;
-  }
-
   const params = await context.params;
 
   try {
     await dbConnect();
-    
+
     // Check if post exists
     const existingPost = await blogPostRepository.findById(params.id);
     if (!existingPost) {
@@ -203,6 +200,13 @@ export async function DELETE(
         { success: false, error: 'Post not found' },
         { status: 404 }
       );
+    }
+
+    // Verificar autenticación y permiso delete_content
+    // Solo admin/superadmin pueden eliminar posts
+    const authResult = await verifyApiAuth('delete_content');
+    if (!authResult.authorized) {
+      return authResult.error;
     }
     
     // Delete the post
