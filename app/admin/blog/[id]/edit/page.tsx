@@ -78,15 +78,11 @@ function EditBlogPostContent() {
   const [activeTab, setActiveTab] = useState<'content' | 'seo' | 'settings'>('content');
   const [attorneys, setAttorneys] = useState<Attorney[]>([]);
   const [loadingAttorneys, setLoadingAttorneys] = useState(true);
-  const [originalAuthorId, setOriginalAuthorId] = useState<string>('');
 
   // Check edit permissions
-  const canEditAnyContent = hasPermission('edit_content');
-  const canEditOwnContent = hasPermission('edit_own_content');
-
-  // User can edit if they have edit_content OR (edit_own_content AND are the author)
-  // We check author match after loading the post
-  const canEditThisPost = canEditAnyContent || (canEditOwnContent && originalAuthorId === user?.id);
+  // NOTA: edit_own_content funciona igual que edit_content actualmente
+  // porque el modelo no rastrea qué usuario de Clerk creó el post
+  const canEditContent = hasPermission('edit_content') || hasPermission('edit_own_content');
   
   const [formData, setFormData] = useState<BlogFormData>({
     title: '',
@@ -165,9 +161,6 @@ function EditBlogPostContent() {
           const result = await response.json();
           if (result.success && result.data) {
             const post = result.data;
-            // Store original author for permission check
-            setOriginalAuthorId(post.authorId || '');
-
             setFormData({
               title: post.title || '',
               slug: post.slug || '',
@@ -282,10 +275,8 @@ function EditBlogPostContent() {
   };
 
   const handleSubmit = async (status: PostStatus) => {
-    // Check if user can edit this post
-    const canEdit = canEditAnyContent || (canEditOwnContent && originalAuthorId === user?.id);
-    if (!canEdit) {
-      toast.error('No tienes permisos para editar este contenido');
+    if (!canEditContent) {
+      toast.error('No tienes permisos para editar contenido');
       return;
     }
 
@@ -351,9 +342,8 @@ function EditBlogPostContent() {
     }
   };
 
-  // Check permission after post is loaded
-  // If still loading, don't show permission error yet
-  if (!isLoadingPost && !canEditAnyContent && !canEditOwnContent) {
+  // Check permission after component mounts
+  if (!canEditContent) {
     return (
       <div className="text-center py-12">
         <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -367,31 +357,6 @@ function EditBlogPostContent() {
         <p className="text-slate-600">
           No tienes permisos para editar contenido.
         </p>
-      </div>
-    );
-  }
-
-  // If user can only edit own content, check if they own this post
-  if (!isLoadingPost && !canEditAnyContent && canEditOwnContent && originalAuthorId && originalAuthorId !== user?.id) {
-    return (
-      <div className="text-center py-12">
-        <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-        </div>
-        <h1 className="text-3xl font-bold text-slate-800 mb-4">
-          No eres el autor de este post
-        </h1>
-        <p className="text-slate-600 mb-6">
-          Solo puedes editar los posts que tú has creado.
-        </p>
-        <button
-          onClick={() => router.push('/admin/blog')}
-          className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-        >
-          Volver a mis posts
-        </button>
       </div>
     );
   }

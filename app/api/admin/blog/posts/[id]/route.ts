@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { BlogPostRepository } from '@/app/lib/infrastructure/persistence/repositories/BlogPostRepository';
 import { BlogPost, PostStatus } from '@/app/lib/domain/entities/BlogPost';
 import dbConnect from '@/app/lib/infrastructure/persistence/mongodb/connection';
-import { verifyApiAuth, verifyContentEditAuth, canEditContent } from '@/app/lib/auth/api-auth';
-import { UserRole, hasPermission } from '@/app/lib/auth/roles';
+import { verifyApiAuth, verifyContentEditAuth } from '@/app/lib/auth/api-auth';
 
 const blogPostRepository = new BlogPostRepository();
 
@@ -85,8 +84,8 @@ export async function PUT(
     }
 
     // Verificar autenticación y permiso de edición
-    // Acepta edit_content (puede editar cualquier post) O edit_own_content (solo sus posts)
-    const authResult = await verifyContentEditAuth(existingPost.authorId);
+    // Acepta edit_content O edit_own_content
+    const authResult = await verifyContentEditAuth();
     if (!authResult.authorized) {
       return authResult.error;
     }
