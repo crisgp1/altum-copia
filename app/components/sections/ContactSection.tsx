@@ -5,8 +5,16 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import toast from 'react-hot-toast';
 import { validateContactForm, sanitizeInput } from '@/app/lib/utils/validation';
-import { FaPhone, FaWhatsapp, FaMapMarkerAlt, FaClock, FaEnvelope, FaArrowRight } from 'react-icons/fa';
+import { FaPhone, FaWhatsapp, FaMapMarkerAlt, FaClock, FaEnvelope, FaArrowRight, FaUser } from 'react-icons/fa';
 import { useServicesStore } from '@/app/lib/stores/servicesStore';
+
+interface AttorneyOption {
+  id: string;
+  nombre: string;
+  apellido: string;
+  telefono?: string;
+  posicion?: string;
+}
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -48,12 +56,15 @@ export default function ContactSection() {
     email: '',
     phone: '',
     area: '',
-    message: ''
+    message: '',
+    attorneyId: '' // ID del abogado seleccionado (opcional)
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [mounted, setMounted] = useState(false);
+  const [attorneys, setAttorneys] = useState<AttorneyOption[]>([]);
+  const [attorneysLoading, setAttorneysLoading] = useState(false);
 
   // Obtener servicios desde el store
   const services = useServicesStore((state) => state.services);
@@ -72,6 +83,38 @@ export default function ContactSection() {
       fetchServices();
     }
   }, [mounted, services.length, servicesLoading]); // fetchServices es estable en el store
+
+  // Cargar abogados al montar el componente
+  useEffect(() => {
+    const loadAttorneys = async () => {
+      if (!mounted) return;
+
+      setAttorneysLoading(true);
+      try {
+        const response = await fetch('/api/attorneys/active');
+        if (response.ok) {
+          const data = await response.json();
+          // Filtrar solo abogados que tengan teléfono
+          const attorneysWithPhone = data
+            .filter((att: any) => att.telefono)
+            .map((att: any) => ({
+              id: att.id || att._id,
+              nombre: att.nombre,
+              apellido: att.apellido,
+              telefono: att.telefono,
+              posicion: att.posicion
+            }));
+          setAttorneys(attorneysWithPhone);
+        }
+      } catch (error) {
+        console.error('Error loading attorneys:', error);
+      } finally {
+        setAttorneysLoading(false);
+      }
+    };
+
+    loadAttorneys();
+  }, [mounted]);
 
   // Obtener solo los servicios principales (padres) - solo después de montar
   const parentServices = mounted ? getParentServices() : [];
@@ -94,50 +137,75 @@ export default function ContactSection() {
     }
   };
 
+  // Obtener el abogado seleccionado
+  const getSelectedAttorney = (): AttorneyOption | undefined => {
+    return attorneys.find(att => att.id === formData.attorneyId);
+  };
+
   const generateWhatsAppMessage = () => {
-    const { name, email, phone, area, message } = formData;
-    
+    const { name, email, phone, area, message, attorneyId } = formData;
+    const selectedAttorney = getSelectedAttorney();
+
     let whatsappMessage = `*Nueva Consulta Legal - ALTUM Legal*\n\n`;
+
+    if (selectedAttorney) {
+      whatsappMessage += `*Dirigido a:* ${selectedAttorney.nombre} ${selectedAttorney.apellido}\n\n`;
+    }
+
     whatsappMessage += `*Nombre:* ${name}\n`;
     whatsappMessage += `*Email:* ${email}\n`;
-    
+
     if (phone) {
       whatsappMessage += `*Teléfono:* ${phone}\n`;
     }
-    
+
     if (area) {
       whatsappMessage += `*Área de interés:* ${area}\n`;
     }
-    
+
     whatsappMessage += `\n*Consulta:*\n${message}\n\n`;
     whatsappMessage += `_Mensaje enviado desde altum-legal.mx_`;
-    
+
     return encodeURIComponent(whatsappMessage);
   };
 
   const sendToWhatsApp = () => {
     // Validate form first
     const validation = validateContactForm(formData);
-    
+
     if (!validation.isValid) {
       setErrors(validation.errors);
       toast.error('Por favor corrija los errores en el formulario');
       return;
     }
-    
+
     setErrors({});
-    
-    // WhatsApp number from contact info
-    const whatsappNumber = '523315681688';
+
+    // Obtener número de WhatsApp: del abogado seleccionado o el general
+    const selectedAttorney = getSelectedAttorney();
+    let whatsappNumber = '523315681688'; // Número general por defecto
+
+    if (selectedAttorney?.telefono) {
+      // Limpiar el número de teléfono (quitar espacios, guiones, paréntesis, +)
+      whatsappNumber = selectedAttorney.telefono.replace(/[\s\-\(\)\+]/g, '');
+      // Si empieza con 52 (México), está bien; si no, agregar 52
+      if (!whatsappNumber.startsWith('52') && !whatsappNumber.startsWith('1')) {
+        whatsappNumber = '52' + whatsappNumber;
+      }
+    }
+
     const encodedMessage = generateWhatsAppMessage();
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-    
+
     // Open WhatsApp in new window/tab
     window.open(whatsappUrl, '_blank');
-    
+
     // Show success message
-    toast.success('Redirigiendo a WhatsApp...');
-    
+    const successMessage = selectedAttorney
+      ? `Contactando a ${selectedAttorney.nombre} ${selectedAttorney.apellido}...`
+      : 'Redirigiendo a WhatsApp...';
+    toast.success(successMessage);
+
     // Reset form after successful validation
     setTimeout(() => {
       setFormData(() => ({
@@ -145,7 +213,8 @@ export default function ContactSection() {
         email: '',
         phone: '',
         area: '',
-        message: ''
+        message: '',
+        attorneyId: ''
       }));
     }, 1000);
   };
@@ -186,7 +255,8 @@ export default function ContactSection() {
           email: '',
           phone: '',
           area: '',
-          message: ''
+          message: '',
+          attorneyId: ''
         }));
       } else {
         toast.error(data.error || 'Error al enviar el formulario');
@@ -309,8 +379,8 @@ export default function ContactSection() {
                     value={formData.phone}
                     onChange={handleInputChange}
                     className={`w-full px-3 sm:px-4 py-2 sm:py-3 border transition-all duration-200 focus:outline-none focus:ring-1 text-sm sm:text-base ${
-                      errors.phone 
-                        ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                      errors.phone
+                        ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                         : 'border-stone-300 focus:ring-amber-500 focus:border-amber-500'
                     }`}
                   />
@@ -339,6 +409,35 @@ export default function ContactSection() {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              {/* Selector de Abogado */}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-2">
+                  <FaUser className="inline-block w-3 h-3 mr-1 text-amber-600" />
+                  Contactar a un abogado específico (opcional)
+                </label>
+                <select
+                  name="attorneyId"
+                  value={formData.attorneyId}
+                  onChange={handleInputChange}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 text-sm sm:text-base"
+                  disabled={attorneysLoading}
+                >
+                  <option value="">
+                    {attorneysLoading ? 'Cargando abogados...' : 'Contacto general (oficina)'}
+                  </option>
+                  {attorneys.map((attorney) => (
+                    <option key={attorney.id} value={attorney.id}>
+                      {attorney.nombre} {attorney.apellido}{attorney.posicion ? ` - ${attorney.posicion}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-slate-500">
+                  {formData.attorneyId
+                    ? 'El mensaje será enviado directamente al abogado seleccionado'
+                    : 'El mensaje será enviado a la línea general de ALTUM Legal'}
+                </p>
               </div>
               
               <div>
@@ -383,7 +482,11 @@ export default function ContactSection() {
                   className="bg-green-600 text-white px-6 sm:px-8 py-3 sm:py-4 font-medium transition-all duration-300 inline-flex items-center justify-center text-sm sm:text-base hover:bg-green-700 group"
                   style={{ minHeight: '44px' }}
                 >
-                  <span>Enviar por WhatsApp</span>
+                  <span>
+                    {formData.attorneyId && getSelectedAttorney()
+                      ? `WhatsApp: ${getSelectedAttorney()?.nombre}`
+                      : 'WhatsApp General'}
+                  </span>
                   <FaWhatsapp className="ml-2 w-4 h-4 transition-transform group-hover:scale-110" />
                 </button>
               </div>
