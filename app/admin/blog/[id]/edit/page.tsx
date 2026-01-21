@@ -145,23 +145,32 @@ function EditBlogPostContent() {
     };
   }, []);
 
-  // Load existing post data with AbortSignal
+  // Load existing post data
   useEffect(() => {
-    const abortController = new AbortController();
+    let isMounted = true;
 
     const loadPost = async () => {
       if (!postId) return;
 
       try {
         setIsLoadingPost(true);
-        const response = await fetch(`/api/admin/blog/posts/${postId}`, {
-          signal: abortController.signal
-        });
+        const response = await fetch(`/api/admin/blog/posts/${postId}`);
+
+        if (!isMounted) return;
+
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {
             const post = result.data;
-            console.log('Loaded post data:', { title: post.title, content: post.content?.substring(0, 100) });
+            console.log('Loaded post data:', {
+              title: post.title,
+              slug: post.slug,
+              contentLength: post.content?.length,
+              excerpt: post.excerpt?.substring(0, 50)
+            });
+
+            if (!isMounted) return;
+
             setFormData({
               title: post.title || '',
               slug: post.slug || '',
@@ -187,19 +196,19 @@ function EditBlogPostContent() {
             router.push('/admin/blog');
           }
         } else {
-          toast.error('Error al cargar el post');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Error response:', response.status, errorData);
+          toast.error(errorData.error || 'Error al cargar el post');
           router.push('/admin/blog');
         }
       } catch (error: any) {
-        if (error.name === 'AbortError') {
-          console.log('Fetch post cancelled');
-          return;
-        }
         console.error('Error loading post:', error);
-        toast.error('Error al cargar el post');
-        router.push('/admin/blog');
+        if (isMounted) {
+          toast.error('Error al cargar el post');
+          router.push('/admin/blog');
+        }
       } finally {
-        if (!abortController.signal.aborted) {
+        if (isMounted) {
           setIsLoadingPost(false);
         }
       }
@@ -208,10 +217,10 @@ function EditBlogPostContent() {
     loadPost();
 
     return () => {
-      abortController.abort();
+      isMounted = false;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId]); // Remove router from dependencies to avoid re-fetching
+  }, [postId]);
 
   // Generate slug from title
   const generateSlug = (title: string) => {
