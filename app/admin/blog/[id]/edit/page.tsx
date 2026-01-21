@@ -162,13 +162,6 @@ function EditBlogPostContent() {
           const result = await response.json();
           if (result.success && result.data) {
             const post = result.data;
-            console.log('Loaded post data:', {
-              title: post.title,
-              slug: post.slug,
-              contentLength: post.content?.length,
-              excerpt: post.excerpt?.substring(0, 50)
-            });
-
             if (!isMounted) return;
 
             setFormData({
@@ -803,6 +796,7 @@ function EditBlogPostContent() {
                       Contenido *
                     </label>
                     <DraftJsEditor
+                      key={`editor-${postId}-${formData.content.length > 0 ? 'loaded' : 'empty'}`}
                       value={formData.content}
                       onChange={(value) => handleInputChange('content', value)}
                       placeholder="Escribe el contenido del post aquí... Usa la barra de herramientas para formatear el texto."

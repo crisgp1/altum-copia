@@ -32,8 +32,9 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
   const [paragraphSpacing, setParagraphSpacing] = useState(formatConfig?.paragraphSpacing || 0.5);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
   const isInitialMount = useRef(true);
-  const previousValueRef = useRef(value);
+  const previousValueRef = useRef<string>(''); // Always start empty
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isExternalUpdate = useRef(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
@@ -91,39 +92,52 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
 
   // CRITICAL FIX: Sync editor state when value prop changes
   useEffect(() => {
-    // Skip if value hasn't actually changed
-    if (previousValueRef.current === value) {
+    // Solo actualizar si hay contenido Y es diferente al actual
+    if (!value || value === previousValueRef.current) {
       return;
     }
 
-    previousValueRef.current = value;
-
-    if (value && value.trim()) {
-      try {
-        const contentBlock = htmlToDraft(value);
-        if (contentBlock && contentBlock.contentBlocks) {
-          const contentState = ContentState.createFromBlockArray(
-            contentBlock.contentBlocks,
-            contentBlock.entityMap
-          );
-          const newEditorState = EditorState.createWithContent(
-            contentState,
-            decoratorRef.current
-          );
-          setEditorState(newEditorState);
-        }
-      } catch (error) {
-        console.warn('Could not parse HTML content:', error);
-      }
-    } else if (!value) {
-      // If value is empty, reset editor with decorator
-      setEditorState(EditorState.createEmpty(decoratorRef.current));
+    // Limpiar debounce pendiente
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
     }
+
+    // Marcar como actualización externa
+    isExternalUpdate.current = true;
+
+    try {
+      const contentBlock = htmlToDraft(value);
+      if (contentBlock?.contentBlocks) {
+        const contentState = ContentState.createFromBlockArray(
+          contentBlock.contentBlocks,
+          contentBlock.entityMap
+        );
+        const newEditorState = EditorState.createWithContent(
+          contentState,
+          decoratorRef.current
+        );
+        setEditorState(newEditorState);
+        previousValueRef.current = value;
+      }
+    } catch (error) {
+      console.warn('Could not parse HTML:', error);
+    }
+
+    // Resetear flag DESPUÉS de que React haya procesado el setState
+    Promise.resolve().then(() => {
+      isExternalUpdate.current = false;
+    });
   }, [value]);
 
   // Convert editor state to HTML and notify parent with debouncing
   const handleEditorChange = useCallback((newEditorState: EditorState) => {
     setEditorState(newEditorState);
+
+    // Skip onChange callback if this is an external update from props
+    if (isExternalUpdate.current) {
+      return;
+    }
 
     // Clear existing timer
     if (debounceTimerRef.current) {
@@ -136,11 +150,8 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
       const rawContentState = convertToRaw(contentState);
       const htmlContent = draftToHtml(rawContentState);
 
-      // Only call onChange if content actually changed
-      if (htmlContent !== previousValueRef.current) {
-        previousValueRef.current = htmlContent;
-        onChange(htmlContent);
-      }
+      // NO actualizar previousValueRef aquí, solo notificar al padre
+      onChange(htmlContent);
     }, 300);
   }, [onChange]);
 
