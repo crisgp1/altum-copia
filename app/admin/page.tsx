@@ -1,7 +1,7 @@
 'use client';
 
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -14,8 +14,11 @@ import {
   UserCheck,
   FileEdit,
   X,
-  Clock
+  Clock,
+  Image,
+  Settings
 } from 'lucide-react';
+import { hasPermission, UserRole } from '@/app/lib/auth/roles';
 
 interface DashboardStats {
   totalPosts: number;
@@ -45,14 +48,28 @@ export default function AdminDashboard() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 
+  // Check if user has specific permissions based on role
+  const userRole = (role as UserRole) || UserRole.USER;
+  const canManageUsers = hasPermission(userRole, 'manage_users');
+  const canManageAttorneys = hasPermission(userRole, 'manage_attorneys');
+  const canManageServices = hasPermission(userRole, 'manage_services');
+  const canViewAnalytics = hasPermission(userRole, 'view_analytics');
+  const canCreateContent = hasPermission(userRole, 'create_content');
+  const canManageBlog = hasPermission(userRole, 'manage_blog');
+
   useEffect(() => {
     // Fetch real dashboard stats and recent activity
     const fetchDashboardData = async () => {
       try {
-        const [postsResponse, usersResponse] = await Promise.all([
-          fetch('/api/admin/blog/posts'),
-          fetch('/api/admin/users')
-        ]);
+        // Only fetch users data if user has permission
+        const fetchPromises: Promise<Response>[] = [fetch('/api/admin/blog/posts')];
+        if (canManageUsers) {
+          fetchPromises.push(fetch('/api/admin/users'));
+        }
+
+        const responses = await Promise.all(fetchPromises);
+        const postsResponse = responses[0];
+        const usersResponse = canManageUsers ? responses[1] : null;
 
         let totalPosts = 0;
         let publishedPosts = 0;
@@ -88,27 +105,29 @@ export default function AdminDashboard() {
         }
 
         let totalUsers = 0;
-        if (usersResponse.ok) {
+        if (usersResponse && usersResponse.ok) {
           const usersData = await usersResponse.json();
           if (usersData.success && usersData.data) {
             totalUsers = usersData.data.length || 0;
 
-            // Get recent users for activity
-            const recentUsers = usersData.data
-              .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-              .slice(0, 2);
-            
-            recentUsers.forEach((user: any) => {
-              const userDate = new Date(user.createdAt);
-              const timeAgo = getTimeAgo(userDate);
-              
-              activity.push({
-                action: 'Usuario registrado',
-                item: user.email || user.firstName + ' ' + user.lastName,
-                time: timeAgo,
-                type: 'user'
+            // Get recent users for activity (only if user can manage users)
+            if (canManageUsers) {
+              const recentUsers = usersData.data
+                .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .slice(0, 2);
+
+              recentUsers.forEach((user: any) => {
+                const userDate = new Date(user.createdAt);
+                const timeAgo = getTimeAgo(userDate);
+
+                activity.push({
+                  action: 'Usuario registrado',
+                  item: user.email || user.firstName + ' ' + user.lastName,
+                  time: timeAgo,
+                  type: 'user'
+                });
               });
-            });
+            }
           }
         }
 
@@ -170,38 +189,64 @@ export default function AdminDashboard() {
       // Auto-hide welcome message after 5 seconds
       setTimeout(() => setShowWelcome(false), 5000);
     }
-  }, [searchParams]);
+  }, [searchParams, canManageUsers]);
 
-  const quickActions = [
-    {
-      title: 'Crear Nuevo Post',
-      description: 'Escribir un nuevo artículo para el blog',
-      href: '/admin/blog/new',
-      icon: <Plus className="w-8 h-8" />,
-      color: 'bg-green-500'
-    },
-    {
-      title: 'Gestionar Abogados',
-      description: 'Administrar perfiles de abogados',
-      href: '/admin/attorneys',
-      icon: <Users className="w-8 h-8" />,
-      color: 'bg-amber-500'
-    },
-    {
-      title: 'Gestionar Posts',
-      description: 'Ver y editar posts existentes',
-      href: '/admin/blog',
-      icon: <FileText className="w-8 h-8" />,
-      color: 'bg-blue-500'
-    },
-    {
-      title: 'Gestionar Usuarios',
-      description: 'Administrar usuarios y roles',
-      href: '/admin/users',
-      icon: <UserCheck className="w-8 h-8" />,
-      color: 'bg-orange-500'
-    }
-  ];
+  // Filter quick actions based on user permissions
+  const quickActions = useMemo(() => {
+    const allActions = [
+      {
+        title: 'Crear Nuevo Post',
+        description: 'Escribir un nuevo artículo para el blog',
+        href: '/admin/blog/new',
+        icon: <Plus className="w-8 h-8" />,
+        color: 'bg-green-500',
+        permission: 'create_content'
+      },
+      {
+        title: 'Gestionar Posts',
+        description: 'Ver y editar posts existentes',
+        href: '/admin/blog',
+        icon: <FileText className="w-8 h-8" />,
+        color: 'bg-blue-500',
+        permission: 'manage_blog'
+      },
+      {
+        title: 'Gestionar Medios',
+        description: 'Administrar imágenes y archivos',
+        href: '/admin/media',
+        icon: <Image className="w-8 h-8" />,
+        color: 'bg-purple-500',
+        permission: 'manage_media'
+      },
+      {
+        title: 'Gestionar Abogados',
+        description: 'Administrar perfiles de abogados',
+        href: '/admin/attorneys',
+        icon: <Users className="w-8 h-8" />,
+        color: 'bg-amber-500',
+        permission: 'manage_attorneys'
+      },
+      {
+        title: 'Gestionar Servicios',
+        description: 'Administrar servicios legales',
+        href: '/admin/services',
+        icon: <Settings className="w-8 h-8" />,
+        color: 'bg-teal-500',
+        permission: 'manage_services'
+      },
+      {
+        title: 'Gestionar Usuarios',
+        description: 'Administrar usuarios y roles',
+        href: '/admin/users',
+        icon: <UserCheck className="w-8 h-8" />,
+        color: 'bg-orange-500',
+        permission: 'manage_users'
+      }
+    ];
+
+    // Filter actions based on user permissions
+    return allActions.filter(action => hasPermission(userRole, action.permission));
+  }, [userRole]);
 
   return (
     <div className="min-h-screen">
@@ -224,8 +269,9 @@ export default function AdminDashboard() {
                 ¡Bienvenido al Panel de Administración!
               </h3>
               <p className="text-sm sm:text-base text-green-800 mt-1">
-                Has sido redirigido automáticamente porque tienes permisos de administrador. 
-                Desde aquí puedes gestionar contenido, usuarios y configuraciones.
+                {canManageUsers
+                  ? 'Has sido redirigido automáticamente porque tienes permisos de administrador. Desde aquí puedes gestionar contenido, usuarios y configuraciones.'
+                  : 'Has sido redirigido automáticamente. Desde aquí puedes gestionar el contenido del blog.'}
               </p>
             </div>
           </div>
@@ -240,7 +286,9 @@ export default function AdminDashboard() {
               Bienvenido, {user?.firstName}!
             </h1>
             <p className="text-sm sm:text-base text-slate-600">
-              Gestiona el contenido y los usuarios de ALTUM Legal desde este panel.
+              {canManageUsers
+                ? 'Gestiona el contenido y los usuarios de ALTUM Legal desde este panel.'
+                : 'Gestiona el contenido del blog de ALTUM Legal desde este panel.'}
             </p>
           </div>
           <div className="text-left sm:text-right">
@@ -253,7 +301,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+      <div className={`grid grid-cols-1 sm:grid-cols-2 ${canManageUsers ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4 sm:gap-5 lg:gap-6`}>
         <div className="bg-white rounded-lg lg:rounded-xl shadow-sm border border-stone-200 p-4 sm:p-5 lg:p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -301,12 +349,27 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Only show users count to those with manage_users permission */}
+        {canManageUsers && (
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-sm border border-stone-200 p-4 sm:p-5 lg:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-slate-600">Total Usuarios</p>
+                <p className="text-2xl sm:text-3xl font-bold text-indigo-600">{stats.totalUsers}</p>
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="w-6 h-6 text-indigo-600" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Quick Actions */}
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 sm:mb-5 lg:mb-6">Acciones Rápidas</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${quickActions.length > 4 ? 'lg:grid-cols-3 xl:grid-cols-6' : quickActions.length > 3 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4 sm:gap-5 lg:gap-6`}>
           {quickActions.map((action, index) => (
             <Link
               key={index}
