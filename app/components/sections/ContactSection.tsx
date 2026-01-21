@@ -53,6 +53,7 @@ export default function ContactSection() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [mounted, setMounted] = useState(false);
 
   // Obtener servicios desde el store
   const services = useServicesStore((state) => state.services);
@@ -60,15 +61,20 @@ export default function ContactSection() {
   const fetchServices = useServicesStore((state) => state.fetchServices);
   const getParentServices = useServicesStore((state) => state.getParentServices);
 
+  // Marcar como montado para evitar errores de hidratación
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Cargar servicios al montar el componente
   useEffect(() => {
-    if (services.length === 0 && !servicesLoading) {
+    if (mounted && services.length === 0 && !servicesLoading) {
       fetchServices();
     }
-  }, [services.length, servicesLoading]); // fetchServices es estable en el store
+  }, [mounted, services.length, servicesLoading]); // fetchServices es estable en el store
 
-  // Obtener solo los servicios principales (padres)
-  const parentServices = getParentServices();
+  // Obtener solo los servicios principales (padres) - solo después de montar
+  const parentServices = mounted ? getParentServices() : [];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
