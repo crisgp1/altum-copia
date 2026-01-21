@@ -149,7 +149,7 @@ class EmailService {
           </div>
           
           <div style="background-color: #f1f5f9; padding: 20px; text-align: center; color: #94a3b8; font-size: 12px;">
-            <p>© 2024 Altum Legal. Todos los derechos reservados.</p>
+            <p>© ${new Date().getFullYear()} Altum Legal. Todos los derechos reservados.</p>
             <p>Este es un correo automático, por favor no responda a este mensaje.</p>
           </div>
         </div>
