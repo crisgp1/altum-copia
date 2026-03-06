@@ -6,7 +6,7 @@ import { useUserRole } from '@/app/lib/hooks/useUserRole';
 import { PostStatus } from '@/app/lib/domain/entities/BlogPost';
 import { CitationConfig } from '@/app/lib/domain/entities/Citation';
 import RoleGuard from '@/app/components/auth/RoleGuard';
-import DraftJsEditor from '@/app/components/admin/DraftJsEditor';
+import TiptapEditor from '@/app/components/admin/TiptapEditor';
 import { BlogImageUpload } from '@/app/components/admin/BlogImageUpload';
 import CitationManager from '@/app/components/admin/CitationManager';
 import toast from 'react-hot-toast';
@@ -795,7 +795,7 @@ function EditBlogPostContent() {
                     <label className="block text-base font-semibold text-slate-900 mb-2">
                       Contenido *
                     </label>
-                    <DraftJsEditor
+                    <TiptapEditor
                       key={`editor-${postId}-${formData.content.length > 0 ? 'loaded' : 'empty'}`}
                       value={formData.content}
                       onChange={(value) => handleInputChange('content', value)}

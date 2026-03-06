@@ -1,18 +1,19 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { EditorState, RichUtils, getDefaultKeyBinding, KeyBindingUtil, convertToRaw, convertFromRaw, ContentState, Modifier, SelectionState, RichUtils as DraftRichUtils, CompositeDecorator } from 'draft-js';
-import { Editor } from 'draft-js';
-import draftToHtml from 'draftjs-to-html';
-import htmlToDraft from 'html-to-draftjs';
-import 'draft-js/dist/Draft.css';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import TextAlign from '@tiptap/extension-text-align';
 
 interface FormatConfig {
   lineHeight: number;
   paragraphSpacing: number;
 }
 
-interface DraftJsEditorProps {
+interface TiptapEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -20,69 +21,77 @@ interface DraftJsEditorProps {
   onFormatConfigChange?: (config: FormatConfig) => void;
 }
 
-const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
+const TiptapEditor: React.FC<TiptapEditorProps> = ({
   value,
   onChange,
   placeholder,
   formatConfig,
-  onFormatConfigChange
+  onFormatConfigChange,
 }) => {
-  const editorRef = useRef<Editor>(null);
   const [lineHeight, setLineHeight] = useState(formatConfig?.lineHeight || 1.4);
   const [paragraphSpacing, setParagraphSpacing] = useState(formatConfig?.paragraphSpacing || 0.5);
-  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
-  const isInitialMount = useRef(true);
-  const previousValueRef = useRef<string>(''); // Always start empty
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isExternalUpdate = useRef(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
+  const isExternalUpdate = useRef(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Link decorator component
-  const Link = (props: any) => {
-    const { url } = props.contentState.getEntity(props.entityKey).getData();
-    return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          color: '#d97706',
-          textDecoration: 'underline',
-        }}
-      >
-        {props.children}
-      </a>
-    );
-  };
-
-  // Decorator to find link entities
-  const findLinkEntities = (
-    contentBlock: any,
-    callback: any,
-    contentState: any
-  ) => {
-    contentBlock.findEntityRanges((character: any) => {
-      const entityKey = character.getEntity();
-      return (
-        entityKey !== null &&
-        contentState.getEntity(entityKey).getType() === 'LINK'
-      );
-    }, callback);
-  };
-
-  // Create decorator once
-  const decoratorRef = useRef(
-    new CompositeDecorator([
-      {
-        strategy: findLinkEntities,
-        component: Link,
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+      }),
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+      }),
+      Placeholder.configure({
+        placeholder: placeholder || 'Escribe tu contenido aquí...',
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+    ],
+    content: value || '',
+    editorProps: {
+      attributes: {
+        class: 'tiptap-content',
+        dir: 'ltr',
       },
-    ])
-  );
+    },
+    onUpdate: ({ editor }) => {
+      if (isExternalUpdate.current) return;
 
-  // Update local state when formatConfig prop changes
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      debounceTimerRef.current = setTimeout(() => {
+        const html = editor.getHTML();
+        onChange(html);
+      }, 300);
+    },
+  });
+
+  // Sync external value changes
+  useEffect(() => {
+    if (!editor || !value) return;
+
+    const currentHTML = editor.getHTML();
+    // Avoid re-setting content if it matches what the editor already has
+    if (currentHTML === value) return;
+
+    isExternalUpdate.current = true;
+    editor.commands.setContent(value, { emitUpdate: false });
+    isExternalUpdate.current = false;
+  }, [value, editor]);
+
+  // Sync format config
   useEffect(() => {
     if (formatConfig) {
       setLineHeight(formatConfig.lineHeight);
@@ -90,72 +99,7 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
     }
   }, [formatConfig]);
 
-  // CRITICAL FIX: Sync editor state when value prop changes
-  useEffect(() => {
-    // Solo actualizar si hay contenido Y es diferente al actual
-    if (!value || value === previousValueRef.current) {
-      return;
-    }
-
-    // Limpiar debounce pendiente
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = null;
-    }
-
-    // Marcar como actualización externa
-    isExternalUpdate.current = true;
-
-    try {
-      const contentBlock = htmlToDraft(value);
-      if (contentBlock?.contentBlocks) {
-        const contentState = ContentState.createFromBlockArray(
-          contentBlock.contentBlocks,
-          contentBlock.entityMap
-        );
-        const newEditorState = EditorState.createWithContent(
-          contentState,
-          decoratorRef.current
-        );
-        setEditorState(newEditorState);
-        previousValueRef.current = value;
-      }
-    } catch (error) {
-      console.warn('Could not parse HTML:', error);
-    }
-
-    // Resetear flag DESPUÉS de que React haya procesado el setState
-    Promise.resolve().then(() => {
-      isExternalUpdate.current = false;
-    });
-  }, [value]);
-
-  // Convert editor state to HTML and notify parent with debouncing
-  const handleEditorChange = useCallback((newEditorState: EditorState) => {
-    setEditorState(newEditorState);
-
-    // Skip onChange callback if this is an external update from props
-    if (isExternalUpdate.current) {
-      return;
-    }
-
-    // Clear existing timer
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    // Debounce onChange to avoid excessive parent re-renders
-    debounceTimerRef.current = setTimeout(() => {
-      const contentState = newEditorState.getCurrentContent();
-      const rawContentState = convertToRaw(contentState);
-      const htmlContent = draftToHtml(rawContentState);
-
-      // NO actualizar previousValueRef aquí, solo notificar al padre
-      onChange(htmlContent);
-    }, 300);
-  }, [onChange]);
-
-  // Cleanup debounce timer on unmount
+  // Cleanup
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
@@ -164,169 +108,95 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
     };
   }, []);
 
-  // Handle keyboard shortcuts
-  const handleKeyCommand = (command: string, editorState: EditorState) => {
-    const newState = RichUtils.handleKeyCommand(editorState, command);
-    if (newState) {
-      handleEditorChange(newState);
-      return 'handled';
-    }
-    return 'not-handled';
-  };
-
-  // Custom key bindings
-  const mapKeyToEditorCommand = (e: React.KeyboardEvent) => {
-    if (e.keyCode === 9) { // TAB
-      const newEditorState = RichUtils.onTab(e, editorState, 4);
-      if (newEditorState !== editorState) {
-        handleEditorChange(newEditorState);
-      }
-      return;
-    }
-    return getDefaultKeyBinding(e);
-  };
-
-  // Inline style controls
-  const toggleInlineStyle = (inlineStyle: string) => {
-    handleEditorChange(RichUtils.toggleInlineStyle(editorState, inlineStyle));
-  };
-
-  // Block type controls
-  const toggleBlockType = (blockType: string) => {
-    handleEditorChange(RichUtils.toggleBlockType(editorState, blockType));
-  };
-
-  // Check if inline style is active
-  const isInlineStyleActive = (inlineStyle: string) => {
-    const currentStyle = editorState.getCurrentInlineStyle();
-    return currentStyle.has(inlineStyle);
-  };
-
-  // Check if block type is active
-  const isBlockTypeActive = (blockType: string) => {
-    const selection = editorState.getSelection();
-    const blockKey = selection.getStartKey();
-    const block = editorState.getCurrentContent().getBlockForKey(blockKey);
-    return block && block.getType() === blockType;
-  };
-
-  // Link functionality
   const promptForLink = useCallback(() => {
-    const selection = editorState.getSelection();
-    if (!selection.isCollapsed()) {
-      const contentState = editorState.getCurrentContent();
-      const startKey = selection.getStartKey();
-      const startOffset = selection.getStartOffset();
-      const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
-      const selectedText = blockWithLinkAtBeginning
-        .getText()
-        .slice(startOffset, selection.getEndOffset());
+    if (!editor) return;
 
+    const { from, to } = editor.state.selection;
+    const selectedText = editor.state.doc.textBetween(from, to, '');
+
+    if (selectedText) {
       setLinkText(selectedText);
-      setLinkUrl('');
+      const existingHref = editor.getAttributes('link').href;
+      setLinkUrl(existingHref || '');
       setShowLinkModal(true);
     }
-  }, [editorState]);
+  }, [editor]);
 
   const confirmLink = useCallback(() => {
-    if (!linkUrl) return;
+    if (!linkUrl || !editor) return;
 
-    const contentState = editorState.getCurrentContent();
-    const contentStateWithEntity = contentState.createEntity(
-      'LINK',
-      'MUTABLE',
-      { url: linkUrl }
-    );
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    editor
+      .chain()
+      .focus()
+      .extendMarkRange('link')
+      .setLink({ href: linkUrl })
+      .run();
 
-    let newEditorState = EditorState.set(editorState, {
-      currentContent: contentStateWithEntity
-    });
-
-    newEditorState = RichUtils.toggleLink(
-      newEditorState,
-      newEditorState.getSelection(),
-      entityKey
-    );
-
-    handleEditorChange(newEditorState);
     setShowLinkModal(false);
     setLinkUrl('');
     setLinkText('');
-  }, [editorState, linkUrl, handleEditorChange]);
+  }, [editor, linkUrl]);
 
   const removeLink = useCallback(() => {
-    const selection = editorState.getSelection();
-    if (!selection.isCollapsed()) {
-      handleEditorChange(RichUtils.toggleLink(editorState, selection, null));
-    }
-  }, [editorState, handleEditorChange]);
+    if (!editor) return;
+    editor.chain().focus().unsetLink().run();
+  }, [editor]);
 
-  // Get current block type for the selector
-  const getCurrentBlockType = () => {
-    const selection = editorState.getSelection();
-    const blockKey = selection.getStartKey();
-    const block = editorState.getCurrentContent().getBlockForKey(blockKey);
-    return block ? block.getType() : 'unstyled';
+  const getCurrentHeading = (): string => {
+    if (!editor) return 'paragraph';
+    if (editor.isActive('heading', { level: 1 })) return 'h1';
+    if (editor.isActive('heading', { level: 2 })) return 'h2';
+    if (editor.isActive('heading', { level: 3 })) return 'h3';
+    if (editor.isActive('blockquote')) return 'blockquote';
+    if (editor.isActive('codeBlock')) return 'codeBlock';
+    return 'paragraph';
   };
 
-  // Custom style map for inline styles
-  const customStyleMap = {
-    'BOLD': {
-      fontWeight: 'bold',
-    },
-    'ITALIC': {
-      fontStyle: 'italic',
-    },
-    'UNDERLINE': {
-      textDecoration: 'underline',
-    },
-    'CODE': {
-      backgroundColor: '#f3f4f6',
-      padding: '2px 4px',
-      borderRadius: '3px',
-      fontFamily: 'monospace',
-      fontSize: '0.9em',
-    },
-  };
+  const setBlockType = (type: string) => {
+    if (!editor) return;
 
-  // Block style function for headers and paragraphs
-  const getBlockStyle = (contentBlock: any) => {
-    const type = contentBlock.getType();
     switch (type) {
-      case 'header-one':
-        return 'draft-header-one';
-      case 'header-two':
-        return 'draft-header-two';
-      case 'header-three':
-        return 'draft-header-three';
+      case 'paragraph':
+        editor.chain().focus().setParagraph().run();
+        break;
+      case 'h1':
+        editor.chain().focus().toggleHeading({ level: 1 }).run();
+        break;
+      case 'h2':
+        editor.chain().focus().toggleHeading({ level: 2 }).run();
+        break;
+      case 'h3':
+        editor.chain().focus().toggleHeading({ level: 3 }).run();
+        break;
       case 'blockquote':
-        return 'draft-blockquote';
-      case 'code-block':
-        return 'draft-code-block';
-      default:
-        return null;
+        editor.chain().focus().toggleBlockquote().run();
+        break;
+      case 'codeBlock':
+        editor.chain().focus().toggleCodeBlock().run();
+        break;
     }
   };
+
+  if (!editor) return null;
 
   return (
     <div className="border border-stone-300 rounded-lg bg-white">
       {/* Toolbar */}
       <div className="flex items-center flex-wrap gap-1 p-3 border-b border-stone-200 bg-stone-50">
         <span className="text-sm font-medium text-slate-700 mr-3">Formato:</span>
-        
+
         {/* Block Type Controls */}
-        <select 
+        <select
           className="text-sm border border-stone-300 rounded px-2 py-1 bg-white text-slate-900 mr-3"
-          onChange={(e) => toggleBlockType(e.target.value)}
-          value={getCurrentBlockType()}
+          onChange={(e) => setBlockType(e.target.value)}
+          value={getCurrentHeading()}
         >
-          <option value="unstyled">Párrafo Normal</option>
-          <option value="header-one">Título 1</option>
-          <option value="header-two">Título 2</option>
-          <option value="header-three">Título 3</option>
+          <option value="paragraph">Párrafo Normal</option>
+          <option value="h1">Título 1</option>
+          <option value="h2">Título 2</option>
+          <option value="h3">Título 3</option>
           <option value="blockquote">Cita</option>
-          <option value="code-block">Código</option>
+          <option value="codeBlock">Código</option>
         </select>
 
         <div className="h-6 w-px bg-stone-300 mr-3"></div>
@@ -336,11 +206,11 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleInlineStyle('BOLD');
+            editor.chain().focus().toggleBold().run();
           }}
           className={`px-3 py-1 text-sm font-bold rounded transition-colors ${
-            isInlineStyleActive('BOLD') 
-              ? 'bg-amber-200 text-amber-800' 
+            editor.isActive('bold')
+              ? 'bg-amber-200 text-amber-800'
               : 'bg-white text-slate-700 hover:bg-stone-100'
           } border border-stone-300`}
           title="Negrita (Ctrl+B)"
@@ -352,11 +222,11 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleInlineStyle('ITALIC');
+            editor.chain().focus().toggleItalic().run();
           }}
           className={`px-3 py-1 text-sm italic rounded transition-colors ${
-            isInlineStyleActive('ITALIC') 
-              ? 'bg-amber-200 text-amber-800' 
+            editor.isActive('italic')
+              ? 'bg-amber-200 text-amber-800'
               : 'bg-white text-slate-700 hover:bg-stone-100'
           } border border-stone-300`}
           title="Cursiva (Ctrl+I)"
@@ -368,11 +238,11 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleInlineStyle('UNDERLINE');
+            editor.chain().focus().toggleUnderline().run();
           }}
           className={`px-3 py-1 text-sm underline rounded transition-colors ${
-            isInlineStyleActive('UNDERLINE') 
-              ? 'bg-amber-200 text-amber-800' 
+            editor.isActive('underline')
+              ? 'bg-amber-200 text-amber-800'
               : 'bg-white text-slate-700 hover:bg-stone-100'
           } border border-stone-300`}
           title="Subrayado (Ctrl+U)"
@@ -384,10 +254,10 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleInlineStyle('CODE');
+            editor.chain().focus().toggleCode().run();
           }}
           className={`px-3 py-1 text-sm font-mono rounded transition-colors ${
-            isInlineStyleActive('CODE')
+            editor.isActive('code')
               ? 'bg-amber-200 text-amber-800'
               : 'bg-white text-slate-700 hover:bg-stone-100'
           } border border-stone-300`}
@@ -428,11 +298,11 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleBlockType('unordered-list-item');
+            editor.chain().focus().toggleBulletList().run();
           }}
           className={`p-2 rounded transition-colors ${
-            isBlockTypeActive('unordered-list-item') 
-              ? 'bg-amber-200 text-amber-800' 
+            editor.isActive('bulletList')
+              ? 'bg-amber-200 text-amber-800'
               : 'bg-white text-slate-700 hover:bg-stone-100'
           } border border-stone-300`}
           title="Lista con viñetas"
@@ -446,11 +316,11 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleBlockType('ordered-list-item');
+            editor.chain().focus().toggleOrderedList().run();
           }}
           className={`p-2 rounded transition-colors ${
-            isBlockTypeActive('ordered-list-item') 
-              ? 'bg-amber-200 text-amber-800' 
+            editor.isActive('orderedList')
+              ? 'bg-amber-200 text-amber-800'
               : 'bg-white text-slate-700 hover:bg-stone-100'
           } border border-stone-300`}
           title="Lista numerada"
@@ -462,14 +332,14 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
         </button>
 
         <div className="h-6 w-px bg-stone-300 mx-3"></div>
-        
+
         {/* Spacing Controls */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <label htmlFor="lineHeight" className="text-xs text-slate-600">
               Interlineado:
             </label>
-            <select 
+            <select
               id="lineHeight"
               className="text-xs border border-stone-300 rounded px-2 py-1 bg-white text-slate-900"
               value={lineHeight}
@@ -487,12 +357,12 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
               <option value={2.0}>2.0</option>
             </select>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <label htmlFor="paragraphSpacing" className="text-xs text-slate-600">
               Espaciado:
             </label>
-            <select 
+            <select
               id="paragraphSpacing"
               className="text-xs border border-stone-300 rounded px-2 py-1 bg-white text-slate-900"
               value={paragraphSpacing}
@@ -511,25 +381,21 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
             </select>
           </div>
         </div>
-        
+
         <div className="h-6 w-px bg-stone-300 mx-3"></div>
-        <span className="text-xs text-slate-500">Draft.js Editor</span>
+        <span className="text-xs text-slate-500">Tiptap Editor</span>
       </div>
 
       {/* Editor */}
       <div className="p-4">
-        <div className="prose prose-slate max-w-none">
-          <Editor
-            ref={editorRef}
-            editorState={editorState}
-            handleKeyCommand={handleKeyCommand}
-            keyBindingFn={mapKeyToEditorCommand}
-            onChange={handleEditorChange}
-            customStyleMap={customStyleMap}
-            blockStyleFn={getBlockStyle}
-            placeholder={placeholder || "Escribe tu contenido aquí..."}
-            spellCheck={true}
-          />
+        <div
+          className="prose prose-slate max-w-none"
+          style={{
+            ['--tiptap-line-height' as string]: lineHeight,
+            ['--tiptap-paragraph-spacing' as string]: `${paragraphSpacing}em`,
+          }}
+        >
+          <EditorContent editor={editor} />
         </div>
       </div>
 
@@ -591,63 +457,43 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
         </div>
       )}
 
+      {/* Tiptap Editor Styles */}
       <style jsx global>{`
-        .DraftEditor-root {
-          color: #0f172a !important;
-        }
-        .DraftEditor-editorContainer {
-          color: #0f172a !important;
-        }
-        .public-DraftEditor-content {
-          color: #0f172a !important;
-        }
-        .public-DraftEditor-content div {
-          color: #0f172a !important;
-        }
-        .public-DraftEditor-content span {
-          color: #0f172a;
-        }
-        .public-DraftEditor-content p {
-          color: #0f172a !important;
-        }
-        .DraftEditor-editorContainer .public-DraftEditor-content {
+        .tiptap-content {
           min-height: 200px;
           font-size: 16px;
-          line-height: ${lineHeight};
+          line-height: var(--tiptap-line-height, 1.4);
+          color: #0f172a;
+          direction: ltr;
+          text-align: left;
+          outline: none;
         }
-        .public-DraftStyleDefault-block {
-          margin-bottom: ${paragraphSpacing}em;
+        .tiptap-content p {
+          margin-bottom: var(--tiptap-paragraph-spacing, 0.5em);
+          color: #0f172a;
         }
-        .public-DraftEditor-content .public-DraftEditor-placeholder {
-          color: #94a3b8 !important;
-        }
-        
-        /* Block type styles */
-        .draft-header-one {
+        .tiptap-content h1 {
           font-size: 2rem;
           font-weight: 700;
           line-height: 1.2;
           margin-bottom: 0.5em;
           color: #1f2937;
         }
-        
-        .draft-header-two {
+        .tiptap-content h2 {
           font-size: 1.5rem;
           font-weight: 600;
           line-height: 1.3;
           margin-bottom: 0.4em;
           color: #1f2937;
         }
-        
-        .draft-header-three {
+        .tiptap-content h3 {
           font-size: 1.25rem;
           font-weight: 600;
           line-height: 1.4;
           margin-bottom: 0.3em;
           color: #1f2937;
         }
-        
-        .draft-blockquote {
+        .tiptap-content blockquote {
           border-left: 4px solid #d97706;
           padding-left: 1rem;
           margin: 1em 0;
@@ -655,8 +501,7 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
           color: #6b7280;
           background-color: #f9fafb;
         }
-        
-        .draft-code-block {
+        .tiptap-content pre {
           background-color: #f3f4f6;
           border: 1px solid #e5e7eb;
           border-radius: 6px;
@@ -667,9 +512,45 @@ const DraftJsEditor: React.FC<DraftJsEditorProps> = ({
           color: #1f2937;
           margin: 1em 0;
         }
+        .tiptap-content code {
+          background-color: #f3f4f6;
+          padding: 2px 4px;
+          border-radius: 3px;
+          font-family: monospace;
+          font-size: 0.9em;
+        }
+        .tiptap-content pre code {
+          background: none;
+          padding: 0;
+        }
+        .tiptap-content a {
+          color: #d97706;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+        .tiptap-content ul {
+          list-style-type: disc;
+          padding-left: 1.5em;
+          margin: 0.5em 0;
+        }
+        .tiptap-content ol {
+          list-style-type: decimal;
+          padding-left: 1.5em;
+          margin: 0.5em 0;
+        }
+        .tiptap-content li {
+          margin: 0.25em 0;
+        }
+        .tiptap-content p.is-editor-empty:first-child::before {
+          color: #94a3b8;
+          content: attr(data-placeholder);
+          float: left;
+          height: 0;
+          pointer-events: none;
+        }
       `}</style>
     </div>
   );
 };
 
-export default DraftJsEditor;
+export default TiptapEditor;

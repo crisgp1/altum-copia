@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Save, Eye, AlertCircle, FileText, Shield, Megaphone } from 'lucide-react';
 import RoleGuard from '@/app/components/auth/RoleGuard';
 import toast from 'react-hot-toast';
-import DraftJsEditor from '@/app/components/admin/DraftJsEditor';
+import TiptapEditor from '@/app/components/admin/TiptapEditor';
 
 interface LegalContent {
   id: string;
@@ -22,7 +22,7 @@ function ContentEditor({ content, onContentChange }: {
   onContentChange: (content: string) => void 
 }) {
   return (
-    <DraftJsEditor
+    <TiptapEditor
       value={content.content}
       onChange={onContentChange}
       placeholder={`Contenido completo de ${content.type === 'terms' ? 'términos y condiciones' : 'política de privacidad'}`}

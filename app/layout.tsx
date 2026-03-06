@@ -66,7 +66,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider localization={esES}>
-      <html lang="es">
+      <html lang="es" dir="ltr">
         <head>
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=G-6XHJHHQGQ0"

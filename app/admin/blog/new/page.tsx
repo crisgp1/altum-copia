@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserRole } from '@/app/lib/hooks/useUserRole';
 import { PostStatus } from '@/app/lib/domain/entities/BlogPost';
-import DraftJsEditor from '@/app/components/admin/DraftJsEditor';
+import TiptapEditor from '@/app/components/admin/TiptapEditor';
 import { BlogImageUpload } from '@/app/components/admin/BlogImageUpload';
 import toast from 'react-hot-toast';
 
@@ -684,7 +684,7 @@ export default function NewBlogPost() {
                     <label className="block text-base font-semibold text-slate-900 mb-2">
                       Contenido *
                     </label>
-                    <DraftJsEditor
+                    <TiptapEditor
                       value={formData.content}
                       onChange={(value) => handleInputChange('content', value)}
                       placeholder="Escribe el contenido del post aquí... Usa la barra de herramientas para formatear el texto."

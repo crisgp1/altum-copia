@@ -128,3 +128,54 @@ export async function PUT(
     );
   }
 }
+
+// DELETE /api/attorneys/[id] - Requiere permiso manage_attorneys
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // Verificar autenticación y permiso manage_attorneys
+  const authResult = await verifyApiAuth('manage_attorneys');
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
+
+  try {
+    await connectToDatabase();
+
+    const { id } = await params;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID de abogado requerido' },
+        { status: 400 }
+      );
+    }
+
+    const { DIContainer } = await import('@/app/lib/infrastructure/container/DIContainer');
+
+    const container = DIContainer.getInstance();
+    const repository = container.getAttorneyRepository();
+
+    const attorney = await repository.findById(id);
+    if (!attorney) {
+      return NextResponse.json(
+        { error: 'Abogado no encontrado' },
+        { status: 404 }
+      );
+    }
+
+    await repository.delete(id);
+
+    return NextResponse.json(
+      { success: true, message: 'Abogado eliminado exitosamente' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error deleting attorney:', error);
+    return NextResponse.json(
+      { error: 'Error al eliminar el abogado' },
+      { status: 500 }
+    );
+  }
+}

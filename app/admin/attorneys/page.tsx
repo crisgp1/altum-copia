@@ -89,7 +89,7 @@ function AdminAttorneysContent() {
   };
 
   const handleEdit = async (attorney: AttorneyResponseDTO) => {
-    if (!hasPermission('manage_content')) {
+    if (!hasPermission('manage_attorneys')) {
       toast.error('No tienes permisos para editar abogados');
       return;
     }
@@ -107,7 +107,7 @@ function AdminAttorneysContent() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!hasPermission('manage_content')) {
+    if (!hasPermission('manage_attorneys')) {
       toast.error('No tienes permisos para eliminar abogados');
       return;
     }
